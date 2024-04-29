@@ -13,7 +13,7 @@
      "icon": "paintcan",
      "color": "terminal.ansiBlue",
      "commands": [
-      "cd frontend;",
+      "cd frontend/barks-and-bubbles-frontend;",
       "ng serve -o;"
      ]
     },
