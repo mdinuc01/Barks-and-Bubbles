@@ -2,7 +2,6 @@ const Client = require('../models/Client.js');
 const { JsonDB, Config } = require('node-json-db');
 
 class ClientController {
-  constructor() { }
 
   async getAllClients(req, res, next) {
 
@@ -22,7 +21,7 @@ class ClientController {
 
   async addClientsToTable(req, res, next) {
     try {
-      const { data } = req.body;
+      const data = req.body.data;
       let db = new JsonDB(new Config("clients", true, false, '/'));
 
       if (data) {
