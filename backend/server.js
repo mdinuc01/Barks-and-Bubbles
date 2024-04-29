@@ -2,7 +2,14 @@ const express = require('express');
 const { JsonDB, Config } = require('node-json-db');
 const Client = require('./models/Client');
 const Message = require('./models/Message');
+const clientRoute = require('./routes/client.js');
+
 let app = express();
+
+app.use(express.json());
+
+//Routes
+app.use("/api/client", clientRoute);
 
 app.listen(8800, async () => {
   console.log("Connected to Backend");

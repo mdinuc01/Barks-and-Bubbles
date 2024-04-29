@@ -8,6 +8,8 @@ class Client {
     this.serviceArea = serviceArea;
   }
 
+
+
   // Method to display client information
   displayInfo() {
     console.log(`Pet Parent Name: ${this.petParentName}`);
