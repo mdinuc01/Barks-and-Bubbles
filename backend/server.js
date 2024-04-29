@@ -1,11 +1,14 @@
 const express = require('express');
+const cors = require('cors');
 const { JsonDB, Config } = require('node-json-db');
 const Client = require('./models/Client');
 const Message = require('./models/Message');
 const clientRoute = require('./routes/client.js');
+const corsOptions = require('./config/corsOption.js')
 
 let app = express();
 
+app.use(cors(corsOptions));
 app.use(express.json());
 
 //Routes
