@@ -1,10 +1,10 @@
 const express = require('express');
-const clientController = require('../controllers/clients.controller');
+const clientController = require('../controllers/clients.controller.js');
 
 const router = express.Router();
 
 router.get('/', clientController.getAllClients);
 
-router.get('/add', clientController.addClientsToTable);
+router.put('/add', clientController.addClientsToTable);
 
 module.exports = router;
