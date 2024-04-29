@@ -1,3 +1,4 @@
+import { DataService } from './../../services/data.service';
 import { Component } from '@angular/core';
 import { ExcelParserService } from '../../services/excelParser';
 
@@ -9,7 +10,10 @@ import { ExcelParserService } from '../../services/excelParser';
   styleUrl: './file-reader-component.component.scss',
 })
 export class FileReaderComponent {
-  constructor(private excelParserService: ExcelParserService) {}
+  constructor(
+    private excelParserService: ExcelParserService,
+    private DataService: DataService
+  ) {}
 
   async onFileChange(event: any) {
     const file: File = event.target.files[0];
@@ -18,7 +22,7 @@ export class FileReaderComponent {
         const parsedData: any[] = await this.excelParserService.parseExcelFile(
           file
         );
-        console.log(parsedData);
+        this.DataService.addClientsToTable(parsedData).subscribe((data) => {});
       } catch (error) {
         console.error('Error parsing Excel file:', error);
       }
