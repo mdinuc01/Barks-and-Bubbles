@@ -1,9 +1,9 @@
 import { Routes } from '@angular/router';
-import { FileReaderComponent } from './components/file-reader-component/file-reader-component.component';
+import { HomeComponent } from './components/home/home.component';
 
 export const routes: Routes = [
   {
     path: '',
-    component: FileReaderComponent,
+    component: HomeComponent,
   },
 ];
