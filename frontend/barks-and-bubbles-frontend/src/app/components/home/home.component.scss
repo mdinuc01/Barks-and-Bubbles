@@ -1,0 +1,33 @@
+div {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+}
+
+app-client-list {
+  overflow-y: scroll;
+  height: 36em;
+  width: 70em;
+  margin-top: 2em;
+  margin-right: 1em;
+  padding: 2em 0;
+}
+
+.title-layout {
+  display: flex;
+  justify-content: flex-start;
+  margin-top: 2em;
+  margin-left: 1.5em;
+  height: 1em;
+  align-items: stretch;
+}
+
+.btn-layout {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  margin-left: 1.5em;
+}
+
+button {
+  margin-top: 1em;
+}
