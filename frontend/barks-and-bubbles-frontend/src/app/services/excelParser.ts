@@ -32,6 +32,7 @@ export class ExcelParserService {
             const headerCell: string = headers[index];
             rowData[headerCell] = cellValue;
           });
+          rowData['id'] = generateUniqueId();
           parsedData.push(rowData);
         });
 
@@ -45,4 +46,14 @@ export class ExcelParserService {
       reader.readAsBinaryString(file);
     });
   }
+}
+
+function generateUniqueId() {
+  const timestamp = new Date().toLocaleString();
+  const random = Math.random().toString(36).substring(2, 17); // Generate random string
+  return `${timestamp}_${random}`
+    .replaceAll('/', '_')
+    .replaceAll(', ', '_')
+    .replaceAll(' PM', '_PM')
+    .replaceAll(' AM', '_AM');
 }
