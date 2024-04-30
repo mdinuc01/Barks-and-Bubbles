@@ -41,7 +41,7 @@
           "icon": "package",
           "color": "terminal.ansiBlue",
           "commands": [
-            "cd /frontend/barks-and-bubbles-frontend/src/app/components"
+            "cd frontend/barks-and-bubbles-frontend/src/app/components"
           ]
         },
         {
