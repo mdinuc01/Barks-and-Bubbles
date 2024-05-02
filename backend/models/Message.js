@@ -1,8 +1,8 @@
 class Message {
-  constructor(name = '', date = '', petName = '') {
-    this.name = name;
+  constructor(client = {}, date = '') {
+    this.name = client.petParentName;
     this.date = date;
-    this.petName = petName
+    this.petName = client.petName
   }
 
   createMessage() {

@@ -32,7 +32,7 @@ let addToDB = async () => {
     if (data) {
       //TODO - Message Generation Code
       data.forEach(client => {
-        const message = new Message(client.petParentName, 'May 12th', client.petName);
+        const message = new Message(client, 'May 12th');
         console.log(message.createMessage());
       });
     }
