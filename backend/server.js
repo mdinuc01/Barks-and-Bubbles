@@ -30,6 +30,7 @@ let addToDB = async () => {
     let data = await db.getData("/clients");
 
     if (data) {
+      //TODO - Message Generation Code
       data.forEach(client => {
         const message = new Message(client.petParentName, 'May 12th', client.petName);
         console.log(message.createMessage());
@@ -39,5 +40,3 @@ let addToDB = async () => {
     console.log({ error });
   }
 }
-
-addToDB();
