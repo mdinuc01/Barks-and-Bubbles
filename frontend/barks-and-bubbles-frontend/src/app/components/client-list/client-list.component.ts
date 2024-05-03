@@ -16,11 +16,11 @@ export class ClientListComponent implements OnInit {
   constructor(private DataService: DataService) {}
 
   ngOnInit(): void {
-    this.DataService.getAllClients();
-
     this.DataService.clients$.subscribe((clients) => {
       this.clients = clients;
     });
+
+    this.DataService.getAllClients();
   }
 
   formatNumber(number: string): string {
