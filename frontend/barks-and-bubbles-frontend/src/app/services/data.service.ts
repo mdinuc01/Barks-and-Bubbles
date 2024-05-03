@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { Observable, BehaviorSubject } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
 import { tap } from 'rxjs/operators';
+import { environment } from '../../environments/environment';
 
 @Injectable({ providedIn: 'root' })
 export class DataService {
@@ -16,7 +17,7 @@ export class DataService {
   clients$: Observable<any[]> = this.clientsSubject.asObservable();
   appointments$: Observable<any[]> = this.appointmentsSubject.asObservable();
 
-  apiEndPoint = 'http://localhost:8800/api';
+  apiEndPoint = environment.domain;
 
   constructor(private http: HttpClient) {}
 
