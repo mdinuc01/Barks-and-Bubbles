@@ -64,13 +64,13 @@ export class DataService {
     const day = date.getDate();
     let suffix = '';
     if (day === 1 || day === 21 || day === 31) {
-      suffix = 'st';
+      suffix = '<sup>st</sup>';
     } else if (day === 2 || day === 22) {
-      suffix = 'nd';
+      suffix = '<sup>nd</sup>';
     } else if (day === 3 || day === 23) {
-      suffix = 'rd';
+      suffix = '<sup>rd</sup>';
     } else {
-      suffix = 'th';
+      suffix = '<sup>th</sup>';
     }
 
     return `${formattedDate}${suffix}, ${date.getFullYear()}`;
