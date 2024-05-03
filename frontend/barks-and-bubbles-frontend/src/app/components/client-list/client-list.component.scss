@@ -22,3 +22,26 @@ div {
   flex-wrap: wrap;
   justify-content: center;
 }
+
+@media (max-width: 900px) {
+  div {
+    display: grid;
+    grid-template-columns: repeat(2, 40vw);
+    column-gap: 2em;
+  }
+
+  mat-card {
+    width: 40vw;
+  }
+}
+
+@media (max-width: 600px) {
+  div {
+    display: grid;
+    grid-template-columns: repeat(1, 1fr);
+  }
+
+  mat-card {
+    width: 90vw;
+  }
+}
