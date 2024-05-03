@@ -1,0 +1,42 @@
+mat-toolbar {
+  display: flex;
+  justify-content: space-between;
+
+  div {
+    button {
+      margin-right: 2em;
+    }
+  }
+}
+
+form {
+  padding: 1em;
+}
+
+#client-panel {
+  height: 22em;
+  width: 30em;
+  right: 10%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+#appointment-panel {
+  height: 20em;
+  width: 20em;
+  right: 5%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.panel-layout {
+  background-color: white;
+  border-radius: 1em;
+  border: 1px solid #ededed;
+  position: absolute;
+  z-index: 10;
+  box-shadow: 3px 3px 3px #afafaf;
+}

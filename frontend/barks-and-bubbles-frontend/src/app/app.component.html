@@ -1,1 +1,74 @@
+<mat-toolbar color="primary">
+  <div>
+    <span>Barks and Bubbles</span>
+  </div>
+
+  <div>
+    <button mat-icon-button
+            matTooltip="Add Clients"
+            (click)="showClientPanel = !showClientPanel; showAppPanel = false;">
+      <mat-icon><span class="material-symbols-outlined">
+          pets
+        </span></mat-icon>
+    </button>
+    <button mat-icon-button
+            matTooltip="Add Appointments"
+            (click)="showAppPanel = !showAppPanel; showClientPanel = false">
+      <mat-icon>alarm</mat-icon>
+    </button>
+  </div>
+
+</mat-toolbar>
+
+<div id="client-panel"
+     class="panel-layout"
+     *ngIf="showClientPanel">
+  <app-file-reader-component style="padding: 1em;"></app-file-reader-component>
+</div>
+
+<div id="appointment-panel"
+     class="panel-layout"
+     *ngIf="showAppPanel">
+
+  <form [formGroup]="appForm">
+
+    <h3>Create a New Appointment</h3>
+
+    <mat-form-field appearance="outline">
+      <mat-label for="date">Appointment Date</mat-label>
+      <input matInput
+             [matDatepicker]="datePicker"
+             formControlName="date">
+      <mat-hint>MM/DD/YYYY</mat-hint>
+      <mat-datepicker-toggle matIconSuffix
+                             [for]="datePicker"></mat-datepicker-toggle>
+      <mat-datepicker #datePicker></mat-datepicker>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline"
+                    style="width: 100%; margin-top: 0.75em;">
+      <mat-select formControlName="location"
+                  placeholder="Select a location"
+                  multiple>
+
+        <mat-option *ngFor="let option of options"
+                    [value]="option">{{ option }}</mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <div style="    display: flex;
+    justify-content: flex-end;">
+      <button mat-raised-button
+              color="primary"
+              [disabled]="this.appForm.invalid"
+              (click)="createAppointment()">Create</button>
+
+      <button mat-raised-button
+              color="accent"
+              style="margin-left: 1em; color: white;"
+              (click)="hidePanels()">Cancel</button>
+    </div>
+  </form>
+</div>
+
 <router-outlet></router-outlet>
