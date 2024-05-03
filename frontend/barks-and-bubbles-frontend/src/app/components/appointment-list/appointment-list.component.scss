@@ -1,0 +1,56 @@
+.appointments-layout {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  width: 35em;
+  height: 38em;
+  overflow-y: scroll;
+  margin-bottom: 2em;
+}
+
+mat-card {
+  margin: 0.5em;
+  padding: 1em;
+  height: 10em;
+
+  p {
+    height: 2.75em;
+    overflow-y: scroll;
+  }
+}
+
+.appointment-title {
+  position: relative;
+  bottom: 1.1em;
+  margin: 0;
+}
+
+@media (max-width: 1460px) {
+  .appointments-layout {
+    grid-template-columns: repeat(1, 1fr);
+    padding: 1em;
+    width: 18vw;
+  }
+}
+
+@media (max-width: 1240px) {
+  .appointments-layout {
+    grid-template-columns: repeat(2, 1fr);
+    padding: 1em;
+    width: 94vw;
+  }
+  .appointment-title {
+    margin-left: 2em;
+  }
+}
+
+@media (max-width: 570px) {
+  .appointments-layout {
+    grid-template-columns: repeat(1, 1fr);
+    padding: 1em;
+    width: 94vw;
+  }
+
+  .appointment-title {
+    margin-left: 1em;
+  }
+}
