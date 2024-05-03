@@ -1,0 +1,19 @@
+<div *ngIf="clients.length">
+  <mat-card *ngFor="let client of clients">
+    <mat-card-header>
+      <mat-card-title>{{client.petName}}</mat-card-title>
+    </mat-card-header>
+
+    <mat-card-content>
+      <p>Pet Parent: {{client.petParentName}}</p>
+      <p>Animal Type: {{client.animalType}}</p>
+      <p>Breed: {{client.breed}}</p>
+      <p>Contact Method: {{formatNumber(client.contactMethod)}}</p>
+      <p>Service Area: {{client.serviceArea}}</p>
+    </mat-card-content>
+  </mat-card>
+</div>
+
+<div *ngIf="!clients.length">
+  <h2 class="error-msg">No Clients</h2>
+</div>

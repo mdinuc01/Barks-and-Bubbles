@@ -1,1 +1,65 @@
 /* You can add global styles to this file, and also import other style files */
+@use "@angular/material" as mat;
+
+$my-primary: mat.define-palette(mat.$light-blue-palette, 500);
+$my-accent: mat.define-palette(mat.$orange-palette, A200, A100, A400);
+$my-warn: mat.define-palette(mat.$red-palette);
+
+$custom-success: mat.define-palette(mat.$green-palette);
+$custom-danger: mat.define-palette(mat.$red-palette);
+
+$my-theme: mat.define-light-theme(
+  (
+    color: (
+      primary: $my-primary,
+      accent: $my-accent,
+      warn: $my-warn,
+    ),
+    typography: mat.define-typography-config(),
+    density: 0,
+  )
+);
+
+@include mat.all-component-themes($my-theme);
+
+html,
+body {
+  height: 100%;
+  overflow-y: hidden;
+  margin: 0;
+  font-family: Roboto, "Helvetica Neue", sans-serif;
+}
+
+body::-webkit-scrollbar,
+app-client-list::-webkit-scrollbar,
+.appointments-layout::-webkit-scrollbar,
+.location-layout::-webkit-scrollbar {
+  width: 10px;
+  height: 0px;
+}
+
+body::-webkit-scrollbar-track,
+app-client-list::-webkit-scrollbar-track,
+.appointments-layout::-webkit-scrollbar-track,
+.location-layout::-webkit-scrollbar-track {
+  background-color: #bab8b877;
+  border-radius: 5px;
+}
+
+body::-webkit-scrollbar-thumb,
+app-client-list::-webkit-scrollbar-thumb,
+.appointments-layout::-webkit-scrollbar-thumb,
+.location-layout::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.679);
+  border-radius: 25px;
+}
+
+@media (max-width: 1200px) {
+  body {
+    overflow-y: scroll;
+  }
+}
+
+.no-scroll {
+  overflow: hidden !important;
+}

@@ -1,0 +1,24 @@
+<h2 class="appointment-title">Appointments</h2>
+
+<div *ngIf="appointments.length"
+     class="appointments-layout">
+  <mat-card *ngFor="let app of appointments">
+    <mat-card-title [innerHTML]="formatDate(app.date)"></mat-card-title>
+    <mat-card-content>
+      <p [ngClass]="{'location-layout' : app.location.length >= 2, 'no-scroll': app.location.length < 2}">
+        {{formatLocations(app.location)}}</p>
+
+    </mat-card-content>
+    <mat-card-actions align="end">
+      <button mat-icon-button
+              color="primary"
+              matTooltip="Send appointment texts"><mat-icon><span class="material-symbols-outlined">
+            outgoing_mail
+          </span></mat-icon></button>
+    </mat-card-actions>
+  </mat-card>
+</div>
+
+<div *ngIf="!appointments.length">
+  <h2 class="error-msg">No Appointments</h2>
+</div>

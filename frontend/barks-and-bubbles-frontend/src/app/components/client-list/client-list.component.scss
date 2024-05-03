@@ -1,0 +1,51 @@
+mat-card {
+  width: 20em;
+  background-color: white;
+  margin: 1em;
+  padding: 1em;
+}
+
+div {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+}
+
+.error-msg {
+  background-color: #c4c4c4;
+  color: black;
+  width: 58vw;
+  border-radius: 1em;
+  margin-left: 2em;
+  height: 65vh;
+  display: flex;
+  align-content: center;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+@media (max-width: 900px) {
+  div {
+    display: grid;
+    grid-template-columns: repeat(2, 40vw);
+    column-gap: 2em;
+  }
+
+  mat-card {
+    width: 40vw;
+  }
+
+  .error-msg {
+    width: 85vw;
+  }
+}
+
+@media (max-width: 600px) {
+  div {
+    display: grid;
+    grid-template-columns: repeat(1, 1fr);
+  }
+
+  mat-card {
+    width: 90vw;
+  }
+}
