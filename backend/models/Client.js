@@ -1,25 +1,14 @@
+const idUtil = require('../utils/idUtil.js');
+
 class Client {
-  constructor(id = '', petParentName = '', contactMethod = '', animalType = '', breed = '', petName = '', serviceArea = '') {
-    this.id = id;
+  constructor(petParentName = '', contactMethod = '', animalType = '', breed = '', petName = '', serviceArea = '') {
+    this.id = idUtil.generateUniqueId("client");
     this.petParentName = petParentName;
     this.contactMethod = contactMethod;
     this.animalType = animalType;
     this.breed = breed;
     this.petName = petName;
     this.serviceArea = serviceArea;
-  }
-
-
-
-  // Method to display client information
-  displayInfo() {
-    console.log(`ID: ${this.id}`)
-    console.log(`Pet Parent Name: ${this.petParentName}`);
-    console.log(`Contact Method: ${this.contactMethod}`);
-    console.log(`Animal Type: ${this.animalType}`);
-    console.log(`Breed: ${this.breed}`);
-    console.log(`Pet Name: ${this.petName}`);
-    console.log(`Service Area: ${this.serviceArea}`);
   }
 
   // Getters and setters
@@ -45,8 +34,8 @@ class Client {
 
   // Static method to create a client object from JSON
   static fromJSON(json) {
-    const { id, petParentName, contactMethod, animalType, breed, petName, serviceArea } = json;
-    return new Client(id, petParentName, contactMethod, animalType, breed, petName, serviceArea);
+    const { petParentName, contactMethod, animalType, breed, petName, serviceArea } = json;
+    return new Client(petParentName, contactMethod, animalType, breed, petName, serviceArea);
   }
 }
 
