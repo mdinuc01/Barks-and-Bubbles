@@ -2,7 +2,7 @@ const idUtil = require('../utils/idUtil.js');
 
 class Client {
   constructor(petParentName = '', contactMethod = '', animalType = '', breed = '', petName = '', serviceArea = '') {
-    this.id = idUtil.generateUniqueId("client");
+    this.id = idUtil.generateUniqueId("c");
     this.petParentName = petParentName;
     this.contactMethod = contactMethod;
     this.animalType = animalType;
