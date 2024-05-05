@@ -22,6 +22,92 @@ $my-theme: mat.define-light-theme(
 
 @include mat.all-component-themes($my-theme);
 
+.mat-background-primary {
+  color: white !important;
+  background-color: mat.get-color-from-palette($my-primary, 500) !important;
+}
+.mat-background-danger {
+  color: white !important;
+  background-color: mat.get-color-from-palette($my-warn, 500) !important;
+}
+
+.panel-header-primary {
+  color: white !important;
+  margin: 0.5em !important;
+  padding: 0 !important;
+  border-radius: 0.25em;
+  display: inline-flex !important;
+  flex-wrap: wrap;
+  flex-direction: row;
+  justify-content: flex-start;
+  align-items: baseline;
+  background-color: #03a9f4 !important;
+  h2:before {
+    content: "\00a0 \00a0";
+  }
+}
+
+.panel-header-danger {
+  color: white !important;
+  margin: 0.5em !important;
+  padding: 0 !important;
+  border-radius: 0.25em;
+  display: inline-flex !important;
+  flex-wrap: wrap;
+  flex-direction: row;
+  justify-content: flex-start;
+  align-items: baseline;
+  background-color: #f44336 !important;
+  h2:before {
+    content: "\00a0 \00a0";
+  }
+}
+
+.mat-success {
+  background-color: mat.get-color-from-palette($custom-success, 500) !important;
+  color: white !important;
+}
+
+.mat-success-icon {
+  color: mat.get-color-from-palette($custom-success, 500) !important;
+}
+
+.mat-danger {
+  background-color: mat.get-color-from-palette($custom-danger, 500) !important;
+  color: white !important;
+}
+
+.mat-danger-icon {
+  color: mat.get-color-from-palette($custom-danger, 500) !important;
+}
+
+.mat-danger-success {
+  color: mat.get-color-from-palette($custom-success, 500) !important;
+}
+
+.mat-primary-btn {
+  background-color: mat.get-color-from-palette($my-primary, 500) !important;
+  color: white !important;
+}
+
+.mat-primary-icon {
+  color: mat.get-color-from-palette($my-primary, 500) !important;
+}
+
+.dialog-panel {
+  width: 40em;
+  height: 21em;
+}
+
+a {
+  color: #0496da;
+  text-decoration: none;
+}
+
+a:hover {
+  color: rgb(154, 152, 152);
+}
+
 html,
 body {
   height: 100%;
@@ -33,7 +119,8 @@ body {
 body::-webkit-scrollbar,
 app-client-list::-webkit-scrollbar,
 .appointments-layout::-webkit-scrollbar,
-.location-layout::-webkit-scrollbar {
+.location-layout::-webkit-scrollbar,
+.scroll::-webkit-scrollbar {
   width: 10px;
   height: 0px;
 }
@@ -41,7 +128,8 @@ app-client-list::-webkit-scrollbar,
 body::-webkit-scrollbar-track,
 app-client-list::-webkit-scrollbar-track,
 .appointments-layout::-webkit-scrollbar-track,
-.location-layout::-webkit-scrollbar-track {
+.location-layout::-webkit-scrollbar-track,
+.scroll::-webkit-scrollbar-track {
   background-color: #bab8b877;
   border-radius: 5px;
 }
@@ -49,7 +137,8 @@ app-client-list::-webkit-scrollbar-track,
 body::-webkit-scrollbar-thumb,
 app-client-list::-webkit-scrollbar-thumb,
 .appointments-layout::-webkit-scrollbar-thumb,
-.location-layout::-webkit-scrollbar-thumb {
+.location-layout::-webkit-scrollbar-thumb,
+.scroll::-webkit-scrollbar-thumb {
   background: rgba(0, 0, 0, 0.679);
   border-radius: 25px;
 }
