@@ -5,8 +5,9 @@ const Client = require('./models/Client');
 const Message = require('./models/Message');
 const clientRoute = require('./routes/client.js');
 const appRoute = require('./routes/appointment.js');
+const messageRoute = require('./routes/message.js');
 const corsOptions = require('./config/corsOption.js');
-
+require('dotenv').config();
 let app = express();
 
 app.use(cors(corsOptions));
@@ -15,30 +16,9 @@ app.use(express.json());
 //Routes
 app.use("/api/client", clientRoute);
 app.use("/api/appointment", appRoute);
+app.use("/api/message", messageRoute);
 
 app.listen(8800, async () => {
   console.log("Connected to Backend");
 
 });
-
-let addToDB = async () => {
-  let db = new JsonDB(new Config("clients", true, false, '/'));
-
-  try {
-
-    let client = new Client("Test", "6477676278", "Dog", "Lab Mix", "Teo", "Holland Centre");
-    // await db.push('/clients[]', client.toData());
-
-    let data = await db.getData("/clients");
-
-    if (data) {
-      //TODO - Message Generation Code
-      data.forEach(client => {
-        const message = new Message(client, 'May 12th');
-        console.log(message.createMessage());
-      });
-    }
-  } catch (error) {
-    console.log({ error });
-  }
-}
