@@ -39,6 +39,37 @@ class AppointmentController {
       return res.status(500).json({ message: "Internal Server Error", error });
     }
   }
+
+  async getAppointmentId(req, res, next) {
+    let appDB = new JsonDB(new Config("appointments", true, false, '/'));
+    let clientsDB = new JsonDB(new Config("clients", true, false, '/'));
+
+    let appData = await appDB.getData("/appointments");
+
+    const idToFind = req.params.id;
+
+    const app = await appData.find((app) => app.id == idToFind);
+
+    //mapping locations clients to app
+    let clients = await clientsDB.getData("/clients");
+
+    const location = app.location.map(locationVal => {
+      const clientsInLocation = clients.filter(client => client.serviceArea === locationVal);
+      return { [locationVal]: clientsInLocation };
+    });
+
+    let meta = app.location;
+    const data = { ...app, location, meta }
+
+    if (app) {
+      return res.status(200).json({ message: `Appointment found`, data });
+    } else {
+      return res.status(404).json({ message: "Appointment not found" });
+    }
+  } catch(error) {
+    return res.status(500).json({ message: "Internal Server Error", error });
+  }
+
 }
 
 module.exports = new AppointmentController();
