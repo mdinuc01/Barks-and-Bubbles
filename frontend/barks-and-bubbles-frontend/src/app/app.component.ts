@@ -18,7 +18,6 @@ import { MatInputModule } from '@angular/material/input';
 import { FormsModule } from '@angular/forms';
 import { MatSelectModule } from '@angular/material/select';
 import { ReactiveFormsModule } from '@angular/forms';
-import { environment } from '../environments/environment';
 @Component({
   selector: 'app-root',
   standalone: true,
@@ -55,7 +54,7 @@ export class AppComponent implements OnInit {
     location: new FormControl(null, [Validators.required]),
   });
 
-  constructor(private DataService: DataService) {}
+  constructor(public DataService: DataService) {}
 
   ngOnInit(): void {
     this.DataService.clients$.subscribe((res) => {
@@ -69,11 +68,25 @@ export class AppComponent implements OnInit {
         });
       }
     });
+
+    this.DataService.getAllClients();
   }
 
   hidePanels() {
     this.showClientPanel = false;
     this.showAppPanel = false;
+  }
+
+  showPanel(event: Event, isClient: boolean) {
+    event.stopPropagation();
+
+    if (isClient) {
+      this.showClientPanel = !this.showClientPanel;
+      this.showAppPanel = false;
+    } else {
+      this.showAppPanel = !this.showAppPanel;
+      this.showClientPanel = false;
+    }
   }
 
   createAppointment() {

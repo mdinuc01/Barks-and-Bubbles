@@ -1,24 +1,27 @@
-<mat-toolbar color="primary">
-  <div>
-    <span>Barks and Bubbles</span>
-  </div>
+<div (click)="hidePanels()">
+  <mat-toolbar color="primary">
+    <div (click)="this.DataService.goHome()"
+         style="cursor: pointer;">
+      <span>Barks and Bubbles</span>
+    </div>
 
-  <div>
-    <button mat-icon-button
-            matTooltip="Add Clients"
-            (click)="showClientPanel = !showClientPanel; showAppPanel = false;">
-      <mat-icon><span class="material-symbols-outlined">
-          pets
-        </span></mat-icon>
-    </button>
-    <button mat-icon-button
-            matTooltip="Add Appointments"
-            (click)="showAppPanel = !showAppPanel; showClientPanel = false">
-      <mat-icon>alarm</mat-icon>
-    </button>
-  </div>
+    <div>
+      <button mat-icon-button
+              matTooltip="Add Clients"
+              (click)="showPanel($event, true)">
+        <mat-icon><span class="material-symbols-outlined">
+            pets
+          </span></mat-icon>
+      </button>
+      <button mat-icon-button
+              matTooltip="Add Appointments"
+              (click)="showPanel($event, false)">
+        <mat-icon>alarm</mat-icon>
+      </button>
+    </div>
 
-</mat-toolbar>
+  </mat-toolbar>
+</div>
 
 <div id="client-panel"
      class="panel-layout"
@@ -71,4 +74,6 @@
   </form>
 </div>
 
-<router-outlet></router-outlet>
+<div (click)="hidePanels()">
+  <router-outlet></router-outlet>
+</div>
