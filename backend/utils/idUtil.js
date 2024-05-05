@@ -8,7 +8,11 @@ class idUtil {
       .replaceAll(', ', '_')
       .replaceAll(' ', '_')
       .replaceAll(' PM', '_PM')
-      .replaceAll(' AM', '_AM');
+      .replaceAll(' AM', '_AM')
+      .replaceAll("_", "")
+      .replaceAll("-", "")
+      .replaceAll(":", "")
+      .replaceAll(".", "");
   }
 }
 
