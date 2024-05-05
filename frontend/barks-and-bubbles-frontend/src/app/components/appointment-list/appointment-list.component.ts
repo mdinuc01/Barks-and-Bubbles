@@ -5,6 +5,7 @@ import { CommonModule } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatIconModule } from '@angular/material/icon';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-appointment-list',
@@ -23,7 +24,7 @@ export class AppointmentListComponent implements OnInit {
   appointments: any[] = [];
   formatDate = this.DataService.formatDate;
 
-  constructor(private DataService: DataService) {}
+  constructor(private DataService: DataService, public router: Router) {}
 
   ngOnInit(): void {
     this.DataService.appointments$.subscribe((apps) => {
