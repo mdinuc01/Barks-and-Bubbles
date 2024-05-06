@@ -3,7 +3,7 @@
 <div *ngIf="appointments.length"
      class="appointments-layout">
   <mat-card *ngFor="let app of appointments">
-    <mat-card-title [innerHTML]="formatDate(app.date, false)"></mat-card-title>
+    <mat-card-title [innerHTML]="formatDate(app.date, false, false)"></mat-card-title>
     <mat-card-content>
       <p [ngClass]="{'location-layout' : app.location.length >= 2, 'no-scroll': app.location.length < 2}">
         {{formatLocations(app.location)}}</p>

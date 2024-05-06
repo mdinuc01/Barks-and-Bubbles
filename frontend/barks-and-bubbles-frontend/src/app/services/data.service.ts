@@ -67,20 +67,22 @@ export class DataService {
       });
   }
 
-  sendText(locations: [], date: string) {
-    return this.http.put<{ message: string }>(
-      `${this.apiEndPoint}/message/sendMessage`,
-      {
+  sendText(locations: [], date: string, appId: string) {
+    this.http
+      .put<{ data: any }>(`${this.apiEndPoint}/message/sendMessage`, {
         locations,
         date,
-      }
-    );
+        appId,
+      })
+      .subscribe((response) => {
+        this.appointmentSubject.next(response.data);
+      });
   }
 
   //TODO: implements reply functionality
   sendReply() {}
 
-  formatDate(inputDate: string, forSMS: boolean): string {
+  formatDate(inputDate: string, forSMS: boolean, forPanel: boolean): string {
     const date = new Date(inputDate);
     const options: Intl.DateTimeFormatOptions = {
       month: 'long',
@@ -101,7 +103,8 @@ export class DataService {
       suffix = forSMS ? 'th' : '<sup>th</sup>';
     }
 
-    const year = forSMS ? '' : ', ' + date.getFullYear();
+    let year = forSMS ? '' : ', ' + date.getFullYear();
+    year = forPanel ? '' : year;
 
     return `${formattedDate}${suffix}${year}`;
   }
