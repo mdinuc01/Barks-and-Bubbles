@@ -1,0 +1,44 @@
+<mat-card>
+  <mat-card-title>
+    <h2 [innerHTML]="this.DataService.formatDate(appointment.date ,false)">TITLE</h2>
+    <button mat-icon-button
+            color="primary"
+            matTooltip="Send Appointment Texts"
+            (click)="openPanel()">
+      <mat-icon>
+        <span class="material-symbols-outlined">
+          outgoing_mail
+        </span>
+      </mat-icon>
+    </button>
+
+    <button mat-icon-button
+            color="accent"
+            matTooltip="Load Responses">
+      <mat-icon>
+        <span class="material-symbols-outlined">
+          sync
+        </span>
+      </mat-icon>
+    </button>
+  </mat-card-title>
+
+  <div class="scroll location-layout">
+    <div *ngFor="let location of this.appointment.location">
+      <div *ngFor="let local of getObjectKeys(location)">
+        <div class="location-title">
+          <h3><b>{{ local }} ({{getNumOfClients(location)}})</b></h3>
+          <hr>
+        </div>
+        <div *ngFor="let clientArr of getObjectValue(location)"
+             class="client-cards-container">
+          <mat-card *ngFor="let client of clientArr"
+                    class="client-card">
+            <mat-icon>pets</mat-icon>{{client.petName}}
+            <mat-icon>face</mat-icon>{{client.petParentName}}
+          </mat-card>
+        </div>
+      </div>
+    </div>
+  </div>
+</mat-card>
