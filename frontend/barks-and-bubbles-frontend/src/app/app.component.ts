@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, HostListener, OnInit } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { DataService } from './services/data.service';
 import {
@@ -101,5 +101,12 @@ export class AppComponent implements OnInit {
     this.DataService.addAppointment(data);
     this.appForm.reset();
     this.hidePanels();
+  }
+
+  @HostListener('document:keydown.escape', ['$event'])
+  keyPressHidePanels(event: KeyboardEvent) {
+    if (event.key === 'Escape') {
+      if (this.showAppPanel || this.showClientPanel) this.hidePanels();
+    }
   }
 }
