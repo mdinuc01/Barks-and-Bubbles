@@ -6,6 +6,7 @@ mat-toolbar {
   justify-content: space-between;
   flex-wrap: wrap;
   align-content: center;
+  height: 4em;
 
   div {
     button {
@@ -48,5 +49,6 @@ form {
 
 .logo {
   object-fit: contain !important;
-  height: 3.75em;
+  height: 4.15em;
+  padding: 1em;
 }
