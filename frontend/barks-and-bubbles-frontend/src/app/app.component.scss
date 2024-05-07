@@ -4,8 +4,8 @@ mat-toolbar {
   z-index: 20;
   display: flex;
   justify-content: space-between;
-  flex-wrap: wrap;
-  align-content: center;
+  flex-wrap: nowrap;
+
   height: 4em;
 
   div {
@@ -50,5 +50,5 @@ form {
 .logo {
   object-fit: contain !important;
   height: 4.15em;
-  padding: 1em;
+  padding: 1em 0.15em;
 }
