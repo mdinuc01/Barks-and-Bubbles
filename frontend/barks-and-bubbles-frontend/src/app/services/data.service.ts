@@ -79,8 +79,16 @@ export class DataService {
       });
   }
 
-  //TODO: implements reply functionality
-  sendReply() {}
+  loadReplies(appId: string, sentDate: string) {
+    this.http
+      .put<{ data: any }>(`${this.apiEndPoint}/message/getReplies`, {
+        appId,
+        sentDate,
+      })
+      .subscribe((response) => {
+        this.appointmentSubject.next(response.data);
+      });
+  }
 
   formatDate(inputDate: string, forSMS: boolean, forPanel: boolean): string {
     const date = new Date(inputDate);
