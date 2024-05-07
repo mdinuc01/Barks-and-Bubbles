@@ -1,7 +1,14 @@
 <div (click)="hidePanels()">
   <mat-toolbar color="primary">
     <div (click)="this.DataService.goHome()"
-         style="cursor: pointer;">
+         style="cursor: pointer;
+         display: flex;
+         flex-wrap: nowrap;
+         align-items: center;
+         margin-bottom: 0.15em;">
+      <img class="logo"
+           src="../assets/logo.png"
+           alt="">
       <span>Barks and Bubbles</span>
     </div>
 
