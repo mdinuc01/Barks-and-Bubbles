@@ -25,6 +25,7 @@ import { lastValueFrom } from 'rxjs';
 })
 export class AppointmentPageComponent implements OnInit {
   appointment: any;
+  loadingReplies = false;
 
   constructor(
     public DataService: DataService,
@@ -35,6 +36,7 @@ export class AppointmentPageComponent implements OnInit {
   ngOnInit(): void {
     this.DataService.currentAppointment$.subscribe((app) => {
       this.appointment = app;
+      this.loadingReplies = false;
     });
 
     this.activatedRoute.paramMap.subscribe((paraMap) => {
@@ -64,7 +66,8 @@ export class AppointmentPageComponent implements OnInit {
         title: 'Send Clients SMS',
         confirmMsg: `Are you sure you want to send a SMS message to all clients? <br><br>This will send a text message with a date of <b>${this.DataService.formatDate(
           this.appointment.date,
-          false
+          false,
+          true
         )}</b> to the clients in the following service areas: <br><br><b>${this.appointment.meta
           .toString()
           .replaceAll(',', ', ')}</b>`,
@@ -76,12 +79,31 @@ export class AppointmentPageComponent implements OnInit {
     const result = await lastValueFrom(dialogRef.afterClosed());
 
     if (result) {
-      let date = this.DataService.formatDate(this.appointment.date, true);
-      this.DataService.sendText(this.appointment.meta, date).subscribe(
-        (res) => {
-          console.log({ res });
-        }
+      let date = this.DataService.formatDate(
+        this.appointment.date,
+        true,
+        false
+      );
+      this.DataService.sendText(
+        this.appointment.meta,
+        date,
+        this.appointment.id
       );
     }
+  }
+
+  loadReplies() {
+    this.loadingReplies = true;
+
+    this.DataService.loadReplies(
+      this.appointment.id,
+      this.appointment.messages.sentDate
+    );
+  }
+
+  hasMessageSent(): Boolean {
+    if (this.appointment.messages)
+      return Object.keys(this.appointment.messages).length > 0;
+    else return false;
   }
 }
