@@ -2,9 +2,11 @@ const idUtil = require('../utils/idUtil.js');
 
 class Appointment {
   constructor(date = '', location = '') {
-    this.id = idUtil.generateUniqueId("app");
+    this.id = idUtil.generateUniqueId("a");
     this.date = date;
     this.location = location;
+    this.messages = {};
+    this.replies = [];
   }
 
   // Static method to create a client object from JSON
@@ -17,9 +19,10 @@ class Appointment {
     return {
       id: this.id,
       date: this.date,
-      location: this.location
+      location: this.location,
+      messages: this.messages,
+      replies: this.replies
     }
-
   }
 }
 
