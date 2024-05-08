@@ -4,7 +4,6 @@ const { JsonDB, Config } = require('node-json-db');
 class AppointmentController {
 
   async getAllAppointments(req, res, next) {
-
     try {
       let db = new JsonDB(new Config("appointments", true, false, '/'));
       let data = await db.getData("/appointments");
@@ -41,35 +40,54 @@ class AppointmentController {
   }
 
   async getAppointmentId(req, res, next) {
-    let appDB = new JsonDB(new Config("appointments", true, false, '/'));
-    let clientsDB = new JsonDB(new Config("clients", true, false, '/'));
+    try {
+      let appDB = new JsonDB(new Config("appointments", true, false, '/'));
+      let clientsDB = new JsonDB(new Config("clients", true, false, '/'));
+      let location;
+      let appData = await appDB.getData("/appointments");
 
-    let appData = await appDB.getData("/appointments");
+      const idToFind = req.params.id;
 
-    const idToFind = req.params.id;
+      const app = await appData.find((app) => app.id == idToFind);
 
-    const app = await appData.find((app) => app.id == idToFind);
+      //mapping locations clients to app
+      let clients = await clientsDB.getData("/clients");
 
-    //mapping locations clients to app
-    let clients = await clientsDB.getData("/clients");
+      if (app.messages.sentTo) {
+        location = app.location.map(locationVal => {
+          let clientsInLocation = clients.filter(client => {
+            // let result = false;
 
-    const location = app.location.map(locationVal => {
-      const clientsInLocation = clients.filter(client => client.serviceArea === locationVal);
-      return { [locationVal]: clientsInLocation };
-    });
+            for (const obj of app.messages.sentTo) {
+              if (obj.id === client.id) {
+                return client;
+              }
+            }
+            return;
+          });
+          return { [locationVal]: clientsInLocation };
+        });
 
-    let meta = app.location;
-    const data = { ...app, location, meta }
+      } else {
 
-    if (app) {
-      return res.status(200).json({ message: `Appointment found`, data });
-    } else {
-      return res.status(404).json({ message: "Appointment not found" });
+        location = app.location.map(locationVal => {
+          let clientsInLocation = clients.filter(client => client.serviceArea === locationVal);
+          return { [locationVal]: clientsInLocation };
+        });
+      }
+
+      let meta = app.location;
+      const data = { ...app, location, meta }
+
+      if (app) {
+        return res.status(200).json({ message: `Appointment found`, data });
+      } else {
+        return res.status(404).json({ message: "Appointment not found" });
+      }
+    } catch (error) {
+      return res.status(500).json({ message: "Internal Server Error", error });
     }
-  } catch(error) {
-    return res.status(500).json({ message: "Internal Server Error", error });
   }
-
 }
 
 module.exports = new AppointmentController();
