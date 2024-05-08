@@ -1,9 +1,12 @@
 class idUtil {
+  count = 0;
 
   generateUniqueId(type) {
+    let count = this.count;
+    this.count++;
     const timestamp = new Date().toLocaleString();
     const random = Math.random().toString(36).substring(2, 17);
-    return `${type}_${timestamp}_${random}`
+    return `${type}_${timestamp}_${random}${count}`
       .replaceAll('/', '_')
       .replaceAll(', ', '_')
       .replaceAll(' ', '_')
