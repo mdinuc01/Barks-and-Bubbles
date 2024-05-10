@@ -12,7 +12,6 @@ import { HttpClient, HttpClientModule } from '@angular/common/http';
 import { CommonModule } from '@angular/common';
 import { ClientListComponent } from './components/client-list/client-list.component';
 import { HomeComponent } from './components/home/home.component';
-import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatTooltipModule } from '@angular/material/tooltip';
@@ -32,7 +31,6 @@ import { MatSelectModule } from '@angular/material/select';
     RouterOutlet,
     HttpClientModule,
     CommonModule,
-    MatToolbarModule,
     MatIconModule,
     MatButtonModule,
     MatTooltipModule,

@@ -1,7 +1,9 @@
-<div (click)="hidePanels()">
-  <mat-toolbar color="primary">
-    <div (click)="this.DataService.goHome()"
-         style="cursor: pointer;
+<nav class="navbar navbar-expand-lg bg-dark border-bottom border-body mat-background-primary"
+     data-bs-theme="dark"
+     (click)="hidePanels()">
+  <div class="container-fluid">
+    <a (click)="this.DataService.goHome()"
+       style="cursor: pointer;
          display: flex;
          flex-wrap: nowrap;
          align-items: center;
@@ -9,26 +11,27 @@
       <img class="logo"
            src="../assets/logo.png"
            alt="">
-      <span>Barks and Bubbles</span>
-    </div>
+      <h2>Barks and Bubbles</h2>
+    </a>
+  </div>
 
-    <div>
-      <button mat-icon-button
-              matTooltip="Add Clients"
-              (click)="showPanel($event, true)">
-        <mat-icon><span class="material-symbols-outlined">
-            pets
-          </span></mat-icon>
-      </button>
-      <button mat-icon-button
-              matTooltip="Add Appointment"
-              (click)="showPanel($event, false)">
-        <mat-icon>alarm</mat-icon>
-      </button>
-    </div>
+  <div class="collapse navbar-collapse">
+    <button mat-icon-button
+            matTooltip="Add Clients"
+            (click)="showPanel($event, true)">
+      <mat-icon><span class="material-symbols-outlined">
+          pets
+        </span></mat-icon>
+    </button>
+    <button mat-icon-button
+            matTooltip="Add Appointment"
+            (click)="showPanel($event, false)">
+      <mat-icon>alarm</mat-icon>
+    </button>
+  </div>
 
-  </mat-toolbar>
-</div>
+</nav>
+<!-- </div> -->
 
 <div id="client-panel"
      class="panel-layout"
