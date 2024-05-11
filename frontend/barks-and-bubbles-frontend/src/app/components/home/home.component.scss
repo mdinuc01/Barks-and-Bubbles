@@ -39,3 +39,26 @@ button {
     grid-template-rows: repeat(2, 45em);
   }
 }
+
+@media (max-width: 1240px) {
+  div {
+    display: grid;
+    grid-template-columns: repeat(1, 1fr);
+    grid-template-rows: repeat(2, 45em);
+  }
+}
+
+@media only screen and (min-width: 1366px) and (min-height: 1024px) {
+  div {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  app-client-list {
+    overflow-y: scroll;
+    height: 60em;
+    width: 70em;
+    margin-top: 1.5em;
+    margin-right: 1em;
+  }
+}

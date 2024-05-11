@@ -58,3 +58,12 @@ mat-card {
     margin-left: 1em;
   }
 }
+
+@media only screen and (min-width: 1366px) and (min-height: 1024px) {
+  .appointments-layout {
+    grid-template-columns: repeat(2, 1fr);
+    padding: 1em;
+    height: 60em;
+    width: 25em;
+  }
+}
