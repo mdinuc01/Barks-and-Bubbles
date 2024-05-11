@@ -1,4 +1,5 @@
-<div class="layout">
+<div class="layout"
+     (click)="this.togglePanel($event, true)">
   <mat-card class="message-list">
     <mat-card-title>
       <h2 [innerHTML]="this.DataService.formatDate(appointment.date ,false, false)">TITLE</h2>
@@ -50,6 +51,13 @@
           </span>
         </mat-icon>
       </button>
+
+      <button mat-icon-button
+              color="primary"
+              matTooltip="Schedule Times"
+              (click)="this.togglePanel($event, false)">
+        <mat-icon>event_upcoming</mat-icon>
+      </button>
     </mat-card-title>
 
     <mat-card-content>
@@ -57,7 +65,43 @@
       <div *ngIf="hasMessageSent()"
            style="margin-top: 1em;">
         <h2 class="error-msg"
-            style="width: 100%;">Please load responses to see who replied</h2>
+            style="width: 100%;"
+            *ngIf="this.appointment.replies.length == 0">Please load responses to see who replied</h2>
+
+        <div *ngIf="this.appointment.replies.length != 0"
+             class="messages-layout scroll">
+          <div *ngFor="let client of this.appointment.messages.sentTo">
+            <h2 class="client-name">{{client.petName}}
+            </h2>
+
+            <div style="display: grid; grid-template-columns: repeat(2,1fr);">
+              <!-- messages sent -->
+              <div>
+                <ng-container *ngFor="let message of this.appointment.replies">
+                  <div *ngIf="this.showCard(message, client) && this.message.direction.includes('outbound')"
+                       class="message sent"
+                       [ngClass]="{'sent': this.message.status == 'delivered', 'unsent': this.message.status == 'failed'}">
+                    <p>{{message.body}}</p>
+                    <sub>{{formatStatus(message.status)}} -
+                      {{this.DataService.messageDateFormat(message.dateUpdated)}}</sub>
+                  </div>
+                </ng-container>
+              </div>
+              <div>
+                <ng-container *ngFor="let message of this.appointment.replies">
+                  <div *ngIf="this.showCard(message, client) && this.message.direction.includes('inbound')"
+                       class="message received">
+                    <p>{{message.body}}</p>
+                    <sub>{{formatStatus(message.status)}} -
+                      {{this.DataService.messageDateFormat(message.dateUpdated)}}</sub>
+
+                  </div>
+                </ng-container>
+              </div>
+            </div>
+          </div>
+
+        </div>
       </div>
 
       <div *ngIf="!hasMessageSent()"
@@ -66,5 +110,17 @@
             style="width: 100%;">Appointment Messages not sent</h2>
       </div>
     </mat-card-content>
+
   </mat-card>
+
+  <div class="panel-container scroll"
+       [@panelState]="panelState"
+       (click)="$event.stopPropagation()">
+    <div class="panel scroll"
+         *ngIf="isPanelOpen">
+      <app-appointment-scheduler [clients]="this.appointment.messages.sentTo"
+                                 [replies]="this.appointment.replies"
+                                 (repliesEvent)="receiveReplies($event)"></app-appointment-scheduler>
+    </div>
+  </div>
 </div>
