@@ -19,27 +19,35 @@
 
 <div class="layout">
   <div (dragover)="onDragOver($event)"
+       (touchmove)="onDragOver($event)"
        (drop)="onDrop($event, null)"
+       (touchend)="onDrop($event, null)"
        class="replies-container scroll">
     <mat-card *ngFor="let reply of filter(this.replies, null)"
               draggable="true"
-              (dragstart)="onDragStart(reply)">
+              (dragstart)="onDragStart(reply)"
+              (touchstart)="onDragStart(reply)">
       {{getClientName(reply.from)}} - {{reply.body}}
     </mat-card>
     <p *ngIf="!filter(this.replies, null).length"
        (dragover)="onDragOver($event)"
-       (drop)="onDrop($event, null)">No Replies</p>
+       (touchmove)="onDragOver($event)"
+       (drop)="onDrop($event, null)"
+       (touchend)="onDrop($event, null)">No Replies</p>
 
   </div>
   <div class="hours scroll">
     <div class="hour"
          *ngFor="let hour of hours"
          (dragover)="onDragOver($event)"
-         (drop)="onDrop($event, hour)">
+         (touchmove)="onDragOver($event)"
+         (drop)="onDrop($event, hour)"
+         (touchend)="onDrop($event, hour)">
       <h3>{{hour}}</h3>
       <mat-card *ngFor="let reply of filter(this.replies, hour)"
                 draggable="true"
-                (dragstart)="onDragStart(reply)">
+                (dragstart)="onDragStart(reply)"
+                (touchstart)="onDragStart(reply)">
         {{getClientName(reply.from)}} - {{reply.body}}
       </mat-card>
 
