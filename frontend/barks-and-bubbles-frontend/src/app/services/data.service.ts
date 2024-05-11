@@ -1,7 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Observable, BehaviorSubject } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
-import { tap } from 'rxjs/operators';
 import { environment } from '../../environments/environment';
 import { Router } from '@angular/router';
 
@@ -115,6 +114,34 @@ export class DataService {
     year = forPanel ? '' : year;
 
     return `${formattedDate}${suffix}${year}`;
+  }
+
+  messageDateFormat(dateString: string) {
+    const date = new Date(dateString);
+    const hours = date.getHours();
+    const minutes = String(date.getMinutes()).padStart(2, '0');
+    const ending = hours >= 12 ? 'PM' : 'AM';
+    const formattedHours = hours % 12 || 12; // Convert 24-hour time to 12-hour time
+    const day = String(date.getDate()).padStart(2, '0');
+    const monthIndex = date.getMonth();
+    const monthNames = [
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec',
+    ];
+    const month = monthNames[monthIndex];
+    const year = date.getFullYear();
+
+    return `${formattedHours}:${minutes} ${ending} - ${month} ${day}, ${year}`;
   }
 
   goHome() {
