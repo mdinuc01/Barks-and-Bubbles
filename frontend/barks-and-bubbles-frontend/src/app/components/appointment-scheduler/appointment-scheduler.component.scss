@@ -1,0 +1,45 @@
+.hours {
+  display: flex;
+  flex-direction: column;
+  height: 38em;
+  overflow-y: scroll;
+}
+
+.hour {
+  padding: 5px;
+  border-bottom: 1px solid #ccc;
+}
+
+.layout {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+}
+
+.replies-container {
+  border: 1px solid rgb(187, 187, 187);
+  height: 38em;
+  width: 20em;
+  padding: 1em;
+  margin: 0 0 1em 2em;
+  overflow-y: scroll;
+}
+
+mat-card {
+  cursor: move;
+}
+
+.err-msg {
+  margin-left: 0.5em;
+  color: #808080;
+}
+
+h2 {
+  margin: 0 !important;
+}
+
+.title-layout {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 2em;
+}
