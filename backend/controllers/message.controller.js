@@ -148,19 +148,6 @@ class MessageController {
     }
   }
 
-  checkContactMethod(arrayOfObjects, value) {
-
-    // Iterate through each object in the array
-    for (const obj of arrayOfObjects) {
-      // Check if the value exists in the "contactMethod" key of the current object
-      if (obj.contactMethod === value) {
-        // If found, return true
-        return true;
-      }
-    }
-    // If not found in any object, return false
-    return false;
-  }
 }
 
 module.exports = new MessageController();
