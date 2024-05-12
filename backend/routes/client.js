@@ -5,6 +5,6 @@ const router = express.Router();
 
 router.get('/', clientController.getAllClients);
 
-router.put('/add', clientController.addClientsToTable);
+router.post('/add', clientController.addClientsToTable);
 
 module.exports = router;
