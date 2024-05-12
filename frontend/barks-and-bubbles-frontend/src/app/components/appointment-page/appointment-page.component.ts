@@ -178,8 +178,4 @@ export class AppointmentPageComponent implements OnInit {
     this.panelState = this.panelState === 'open' ? 'closed' : 'open';
     this.isPanelOpen = !this.isPanelOpen;
   }
-
-  receiveReplies(data: any) {
-    console.log({ data });
-  }
 }
