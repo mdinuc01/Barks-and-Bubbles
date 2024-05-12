@@ -2,11 +2,13 @@
      (click)="this.togglePanel($event, true)">
   <mat-card class="message-list">
     <mat-card-title>
-      <h2 [innerHTML]="this.DataService.formatDate(appointment.date ,false, false)">TITLE</h2>
+      <h2 *ngIf="this.appointment && this.appointment.date"
+          [innerHTML]="this.DataService.formatDate(this.appointment.date ,false, false)">TITLE</h2>
       <button mat-icon-button
               color="primary"
               matTooltip="Send Appointment Texts"
               (click)="openPanel()"
+              *ngIf="this.appointment"
               [disabled]="this.appointment.messages && this.appointment.messages.sentDate">
         <mat-icon>
           <span class="material-symbols-outlined">
@@ -16,7 +18,8 @@
       </button>
     </mat-card-title>
 
-    <div class="scroll location-layout">
+    <div class="scroll location-layout"
+         *ngIf="this.appointment">
       <div *ngFor="let location of this.appointment.location">
         <div *ngFor="let local of getObjectKeys(location)">
           <div class="location-title">
@@ -54,6 +57,7 @@
 
       <button mat-icon-button
               color="primary"
+              [disabled]="!hasMessageSent()"
               matTooltip="Schedule Times"
               (click)="this.togglePanel($event, false)">
         <mat-icon>event_upcoming</mat-icon>
@@ -78,24 +82,32 @@
               <!-- messages sent -->
               <div>
                 <ng-container *ngFor="let message of this.appointment.replies">
-                  <div *ngIf="this.showCard(message, client) && this.message.direction.includes('outbound')"
-                       class="message sent"
-                       [ngClass]="{'sent': this.message.status == 'delivered', 'unsent': this.message.status == 'failed'}">
-                    <p>{{message.body}}</p>
-                    <sub>{{formatStatus(message.status)}} -
-                      {{this.DataService.messageDateFormat(message.dateUpdated)}}</sub>
-                  </div>
+                  <mat-card *ngIf="this.showCard(message, client) && this.message.direction.includes('outbound')"
+                            class="message sent"
+                            [ngClass]="{'sent': this.message.status == 'delivered', 'unsent': this.message.status == 'failed'}">
+                    <mat-card-content>
+                      <p>{{message.body}}</p>
+                    </mat-card-content>
+                    <mat-card-footer align="end">
+                      <sub>{{formatStatus(message.status)}} -
+                        {{this.DataService.messageDateFormat(message.dateUpdated)}}</sub>
+                    </mat-card-footer>
+                  </mat-card>
                 </ng-container>
               </div>
+
               <div>
                 <ng-container *ngFor="let message of this.appointment.replies">
-                  <div *ngIf="this.showCard(message, client) && this.message.direction.includes('inbound')"
-                       class="message received">
-                    <p>{{message.body}}</p>
-                    <sub>{{formatStatus(message.status)}} -
-                      {{this.DataService.messageDateFormat(message.dateUpdated)}}</sub>
-
-                  </div>
+                  <mat-card *ngIf="this.showCard(message, client) && this.message.direction.includes('inbound')"
+                            class="message received">
+                    <mat-card-content>
+                      <p>{{message.body}}</p>
+                    </mat-card-content>
+                    <mat-card-footer align="end">
+                      <sub>{{formatStatus(message.status)}} -
+                        {{this.DataService.messageDateFormat(message.dateUpdated)}}</sub>
+                    </mat-card-footer>
+                  </mat-card>
                 </ng-container>
               </div>
             </div>
@@ -120,7 +132,7 @@
          *ngIf="isPanelOpen">
       <app-appointment-scheduler [clients]="this.appointment.messages.sentTo"
                                  [replies]="this.appointment.replies"
-                                 (repliesEvent)="receiveReplies($event)"></app-appointment-scheduler>
+                                 [appId]="this.appointment.id"></app-appointment-scheduler>
     </div>
   </div>
 </div>
