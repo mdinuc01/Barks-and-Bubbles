@@ -66,9 +66,20 @@ export class AppointmentPageComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.DataService.currentAppointment$.subscribe((app) => {
-      this.appointment = app;
-      this.loadingReplies = false;
+    this.DataService.currentAppointment$.subscribe((res) => {
+      if (res.data) {
+        this.appointment = res.data;
+        this.loadingReplies = false;
+
+        if (res.message == 'Messages sent') {
+          this.loadReplies();
+          this.ToastService.showSuccess('Messages Sent Successfully!');
+        }
+
+        if (res.message == 'Found Replies') {
+          this.ToastService.showSuccess('Replies Loaded Successfully!');
+        }
+      }
     });
 
     this.activatedRoute.paramMap.subscribe((paraMap) => {
@@ -135,7 +146,7 @@ export class AppointmentPageComponent implements OnInit {
   }
 
   hasMessageSent(): Boolean {
-    if (this.appointment.messages)
+    if (this.appointment && this.appointment.messages)
       return Object.keys(this.appointment.messages).length > 0;
     else return false;
   }
@@ -152,10 +163,6 @@ export class AppointmentPageComponent implements OnInit {
     )
       return true;
     else return false;
-  }
-
-  messageSuccess() {
-    this.ToastService.showSuccess('Messages Sent! Please load messages!');
   }
 
   formatStatus(status: string): string {
