@@ -1,7 +1,7 @@
 <div class="title-layout">
   <h2>Route Scheduler</h2>
   <button mat-icon-button
-          (click)="sendReplies()"
+          (click)="saveReplies()"
           color="primary"
           matTooltip="Save Appointments">
     <mat-icon>save</mat-icon>
@@ -9,10 +9,20 @@
 
   <button mat-icon-button
           (click)="resetAppTimes()"
-          color="accent"
+          color="warn"
           matTooltip="Reset All Appointments">
     <mat-icon>
       restart_alt
+    </mat-icon>
+  </button>
+
+  <button mat-icon-button
+          color="accent"
+          matTooltip="Send Reply Texts">
+    <mat-icon>
+      <span class="material-symbols-outlined">
+        outgoing_mail
+      </span>
     </mat-icon>
   </button>
 </div>
@@ -27,7 +37,10 @@
               draggable="true"
               (dragstart)="onDragStart(reply)"
               (touchstart)="onDragStart(reply)">
-      {{getClientName(reply.from)}} - {{reply.body}}
+      <p *ngIf="reply.body.length > 10"
+         matTooltip="{{reply.body}}">{{reply.body}}</p>
+      <p *ngIf="reply.body.length <= 10">{{reply.body}}</p>
+      <mat-card-footer align="end">{{getClientName(reply.from)}}</mat-card-footer>
     </mat-card>
     <p *ngIf="!filter(this.replies, null).length"
        (dragover)="onDragOver($event)"
@@ -44,12 +57,18 @@
          (drop)="onDrop($event, hour)"
          (touchend)="onDrop($event, hour)">
       <h3>{{hour}}</h3>
-      <mat-card *ngFor="let reply of filter(this.replies, hour)"
-                draggable="true"
-                (dragstart)="onDragStart(reply)"
-                (touchstart)="onDragStart(reply)">
-        {{getClientName(reply.from)}} - {{reply.body}}
-      </mat-card>
+      <div class="hour-reply-layout">
+        <mat-card *ngFor="let reply of filter(this.replies, hour)"
+                  draggable="true"
+                  (dragstart)="onDragStart(reply)"
+                  (touchstart)="onDragStart(reply)">
+          <p *ngIf="reply.body.length > 10"
+             matTooltip="{{reply.body}}">{{reply.body}}</p>
+          <p *ngIf="reply.body.length <= 10">{{reply.body}}</p>
+
+          <mat-card-footer align="end">{{getClientName(reply.from)}}</mat-card-footer>
+        </mat-card>
+      </div>
 
       <h3 *ngIf="!filter(this.replies, hour).length"
           class="err-msg">Nothing Scheduled at {{hour}}</h3>

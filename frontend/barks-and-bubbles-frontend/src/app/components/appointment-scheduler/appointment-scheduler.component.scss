@@ -3,11 +3,26 @@
   flex-direction: column;
   height: 38em;
   overflow-y: scroll;
+  margin-right: 1em;
 }
 
 .hour {
   padding: 5px;
   border-bottom: 1px solid #ccc;
+
+  h3 {
+    position: sticky;
+    top: 0;
+    background-color: #f0f0f0;
+    z-index: 200;
+    margin-left: -2px;
+  }
+}
+
+.hour-reply-layout {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  margin-right: 1em;
 }
 
 .layout {
@@ -22,15 +37,33 @@
   padding: 1em;
   margin: 0 0 1em 2em;
   overflow-y: scroll;
+  border-radius: 3px;
 }
 
 mat-card {
   cursor: move;
+  margin-bottom: 2em;
+  padding: 1em;
+  height: 6em;
+  width: 10em;
+  text-overflow: ellipsis;
+
+  p {
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+  }
+}
+
+mat-card:active {
+  border: 1px solid black;
+  opacity: 1;
 }
 
 .err-msg {
   margin-left: 0.5em;
   color: #808080;
+  z-index: 1;
 }
 
 h2 {

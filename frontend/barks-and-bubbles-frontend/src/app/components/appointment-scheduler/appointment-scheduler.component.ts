@@ -1,5 +1,7 @@
+import { DataService } from './../../services/data.service';
+import { ToastService } from './../../services/toast.service';
 import { CommonModule } from '@angular/common';
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
@@ -22,10 +24,15 @@ export class AppointmentSchedulerComponent implements OnInit {
   hours: string[] = [];
   @Input() clients!: any[];
   @Input() replies!: any[];
-  @Output() repliesEvent = new EventEmitter<any>();
+  @Input() appId!: string;
   currentReply: any;
+  resetTime = false;
+  resetSave = false;
 
-  constructor() {
+  constructor(
+    private ToastService: ToastService,
+    private DataService: DataService
+  ) {
     // Generate hours from 12:00 AM to 11:00 PM
     for (let i = 7; i < 12; i++) {
       this.hours.push(`${i === 0 ? 12 : i}:00 AM`);
@@ -35,7 +42,19 @@ export class AppointmentSchedulerComponent implements OnInit {
     }
   }
   ngOnInit(): void {
-    console.log({ r: this.replies, c: this.clients });
+    console.log({ a: this.appId });
+
+    this.DataService.currentAppointment$.subscribe((res) => {
+      if (res.message == 'Replies Saved' && this.resetSave) {
+        this.ToastService.showSuccess('Route Saved Successfully!');
+        this.resetSave = false;
+      }
+
+      if (res.message == 'Replies Saved' && this.resetTime)
+        this.ToastService.showSuccess('Appointments Reset Successfully!');
+
+      this.resetTime = false;
+    });
   }
 
   filter(arr: any[], filterParam: any) {
@@ -66,8 +85,9 @@ export class AppointmentSchedulerComponent implements OnInit {
     event.preventDefault();
   }
 
-  sendReplies() {
-    this.repliesEvent.emit(this.replies);
+  saveReplies() {
+    this.DataService.saveTimes(this.appId, this.replies);
+    this.resetSave = true;
   }
 
   resetAppTimes() {
@@ -75,5 +95,8 @@ export class AppointmentSchedulerComponent implements OnInit {
       r.time = null;
       return r;
     });
+
+    this.resetTime = true;
+    this.saveReplies();
   }
 }
