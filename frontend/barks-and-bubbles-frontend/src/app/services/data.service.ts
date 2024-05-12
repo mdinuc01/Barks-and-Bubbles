@@ -13,14 +13,13 @@ export class DataService {
   private appointmentsSubject: BehaviorSubject<any[]> = new BehaviorSubject<
     any[]
   >([]);
-  private appointmentSubject: BehaviorSubject<any[]> = new BehaviorSubject<any>(
+  private appointmentSubject: BehaviorSubject<any> = new BehaviorSubject<any>(
     []
   );
 
   clients$: Observable<any[]> = this.clientsSubject.asObservable();
   appointments$: Observable<any[]> = this.appointmentsSubject.asObservable();
-  currentAppointment$: Observable<any[]> =
-    this.appointmentSubject.asObservable();
+  currentAppointment$: Observable<any> = this.appointmentSubject.asObservable();
 
   apiEndPoint = environment.domain;
 
@@ -36,7 +35,7 @@ export class DataService {
 
   addClientsToTable(data: any[]) {
     this.http
-      .put<{ data: any[] }>(`${this.apiEndPoint}/client/add`, { data })
+      .post<{ data: any[] }>(`${this.apiEndPoint}/client/add`, { data })
       .subscribe((response) => {
         this.clientsSubject.next(response.data);
       });
@@ -54,13 +53,13 @@ export class DataService {
     this.http
       .get<{ data: any }>(`${this.apiEndPoint}/appointment/${id}`)
       .subscribe((response) => {
-        this.appointmentSubject.next(response.data);
+        this.appointmentSubject.next(response);
       });
   }
 
   addAppointment(data: any) {
     this.http
-      .put<{ data: any[] }>(`${this.apiEndPoint}/appointment/add`, { data })
+      .post<{ data: any[] }>(`${this.apiEndPoint}/appointment/add`, { data })
       .subscribe((response) => {
         this.appointmentsSubject.next(response.data);
       });
@@ -74,7 +73,7 @@ export class DataService {
         appId,
       })
       .subscribe((response) => {
-        this.appointmentSubject.next(response.data);
+        this.appointmentSubject.next(response);
       });
   }
 
@@ -85,7 +84,17 @@ export class DataService {
         sentDate,
       })
       .subscribe((response) => {
-        this.appointmentSubject.next(response.data);
+        this.appointmentSubject.next(response);
+      });
+  }
+
+  saveTimes(appId: string, replies: any[]) {
+    this.http
+      .put<{ data: any }>(`${this.apiEndPoint}/appointment//time/${appId}`, {
+        replies,
+      })
+      .subscribe((response) => {
+        this.appointmentSubject.next(response);
       });
   }
 
