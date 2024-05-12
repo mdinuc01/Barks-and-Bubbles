@@ -1,7 +1,7 @@
 <div class="title-layout">
   <h2>Route Scheduler</h2>
   <button mat-icon-button
-          (click)="saveReplies()"
+          (click)="saveReplies(true)"
           color="primary"
           matTooltip="Save Appointments">
     <mat-icon>save</mat-icon>
@@ -18,7 +18,8 @@
 
   <button mat-icon-button
           color="accent"
-          matTooltip="Send Reply Texts">
+          matTooltip="Send Reply Texts"
+          (click)="openPanel()">
     <mat-icon>
       <span class="material-symbols-outlined">
         outgoing_mail

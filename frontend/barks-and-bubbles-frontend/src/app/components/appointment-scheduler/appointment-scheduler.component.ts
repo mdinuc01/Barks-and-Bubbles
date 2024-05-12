@@ -1,3 +1,4 @@
+import { PanelService } from './../../services/panel service/panel-service';
 import { DataService } from './../../services/data.service';
 import { ToastService } from './../../services/toast.service';
 import { CommonModule } from '@angular/common';
@@ -6,6 +7,8 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { lastValueFrom } from 'rxjs';
+import { MatDialog } from '@angular/material/dialog';
 
 @Component({
   selector: 'app-appointment-scheduler',
@@ -31,7 +34,8 @@ export class AppointmentSchedulerComponent implements OnInit {
 
   constructor(
     private ToastService: ToastService,
-    private DataService: DataService
+    private DataService: DataService,
+    private dialog: MatDialog
   ) {
     // Generate hours from 12:00 AM to 11:00 PM
     for (let i = 7; i < 12; i++) {
@@ -42,7 +46,7 @@ export class AppointmentSchedulerComponent implements OnInit {
     }
   }
   ngOnInit(): void {
-    console.log({ a: this.appId });
+    console.log({ a: this.appId, c: this.clients });
 
     this.DataService.currentAppointment$.subscribe((res) => {
       if (res.message == 'Replies Saved' && this.resetSave) {
@@ -52,6 +56,9 @@ export class AppointmentSchedulerComponent implements OnInit {
 
       if (res.message == 'Replies Saved' && this.resetTime)
         this.ToastService.showSuccess('Appointments Reset Successfully!');
+
+      if (res.message == 'Replies sent')
+        this.ToastService.showSuccess('Replies sent Successfully!');
 
       this.resetTime = false;
     });
@@ -74,9 +81,16 @@ export class AppointmentSchedulerComponent implements OnInit {
 
   onDrop(event: any, time: any) {
     event.preventDefault();
-
+    let findNumber = this.currentReply.from.toString().substring(2);
+    console.log({ findNumber });
     let reply = this.replies.find((r) => r.sid == this.currentReply.sid);
-    if (reply != undefined) reply.time = time;
+    let client = this.clients.find(
+      (client) => client.contactMethod == findNumber
+    );
+    if (reply != undefined && client.petParentName) {
+      reply.time = time;
+      reply.name = client.petParentName;
+    }
 
     this.currentReply = null;
   }
@@ -85,9 +99,9 @@ export class AppointmentSchedulerComponent implements OnInit {
     event.preventDefault();
   }
 
-  saveReplies() {
+  saveReplies(enableToast: boolean) {
     this.DataService.saveTimes(this.appId, this.replies);
-    this.resetSave = true;
+    this.resetSave = enableToast;
   }
 
   resetAppTimes() {
@@ -97,6 +111,26 @@ export class AppointmentSchedulerComponent implements OnInit {
     });
 
     this.resetTime = true;
-    this.saveReplies();
+    this.saveReplies(false);
+  }
+
+  async openPanel() {
+    this.saveReplies(false);
+
+    const dialogRef = this.dialog.open(PanelService, {
+      data: {
+        title: 'Send Replies to Clients',
+        confirmMsg: `Are you sure you want to out all replies? This will send a reply message to each of the replies currently scheduled. 
+        <br><br>The time for each reply will be the start for the range. If a reply was scheduled at 8:00 AM, then 8:00 AM - 9:00 AM will be used in the message.`,
+        subMsg: 'This action cannot be undone.',
+        btnTitle: 'Confirm',
+      },
+    });
+
+    const result = await lastValueFrom(dialogRef.afterClosed());
+
+    if (result) {
+      this.DataService.sendReplies(this.appId);
+    }
   }
 }
