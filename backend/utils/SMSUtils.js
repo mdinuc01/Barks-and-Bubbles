@@ -74,7 +74,7 @@ class SMSUtils {
     try {
       const messageObj = await client.messages
         .create({
-          body: message.createMessage(),
+          body: message.createReply(),
           from: phone,
           to: number
         })

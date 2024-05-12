@@ -5,6 +5,6 @@ const router = express.Router();
 
 router.put('/getReplies', MessageController.getReplies)
 router.put('/sendMessage', MessageController.sendMessage);
-router.put('/sendReply', MessageController.sendReply);
+router.put('/sendReplies/:id', MessageController.sendReplies);
 
 module.exports = router;

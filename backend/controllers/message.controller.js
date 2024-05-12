@@ -26,7 +26,7 @@ class MessageController {
             // let messageText = new Message(client, date).createMessage();
             // console.log(messageText + "\n");
             SMSUtils.sendText(client, date);
-            clientSentTo.push({ id: client.id, contactMethod: client.contactMethod, petName: client.petName });
+            clientSentTo.push({ id: client.id, contactMethod: client.contactMethod, petName: client.petName, petParentName: client.petParentName });
 
           }
         });
@@ -59,29 +59,28 @@ class MessageController {
     }
   }
 
-  async sendReply(req, res, next) {
+  async sendReplies(req, res, next) {
     try {
-      let locations = req.body.locations;
-      let date = req.body.date;
+      let appId = req.params.id;
+      // let date = req.body.date;
+      let db = new JsonDB(new Config("appointments", true, false, '/'));
+      let apps = await db.getData("/appointments");
 
-      let db = new JsonDB(new Config("clients", true, false, '/'));
-      let clients = await db.getData("/clients");
+      const app = await apps.find((app) => app.id == appId);
 
-      if (data.length) {
-        clients.forEach((client) => {
-          if (locations.contain(client.location)) {
-            let message = new Message(client, date);
-            console.log(message.createReply() + "/n");
 
-            //TODO: Enable when the texting functionality is tested
-            // try {
-            // SMSUtils.sendReply(client, date);
-            // } catch (error) {
-            //   console.log({ error })
-            // }
+      if (app.replies.length) {
+        app.replies.forEach((reply) => {
+          if (reply.time && reply.time != null && reply.name) {
+            let name = { petParentName: reply.name, contactMethod: reply.from.substring(2) }
+            let message = new Message(name, reply.time);
+            // console.log(message.createReply() + "/n");
+
+            SMSUtils.sendReply(name, reply.time);
+
           }
         })
-        return res.status(200).json({ message: `Reply sent` });
+        return res.status(200).json({ message: `Replies sent` });
       }
     } catch (error) {
       return res.status(500).json({ message: "Internal Server Error", error });
