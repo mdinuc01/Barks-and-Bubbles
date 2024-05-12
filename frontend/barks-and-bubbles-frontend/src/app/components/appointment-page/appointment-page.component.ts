@@ -128,7 +128,7 @@ export class AppointmentPageComponent implements OnInit {
         false
       );
 
-      await this.DataService.sendText(
+      this.DataService.sendText(
         this.appointment.meta,
         date,
         this.appointment.id
