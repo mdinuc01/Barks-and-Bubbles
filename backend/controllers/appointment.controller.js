@@ -63,7 +63,6 @@ class AppointmentController {
                 return client;
               }
             }
-            return;
           });
           return { [locationVal]: clientsInLocation };
         });
@@ -86,6 +85,28 @@ class AppointmentController {
       }
     } catch (error) {
       return res.status(500).json({ message: "Internal Server Error", error });
+    }
+  }
+
+  async saveAppointmentTimes(req, res, next) {
+
+    try {
+      const appId = req.params.id;
+      const replies = req.body.replies;
+      let appDB = new JsonDB(new Config("appointments", true, false, '/'));
+      let appData = await appDB.getData("/appointments");
+
+      let index = await appData.findIndex((app) => app.id == appId);
+
+      appData[index].replies = replies;
+      await appDB.push("/appointments", appData);
+
+      return res.status(200).json({ message: `Replies Saved` });
+
+
+    } catch (error) {
+
+
     }
   }
 }
