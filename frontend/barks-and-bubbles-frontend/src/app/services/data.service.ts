@@ -90,9 +90,20 @@ export class DataService {
 
   saveTimes(appId: string, replies: any[]) {
     this.http
-      .put<{ data: any }>(`${this.apiEndPoint}/appointment//time/${appId}`, {
+      .put<{ data: any }>(`${this.apiEndPoint}/appointment/time/${appId}`, {
         replies,
       })
+      .subscribe((response) => {
+        this.appointmentSubject.next(response);
+      });
+  }
+
+  sendReplies(appId: string) {
+    this.http
+      .put<{ message: string }>(
+        `${this.apiEndPoint}/message/sendReplies/${appId}`,
+        {}
+      )
       .subscribe((response) => {
         this.appointmentSubject.next(response);
       });
