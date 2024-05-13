@@ -15,9 +15,9 @@ class SMSUtils {
     const url = `https://api.twilio.com/2010-04-01/Accounts/${accountSid}/Messages.json`;
 
     const formattedDate = new Date(date);
-    const dateAfter = formattedDate.toISOString();
-    const dateBefore = new Date().toISOString();
-
+    const dateAfter = formattedDate.toUTCString();
+    const dateBefore = new Date().toUTCString();
+    console.log({ dateBefore, dateAfter })
     const auth = {
       username: accountSid,
       password: authToken
