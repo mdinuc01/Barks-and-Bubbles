@@ -66,6 +66,19 @@ mat-card:active {
   z-index: 1;
 }
 
+.no-replies {
+  background-color: #c4c4c4;
+  color: black;
+  font-weight: bolder;
+  height: 35em;
+  border-radius: 1em;
+  margin-left: 1em;
+  display: flex;
+  align-content: center;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
 h2 {
   margin: 0 !important;
 }
