@@ -17,7 +17,7 @@ class SMSUtils {
     const formattedDate = new Date(date);
     const dateAfter = formattedDate.toUTCString();
     const dateBefore = new Date().toUTCString();
-    console.log({ dateBefore, dateAfter })
+
     const auth = {
       username: accountSid,
       password: authToken
