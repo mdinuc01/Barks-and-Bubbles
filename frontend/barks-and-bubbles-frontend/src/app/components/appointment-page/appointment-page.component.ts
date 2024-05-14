@@ -19,30 +19,14 @@ import {
 } from '@angular/animations';
 import { AppointmentSchedulerComponent } from '../appointment-scheduler/appointment-scheduler.component';
 import { MatBadgeModule } from '@angular/material/badge';
+import { MatTabsModule } from '@angular/material/tabs';
 
 @Component({
   selector: 'app-appointment-page',
   standalone: true,
   templateUrl: './appointment-page.component.html',
   styleUrl: './appointment-page.component.scss',
-  animations: [
-    trigger('panelState', [
-      state(
-        'open',
-        style({
-          transform: 'translateX(0%)',
-        })
-      ),
-      state(
-        'closed',
-        style({
-          transform: 'translateX(100%)',
-        })
-      ),
-      transition('open => closed', [animate('0.2s')]),
-      transition('closed => open', [animate('0.2s')]),
-    ]),
-  ],
+
   imports: [
     CommonModule,
     MatButtonModule,
@@ -50,6 +34,7 @@ import { MatBadgeModule } from '@angular/material/badge';
     MatTooltipModule,
     MatCardModule,
     MatBadgeModule,
+    MatTabsModule,
     AppointmentSchedulerComponent,
   ],
 })

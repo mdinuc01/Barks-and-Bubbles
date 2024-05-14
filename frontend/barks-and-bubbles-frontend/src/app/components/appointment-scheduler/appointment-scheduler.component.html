@@ -1,5 +1,4 @@
 <div class="title-layout">
-  <h2>Route Scheduler</h2>
   <button mat-icon-button
           (click)="saveReplies(true)"
           color="primary"
@@ -33,7 +32,8 @@
        (touchmove)="onDragOver($event)"
        (drop)="onDrop($event, null)"
        (touchend)="onDrop($event, null)"
-       class="replies-container scroll">
+       class="replies-container scroll"
+       [ngClass]="{'no-scroll': !filter(this.replies, null).length}">
     <mat-card *ngFor="let reply of filter(this.replies, null)"
               draggable="true"
               (dragstart)="onDragStart(reply)"

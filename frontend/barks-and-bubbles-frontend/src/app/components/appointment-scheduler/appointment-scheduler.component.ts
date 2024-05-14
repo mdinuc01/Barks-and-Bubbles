@@ -46,8 +46,6 @@ export class AppointmentSchedulerComponent implements OnInit {
     }
   }
   ngOnInit(): void {
-    console.log({ a: this.appId, c: this.clients });
-
     this.DataService.currentAppointment$.subscribe((res) => {
       if (res.message == 'Replies Saved' && this.resetSave) {
         this.ToastService.showSuccess('Route Saved Successfully!');
@@ -82,12 +80,12 @@ export class AppointmentSchedulerComponent implements OnInit {
   onDrop(event: any, time: any) {
     event.preventDefault();
     let findNumber = this.currentReply.from.toString().substring(2);
-    console.log({ findNumber });
     let reply = this.replies.find((r) => r.sid == this.currentReply.sid);
     let client = this.clients.find(
       (client) => client.contactMethod == findNumber
     );
     if (reply != undefined && client.petParentName) {
+      console.log({ reply, client });
       reply.time = time;
       reply.name = client.petParentName;
     }

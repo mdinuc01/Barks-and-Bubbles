@@ -1,9 +1,9 @@
 .hours {
   display: flex;
   flex-direction: column;
-  height: 38em;
+  height: 30em;
   overflow-y: scroll;
-  margin-right: 1em;
+  margin: 1em;
 }
 
 .hour {
@@ -15,29 +15,39 @@
     top: 0;
     background-color: #f0f0f0;
     z-index: 200;
-    margin-left: -2px;
+    height: 3em;
+    margin-bottom: 0;
   }
 }
 
 .hour-reply-layout {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  margin-right: 1em;
+  grid-template-columns: repeat(4, 1fr);
+  width: 100%;
+  padding-left: 1em;
+  background-color: #f0f0f0;
 }
 
 .layout {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  grid-template-columns: 1fr 3fr;
+  background-color: #f0f0f0;
 }
 
 .replies-container {
-  border: 1px solid rgb(187, 187, 187);
-  height: 38em;
-  width: 20em;
-  padding: 1em;
-  margin: 0 0 1em 2em;
+  height: 30em;
+  width: 15em;
   overflow-y: scroll;
   border-radius: 3px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 1em;
+  margin-left: 1em;
+  padding: 1em 0;
+  background-color: rgba(171, 219, 232, 0.4901960784);
+  border-top: 0.5em solid rgba(171, 219, 232, 0);
+  border-bottom: 0.5em solid rgba(171, 219, 232, 0);
 }
 
 mat-card {
@@ -61,22 +71,27 @@ mat-card:active {
 }
 
 .err-msg {
-  margin-left: 0.5em;
   color: #808080;
   z-index: 1;
+  margin-left: 2em;
 }
 
 .no-replies {
   background-color: #c4c4c4;
   color: black;
   font-weight: bolder;
-  height: 35em;
+  height: 28em;
+  margin: 1em 0.25em;
   border-radius: 1em;
-  margin-left: 1em;
   display: flex;
   align-content: center;
   flex-wrap: wrap;
   justify-content: center;
+  width: 10em;
+}
+
+.no-scroll {
+  border: none;
 }
 
 h2 {
@@ -87,5 +102,33 @@ h2 {
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-bottom: 2em;
+  margin-bottom: 0.5em;
+}
+
+@media only screen and (min-width: 1366px) and (min-height: 1024px) {
+  .layout {
+    height: 55em;
+  }
+
+  .replies-container {
+    height: 53em !important;
+  }
+
+  .hours {
+    height: 53em !important;
+  }
+}
+
+@media only screen and (min-width: 1024px) and (min-height: 1366px) {
+  .layout {
+    height: 79em;
+  }
+
+  .replies-container {
+    height: 77em !important;
+  }
+
+  .hours {
+    height: 77em !important;
+  }
 }

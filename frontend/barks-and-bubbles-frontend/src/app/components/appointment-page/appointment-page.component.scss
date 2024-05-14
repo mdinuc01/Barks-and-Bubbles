@@ -70,7 +70,7 @@
 
 .messages-layout {
   overflow-y: scroll;
-  height: 35em;
+  height: 32em;
 }
 
 .client-name {
@@ -80,6 +80,7 @@
   background-color: white;
   border-bottom: #9a9a9a solid 1px;
   padding-bottom: 1em;
+  margin-bottom: 0;
 }
 
 .message {
@@ -156,4 +157,54 @@
   background-color: white;
   z-index: 20;
   padding: 0.5em 0;
+}
+
+@media only screen and (min-width: 1366px) and (min-height: 1024px) {
+  .client-cards-container {
+    display: grid;
+    grid-template-columns: repeat(1, 1fr) !important;
+    justify-items: center;
+  }
+
+  .message-list {
+    width: 22em;
+    height: 66em;
+  }
+
+  .location-layout {
+    height: 58em;
+  }
+
+  .reply-list {
+    height: 66em;
+  }
+
+  .messages-layout {
+    height: 55em;
+  }
+}
+
+@media only screen and (min-width: 1024px) and (min-height: 1366px) {
+  .client-cards-container {
+    display: grid;
+    grid-template-columns: repeat(1, 1fr) !important;
+    justify-items: center;
+  }
+
+  .message-list {
+    width: 22em;
+    height: 90em;
+  }
+
+  .location-layout {
+    height: 83em;
+  }
+
+  .reply-list {
+    height: 90em;
+  }
+
+  .messages-layout {
+    height: 80em;
+  }
 }
