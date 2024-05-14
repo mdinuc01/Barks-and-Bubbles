@@ -114,9 +114,9 @@
               <!-- messages sent -->
               <div>
                 <ng-container *ngFor="let message of this.appointment.replies">
-                  <mat-card *ngIf="this.showCard(message, client) && this.message.direction.includes('outbound')"
+                  <mat-card *ngIf="this.showCard(message, client)"
                             class="message sent"
-                            [ngClass]="{'sent': this.message.status == 'delivered', 'unsent': this.message.status == 'failed'}">
+                            [ngClass]="{'sent': this.message.status == 'delivered', 'unsent': this.message.status == 'failed', 'received': this.message.direction == 'inbound'}">
                     <mat-card-content>
                       <p>{{message.body}}</p>
                     </mat-card-content>
@@ -128,7 +128,7 @@
                 </ng-container>
               </div>
 
-              <div>
+              <!-- <div>
                 <ng-container *ngFor="let message of this.appointment.replies">
                   <mat-card *ngIf="this.showCard(message, client) && this.message.direction.includes('inbound')"
                             class="message received">
@@ -141,7 +141,7 @@
                     </mat-card-footer>
                   </mat-card>
                 </ng-container>
-              </div>
+              </div> -->
             </div>
           </div>
 
