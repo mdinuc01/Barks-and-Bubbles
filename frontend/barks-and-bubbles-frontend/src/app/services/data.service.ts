@@ -45,7 +45,10 @@ export class DataService {
     this.http
       .get<{ data: any[] }>(`${this.apiEndPoint}/appointment/`)
       .subscribe((response) => {
-        this.appointmentsSubject.next(response.data);
+        const sortedData = response.data.sort(
+          (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
+        );
+        this.appointmentsSubject.next(sortedData);
       });
   }
 
