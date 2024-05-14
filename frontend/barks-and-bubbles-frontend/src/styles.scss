@@ -134,6 +134,10 @@ app-client-list::-webkit-scrollbar-track,
   border-radius: 5px;
 }
 
+.scroll-margin::-webkit-scrollbar-track {
+  margin: 1em 0;
+}
+
 body::-webkit-scrollbar-thumb,
 app-client-list::-webkit-scrollbar-thumb,
 .appointments-layout::-webkit-scrollbar-thumb,
