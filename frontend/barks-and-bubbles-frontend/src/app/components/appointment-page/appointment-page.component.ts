@@ -18,6 +18,7 @@ import {
   trigger,
 } from '@angular/animations';
 import { AppointmentSchedulerComponent } from '../appointment-scheduler/appointment-scheduler.component';
+import { MatBadgeModule } from '@angular/material/badge';
 
 @Component({
   selector: 'app-appointment-page',
@@ -48,6 +49,7 @@ import { AppointmentSchedulerComponent } from '../appointment-scheduler/appointm
     MatIconModule,
     MatTooltipModule,
     MatCardModule,
+    MatBadgeModule,
     AppointmentSchedulerComponent,
   ],
 })
@@ -57,6 +59,7 @@ export class AppointmentPageComponent implements OnInit {
   loadCount = 0;
   panelState: string = 'closed';
   isPanelOpen: boolean = false;
+  showErrorPanel = false;
 
   constructor(
     public DataService: DataService,
@@ -177,5 +180,19 @@ export class AppointmentPageComponent implements OnInit {
     if (this.panelState == 'closed' && outside) return;
     this.panelState = this.panelState === 'open' ? 'closed' : 'open';
     this.isPanelOpen = !this.isPanelOpen;
+  }
+
+  getFailedMessages() {
+    if (this.appointment && this.appointment.replies)
+      return this.appointment.replies.filter(
+        (r: { status: string }) => r.status == 'failed'
+      );
+  }
+
+  formatNumber(number: string) {
+    return `(${number.substring(2, 5)}) ${number.substring(
+      5,
+      8
+    )}-${number.substring(8, 12)}`;
   }
 }

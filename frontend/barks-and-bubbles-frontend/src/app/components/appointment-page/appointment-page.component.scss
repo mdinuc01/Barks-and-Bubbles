@@ -132,3 +132,30 @@
   overflow-y: auto;
   z-index: 50;
 }
+
+.panel-layout {
+  background-color: white;
+  border-radius: 1em;
+  border: 1px solid #ededed;
+  position: absolute;
+  z-index: 10;
+  box-shadow: 3px 3px 3px #afafaf;
+  height: 18em;
+  overflow-y: scroll;
+  padding: 0 0.5em 0.5em 0.5em;
+}
+
+.error-messages {
+  font-size: medium;
+  width: 27em !important;
+  min-width: 0 !important;
+  max-width: 30em !important;
+}
+
+.error-title {
+  position: sticky;
+  top: 0;
+  background-color: white;
+  z-index: 20;
+  padding: 0.5em 0;
+}
