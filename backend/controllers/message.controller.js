@@ -118,7 +118,6 @@ class MessageController {
 
         let currentSids = appData[index].replies.map((r) => r.sid);
         let repliesFiltered = replies.filter((r) => !currentSids.includes(r.sid));
-        let repliesToReturn;
 
         if (repliesFiltered.length > 0) {
 
