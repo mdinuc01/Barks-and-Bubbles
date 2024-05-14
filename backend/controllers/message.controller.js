@@ -97,7 +97,6 @@ class MessageController {
       let app;
 
       let replies = await SMSUtils.getReplies(sentDate);
-
       let appData = await appDB.getData("/appointments");
       const index = appData.findIndex(app => app.id === appId);
 
@@ -117,7 +116,18 @@ class MessageController {
             return reply;
         });
 
-        appData[index].replies = replies;
+        let currentSids = appData[index].replies.map((r) => r.sid);
+        let repliesFiltered = replies.filter((r) => !currentSids.includes(r.sid));
+        let repliesToReturn;
+
+        if (repliesFiltered.length > 0) {
+
+          // Add elements of repliesFiltered to the beginning of replies
+          for (let i = repliesFiltered.length - 1; i >= 0; i--) {
+            appData[index].replies.unshift(repliesFiltered[i]);
+          }
+        }
+
         await appDB.push("/appointments", appData);
 
         app = await appData.find((app) => app.id == appId);
