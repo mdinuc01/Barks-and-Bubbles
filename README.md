@@ -1,1 +1,1 @@
-﻿# Barks and Bubbles Application
+﻿# Barks & Bubbles Application
