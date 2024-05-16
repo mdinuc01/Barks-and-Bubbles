@@ -26,7 +26,7 @@ class MessageController {
             // let messageText = new Message(client, date).createMessage();
             // console.log(messageText + "\n");
             SMSUtils.sendText(client, date);
-            clientSentTo.push({ id: client.id, contactMethod: client.contactMethod, petName: client.petName, petParentName: client.petParentName });
+            clientSentTo.push({ id: client.id, contactMethod: client.contactMethod, petName: client.petName, petParentName: client.petParentName, serviceArea: client.serviceArea });
 
           }
         });
