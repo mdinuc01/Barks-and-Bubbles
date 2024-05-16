@@ -1,7 +1,7 @@
 {
   "name": "barks-and-bubbles-backend",
   "version": "1.0.0",
-  "description": "Barks and Bubbles backend server.",
+  "description": "Barks & Bubbles backend server.",
   "main": "server.js",
   "repository": {
     "type": "git",
