@@ -53,13 +53,13 @@ class AppointmentController {
       //mapping locations clients to app
       let clients = await clientsDB.getData("/clients");
 
-      if (app.messages.sentTo) {
+      if (app.messages.sentTo.length) {
         location = app.location.map(locationVal => {
           let clientsInLocation = clients.filter(client => {
             // let result = false;
 
             for (const obj of app.messages.sentTo) {
-              if (obj.id === client.id) {
+              if (obj.id === client.id && client.serviceArea == locationVal) {
                 return client;
               }
             }
