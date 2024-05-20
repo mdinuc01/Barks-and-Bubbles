@@ -20,7 +20,7 @@ export class ClientListComponent implements OnInit {
       this.clients = clients;
     });
 
-    this.DataService.getAllClients();
+    this.DataService.getAllPets();
   }
 
   formatNumber(number: string): string {
