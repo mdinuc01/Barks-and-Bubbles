@@ -25,17 +25,17 @@ export class DataService {
 
   constructor(private http: HttpClient, private router: Router) {}
 
-  getAllClients() {
+  getAllPets() {
     this.http
-      .get<{ data: any[] }>(`${this.apiEndPoint}/client/`)
+      .get<{ data: any[] }>(`${this.apiEndPoint}/pet/`)
       .subscribe((response) => {
         this.clientsSubject.next(response.data);
       });
   }
 
-  addClientsToTable(data: any[]) {
+  addPet(data: {}) {
     this.http
-      .post<{ data: any[] }>(`${this.apiEndPoint}/client/add`, { data })
+      .post<{ data: any[] }>(`${this.apiEndPoint}/pet/add`, { ...data })
       .subscribe((response) => {
         this.clientsSubject.next(response.data);
       });
