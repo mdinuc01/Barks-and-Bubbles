@@ -22,7 +22,7 @@ export class FileReaderComponent {
         const parsedData: any[] = await this.excelParserService.parseExcelFile(
           file
         );
-        this.dataService.addClientsToTable(parsedData);
+        this.dataService.addPet(parsedData);
       } catch (error) {
         console.error('Error parsing Excel file:', error);
       }
