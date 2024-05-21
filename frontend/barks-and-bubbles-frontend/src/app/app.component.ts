@@ -15,7 +15,6 @@ import { HomeComponent } from './components/home/home.component';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { FileReaderComponent } from './components/file-reader-component/file-reader-component.component';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
@@ -35,7 +34,6 @@ import { PetFormComponent } from './components/pet-form/pet-form.component';
     MatIconModule,
     MatButtonModule,
     MatTooltipModule,
-    FileReaderComponent,
     MatFormFieldModule,
     MatInputModule,
     MatDatepickerModule,
