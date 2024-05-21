@@ -6,19 +6,17 @@ import { Router } from '@angular/router';
 
 @Injectable({ providedIn: 'root' })
 export class DataService {
-  private clientsSubject: BehaviorSubject<any[]> = new BehaviorSubject<any[]>(
-    []
-  );
+  private clientsSubject: BehaviorSubject<any> = new BehaviorSubject<any[]>([]);
 
-  private appointmentsSubject: BehaviorSubject<any[]> = new BehaviorSubject<
+  private appointmentsSubject: BehaviorSubject<any> = new BehaviorSubject<
     any[]
   >([]);
   private appointmentSubject: BehaviorSubject<any> = new BehaviorSubject<any>(
     []
   );
 
-  clients$: Observable<any[]> = this.clientsSubject.asObservable();
-  appointments$: Observable<any[]> = this.appointmentsSubject.asObservable();
+  clients$: Observable<any> = this.clientsSubject.asObservable();
+  appointments$: Observable<any> = this.appointmentsSubject.asObservable();
   currentAppointment$: Observable<any> = this.appointmentSubject.asObservable();
 
   apiEndPoint = environment.domain;
@@ -29,7 +27,7 @@ export class DataService {
     this.http
       .get<{ data: any[] }>(`${this.apiEndPoint}/pet/`)
       .subscribe((response) => {
-        this.clientsSubject.next(response.data);
+        this.clientsSubject.next(response);
       });
   }
 
@@ -37,7 +35,7 @@ export class DataService {
     this.http
       .post<{ data: any[] }>(`${this.apiEndPoint}/pet/add`, { ...data })
       .subscribe((response) => {
-        this.clientsSubject.next(response.data);
+        this.clientsSubject.next(response);
       });
   }
 
