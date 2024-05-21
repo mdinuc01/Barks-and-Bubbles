@@ -17,7 +17,7 @@
 
   <div class="button-layout">
     <button mat-icon-button
-            matTooltip="Add Clients"
+            matTooltip="Add Pet"
             (click)="showPanel($event, true)">
       <mat-icon><span class="material-symbols-outlined">
           pets
@@ -36,7 +36,7 @@
 <div id="client-panel"
      class="panel-layout"
      *ngIf="showClientPanel">
-  <app-file-reader-component style="padding: 1em;"></app-file-reader-component>
+  <app-pet-form [hidePanels]="hidePanels.bind(this)"></app-pet-form>
 </div>
 
 <div id="appointment-panel"

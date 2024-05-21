@@ -21,6 +21,7 @@ import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
+import { PetFormComponent } from './components/pet-form/pet-form.component';
 @Component({
   selector: 'app-root',
   standalone: true,
@@ -42,6 +43,7 @@ import { MatSelectModule } from '@angular/material/select';
     FormsModule,
     MatSelectModule,
     ReactiveFormsModule,
+    PetFormComponent,
   ],
 })
 export class AppComponent implements OnInit {
@@ -62,8 +64,8 @@ export class AppComponent implements OnInit {
     this.DataService.clients$.subscribe((res) => {
       this.hidePanels();
 
-      if (res.length) {
-        res.forEach((client: { serviceArea: string }) => {
+      if (res.data) {
+        res.data.forEach((client: { serviceArea: string }) => {
           if (!this.options.includes(client.serviceArea)) {
             this.options.push(client.serviceArea);
           }
@@ -71,7 +73,7 @@ export class AppComponent implements OnInit {
       }
     });
 
-    this.DataService.getAllClients();
+    this.DataService.getAllPets();
   }
 
   hidePanels() {
