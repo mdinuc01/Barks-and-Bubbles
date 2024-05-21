@@ -1,3 +1,4 @@
+import { ToastService } from './../../services/toast.service';
 import { CommonModule } from '@angular/common';
 import { DataService } from './../../services/data.service';
 import { MatCardModule } from '@angular/material/card';
@@ -13,11 +14,17 @@ import { Component, OnInit } from '@angular/core';
 export class ClientListComponent implements OnInit {
   clients: any[] = [];
 
-  constructor(private DataService: DataService) {}
+  constructor(
+    private DataService: DataService,
+    private ToastService: ToastService
+  ) {}
 
   ngOnInit(): void {
-    this.DataService.clients$.subscribe((clients) => {
-      this.clients = clients;
+    this.DataService.clients$.subscribe((res) => {
+      if (res.data) this.clients = res.data;
+
+      if (res.message == 'Client created')
+        this.ToastService.showSuccess('Pet Added Successfully!');
     });
 
     this.DataService.getAllPets();
