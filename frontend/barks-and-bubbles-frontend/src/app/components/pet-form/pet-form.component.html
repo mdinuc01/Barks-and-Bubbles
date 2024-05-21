@@ -1,56 +1,74 @@
-<form [formGroup]="petForm"
-      (ngSubmit)="createClient()">
+<div>
   <h3>Create Pet</h3>
-  <mat-form-field appearance="outline">
-    <mat-label>Pet Name</mat-label>
-    <input matInput
-           type="text"
-           formControlName="petName" />
-    <mat-hint>Luna</mat-hint>
-  </mat-form-field>
+  <form [formGroup]="petForm"
+        (ngSubmit)="createClient()">
+    <mat-form-field appearance="outline">
+      <mat-label>Pet Name</mat-label>
+      <input matInput
+             type="text"
+             formControlName="petName" />
+      <mat-hint>Luna</mat-hint>
+    </mat-form-field>
 
-  <mat-form-field appearance="outline">
-    <mat-label>Pet Parent</mat-label>
-    <input matInput
-           type="text"
-           formControlName="petParentName" />
-    <mat-hint>Jane Doe</mat-hint>
-  </mat-form-field>
+    <mat-form-field appearance="outline">
+      <mat-label>Pet Parent</mat-label>
+      <input matInput
+             type="text"
+             formControlName="petParentName" />
+      <mat-hint>Jane Doe</mat-hint>
+    </mat-form-field>
 
-  <mat-form-field appearance="outline">
-    <mat-label>Animal Type</mat-label>
-    <input matInput
-           type="text"
-           formControlName="animalType" />
-    <mat-hint>Dog</mat-hint>
-  </mat-form-field>
+    <mat-form-field appearance="outline">
+      <mat-label>Animal Type</mat-label>
+      <input matInput
+             type="text"
+             formControlName="animalType" />
+      <mat-hint>Dog</mat-hint>
+    </mat-form-field>
 
-  <mat-form-field appearance="outline">
-    <mat-label>Breed</mat-label>
-    <input matInput
-           type="text"
-           formControlName="breed" />
-    <mat-hint>Golden Retriever</mat-hint>
-  </mat-form-field>
+    <mat-form-field appearance="outline">
+      <mat-label>Breed</mat-label>
+      <input matInput
+             type="text"
+             formControlName="breed" />
+      <mat-hint>Golden Retriever</mat-hint>
+    </mat-form-field>
 
-  <mat-form-field appearance="outline">
-    <mat-label>Contact Method</mat-label>
-    <input matInput
-           type="text"
-           formControlName="contactMethod" />
-    <mat-hint>6472345678</mat-hint>
-  </mat-form-field>
+    <mat-form-field appearance="outline">
+      <mat-label>Address</mat-label>
+      <input matInput
+             type="text"
+             formControlName="address" />
+      <mat-hint>123 Main Street</mat-hint>
+    </mat-form-field>
 
-  <mat-form-field appearance="outline">
-    <mat-label>Service Area</mat-label>
-    <input matInput
-           type="text"
-           formControlName="serviceArea" />
-    <mat-hint>Holland Center</mat-hint>
-  </mat-form-field>
+    <mat-form-field appearance="outline">
+      <mat-label>Service Area</mat-label>
+      <input matInput
+             type="text"
+             formControlName="serviceArea" />
+      <mat-hint>Holland Center</mat-hint>
+    </mat-form-field>
 
-  <button mat-raised-button
-          color="primary"
-          [disabled]="petForm.invalid">Create Pet</button>
+    <mat-form-field appearance="outline">
+      <mat-label>Contact Method</mat-label>
+      <input matInput
+             type="text"
+             formControlName="contactMethod" />
+      <mat-hint>6472345678</mat-hint>
+    </mat-form-field>
 
-</form>
+    <span></span>
+
+    <button mat-raised-button
+            color="primary"
+            [disabled]="petForm.invalid">Create Pet</button>
+
+
+    <button mat-raised-button
+            color="accent"
+            class="mat-accent"
+            (click)="onCancel($event)">Cancel</button>
+
+  </form>
+</div>

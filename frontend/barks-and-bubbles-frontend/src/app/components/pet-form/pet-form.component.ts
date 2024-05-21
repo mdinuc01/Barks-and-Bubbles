@@ -1,5 +1,5 @@
 import { DataService } from './../../services/data.service';
-import { Component } from '@angular/core';
+import { Component, Input } from '@angular/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import {
@@ -25,6 +25,8 @@ import { MatButtonModule } from '@angular/material/button';
   styleUrl: './pet-form.component.scss',
 })
 export class PetFormComponent {
+  @Input() hidePanels!: () => void;
+
   petForm = new FormGroup({
     petParentName: new FormControl(null, [Validators.required]),
     contactMethod: new FormControl(null, [Validators.required]),
@@ -32,11 +34,18 @@ export class PetFormComponent {
     breed: new FormControl(null, [Validators.required]),
     petName: new FormControl(null, [Validators.required]),
     serviceArea: new FormControl(null, [Validators.required]),
+    address: new FormControl(null, [Validators.required]),
   });
 
   constructor(private DataService: DataService) {}
 
   createClient() {
     this.DataService.addPet(this.petForm.value);
+  }
+
+  onCancel(event: Event) {
+    event.preventDefault();
+    this.petForm.reset();
+    this.hidePanels();
   }
 }
