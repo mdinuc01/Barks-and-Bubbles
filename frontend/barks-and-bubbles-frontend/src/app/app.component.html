@@ -85,5 +85,6 @@
 </div>
 
 <div (click)="hidePanels()">
+  <app-loader *ngIf="showLoader"></app-loader>
   <router-outlet></router-outlet>
 </div>

@@ -37,4 +37,9 @@ export class AppointmentListComponent implements OnInit {
   formatLocations(locations: string[]) {
     return locations.toString().replaceAll(',', ', ');
   }
+
+  viewAppointment(app: any) {
+    this.DataService.showLoader();
+    this.router.navigate(['appointment/', app._id]);
+  }
 }

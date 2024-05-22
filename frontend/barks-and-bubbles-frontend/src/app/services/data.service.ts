@@ -6,19 +6,20 @@ import { Router } from '@angular/router';
 
 @Injectable({ providedIn: 'root' })
 export class DataService {
-  private clientsSubject: BehaviorSubject<any> = new BehaviorSubject<any[]>([]);
+  private loaderSubject: BehaviorSubject<any> = new BehaviorSubject<any>([]);
+  private clientsSubject: BehaviorSubject<any> = new BehaviorSubject<any>([]);
 
-  private appointmentsSubject: BehaviorSubject<any> = new BehaviorSubject<
-    any[]
-  >([]);
+  private appointmentsSubject: BehaviorSubject<any> = new BehaviorSubject<any>(
+    []
+  );
   private appointmentSubject: BehaviorSubject<any> = new BehaviorSubject<any>(
     []
   );
 
+  loader$: Observable<any> = this.loaderSubject.asObservable();
   clients$: Observable<any> = this.clientsSubject.asObservable();
   appointments$: Observable<any> = this.appointmentsSubject.asObservable();
   currentAppointment$: Observable<any> = this.appointmentSubject.asObservable();
-
   apiEndPoint = environment.domain;
 
   constructor(private http: HttpClient, private router: Router) {}
@@ -28,6 +29,7 @@ export class DataService {
       .get<{ data: any[] }>(`${this.apiEndPoint}/pet/`)
       .subscribe((response) => {
         this.clientsSubject.next(response);
+        this.loaderSubject.next(false);
       });
   }
 
@@ -36,6 +38,7 @@ export class DataService {
       .post<{ data: any[] }>(`${this.apiEndPoint}/pet/add`, { ...data })
       .subscribe((response) => {
         this.clientsSubject.next(response);
+        this.loaderSubject.next(false);
       });
   }
 
@@ -47,6 +50,7 @@ export class DataService {
           (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
         );
         this.appointmentsSubject.next(sortedData);
+        this.loaderSubject.next(false);
       });
   }
 
@@ -55,14 +59,16 @@ export class DataService {
       .get<{ data: any }>(`${this.apiEndPoint}/appointment/${id}`)
       .subscribe((response) => {
         this.appointmentSubject.next(response);
+        this.loaderSubject.next(false);
       });
   }
 
   addAppointment(data: any) {
     this.http
-      .post<{ data: any[] }>(`${this.apiEndPoint}/appointment/add`, { data })
+      .post<{ data: any[] }>(`${this.apiEndPoint}/appointment/add`, { ...data })
       .subscribe((response) => {
         this.appointmentsSubject.next(response.data);
+        this.loaderSubject.next(false);
       });
   }
 
@@ -75,6 +81,7 @@ export class DataService {
       })
       .subscribe((response) => {
         this.appointmentSubject.next(response);
+        this.loaderSubject.next(false);
       });
   }
 
@@ -86,6 +93,7 @@ export class DataService {
       })
       .subscribe((response) => {
         this.appointmentSubject.next(response);
+        this.loaderSubject.next(false);
       });
   }
 
@@ -96,6 +104,7 @@ export class DataService {
       })
       .subscribe((response) => {
         this.appointmentSubject.next(response);
+        this.loaderSubject.next(false);
       });
   }
 
@@ -107,7 +116,12 @@ export class DataService {
       )
       .subscribe((response) => {
         this.appointmentSubject.next(response);
+        this.loaderSubject.next(false);
       });
+  }
+
+  showLoader() {
+    this.loaderSubject.next(true);
   }
 
   formatDate(inputDate: string, forSMS: boolean, forPanel: boolean): string {

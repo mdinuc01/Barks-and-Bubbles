@@ -21,6 +21,8 @@ import { MatNativeDateModule } from '@angular/material/core';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { PetFormComponent } from './components/pet-form/pet-form.component';
+import { LoaderService } from './services/loader/loader.service';
+import { delay, of, switchMap } from 'rxjs';
 @Component({
   selector: 'app-root',
   standalone: true,
@@ -42,6 +44,7 @@ import { PetFormComponent } from './components/pet-form/pet-form.component';
     MatSelectModule,
     ReactiveFormsModule,
     PetFormComponent,
+    LoaderService,
   ],
 })
 export class AppComponent implements OnInit {
@@ -49,6 +52,7 @@ export class AppComponent implements OnInit {
   showClientPanel = false;
   showAppPanel = false;
   isPanelVisible = false;
+  showLoader = true;
   options: string[] = [];
   selectedOption: string = '';
   appForm = new FormGroup({
@@ -70,6 +74,12 @@ export class AppComponent implements OnInit {
         });
       }
     });
+
+    this.DataService.loader$
+      .pipe(switchMap((show) => (show ? of(show) : of(show).pipe(delay(3000)))))
+      .subscribe((show) => {
+        this.showLoader = show;
+      });
 
     this.DataService.getAllPets();
   }
