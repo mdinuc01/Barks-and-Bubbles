@@ -173,3 +173,11 @@ app-client-list::-webkit-scrollbar-thumb,
   flex-wrap: wrap;
   justify-content: center;
 }
+
+app-loader {
+  position: absolute;
+  z-index: 100;
+  top: 5em;
+  height: 100%;
+  width: 100%;
+}
