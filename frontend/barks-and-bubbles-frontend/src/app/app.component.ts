@@ -76,7 +76,7 @@ export class AppComponent implements OnInit {
     });
 
     this.DataService.loader$
-      .pipe(switchMap((show) => (show ? of(show) : of(show).pipe(delay(3000)))))
+      .pipe(switchMap((show) => (show ? of(show) : of(show).pipe(delay(2800)))))
       .subscribe((show) => {
         this.showLoader = show;
       });
