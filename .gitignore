@@ -3,6 +3,5 @@
 /frontend/node_modules
 
 # Database Jsons
-/backend/*.json
 .env
 *.yaml
