@@ -2,14 +2,14 @@
      (click)="this.togglePanel($event, true)">
   <mat-card class="message-list">
     <mat-card-title>
-      <h2 *ngIf="this.appointment && this.appointment.date"
-          [innerHTML]="this.DataService.formatDate(this.appointment.date ,false, false)">TITLE</h2>
+      <h2 *ngIf="this.appointment.app && this.appointment.app.date"
+          [innerHTML]="this.DataService.formatDate(this.appointment.app.date ,false, false)">TITLE</h2>
       <button mat-icon-button
               color="primary"
               matTooltip="Send Appointment Texts"
               (click)="openPanel()"
-              *ngIf="this.appointment"
-              [disabled]="this.appointment.messages && this.appointment.messages.sentDate">
+              *ngIf="this.appointment.app"
+              [disabled]="this.appointment.app.messages && this.appointment.app.messages.sentDate">
         <mat-icon>
           <span class="material-symbols-outlined">
             outgoing_mail
@@ -46,22 +46,21 @@
         <mat-card-title style="display: flex; justify-content: center;">
           <button mat-icon-button
                   color="accent"
+                  class="mat-accent"
                   matTooltip="Load Responses"
                   [disabled]="!hasMessageSent()"
                   (click)="
                 loadReplies()"
                   [ngClass]="{'rotate-image': this.loadingReplies}">
-            <mat-icon>
-              <span class="material-symbols-outlined">
-                sync
-              </span>
+            <mat-icon [ngClass]="{'mat-accent-icon-btn': hasMessageSent()}">
+              sync
             </mat-icon>
           </button>
 
           <button mat-icon-button
                   color="warn"
                   (click)="showErrorPanel = true"
-                  *ngIf="this.appointment && this.appointment.replies && getFailedMessages().length">
+                  *ngIf="this.appointment.app && this.appointment.app.replies && getFailedMessages().length">
             <mat-icon color="warn"
                       matBadgeColor="primary"
                       aria-hidden="false"
@@ -96,17 +95,17 @@
           <div *ngIf="hasMessageSent()">
             <h2 class="error-msg"
                 style="width: 100%;"
-                *ngIf="this.appointment.replies.length == 0">Please load responses to see who replied</h2>
+                *ngIf="this.appointment.app.replies.length == 0">Please load responses to see who replied</h2>
 
-            <div *ngIf="this.appointment.replies.length != 0"
+            <div *ngIf="this.appointment.app.replies.length != 0"
                  class="messages-layout scroll">
-              <div *ngFor="let client of this.appointment.messages.sentTo">
+              <div *ngFor="let client of this.appointment.app.messages.sentTo">
                 <h2 class="client-name">{{client.petName}}
                 </h2>
 
                 <div>
                   <div>
-                    <ng-container *ngFor="let message of this.appointment.replies">
+                    <ng-container *ngFor="let message of this.appointment.app.replies">
                       <mat-card *ngIf="this.showCard(message, client)"
                                 class="message sent"
                                 [ngClass]="{'sent': this.message.status == 'delivered', 'unsent': this.message.status == 'failed', 'received': this.message.direction == 'inbound'}">
@@ -135,10 +134,10 @@
       </mat-tab>
       <mat-tab label="Route Scheduler"
                [disabled]="!hasMessageSent()"
-               *ngIf="this.appointment && this.appointment.replies">
-        <app-appointment-scheduler [clients]="this.appointment.messages.sentTo"
-                                   [replies]="this.appointment.replies"
-                                   [appId]="this.appointment.id"></app-appointment-scheduler>
+               *ngIf="this.appointment.app && this.appointment.app.replies.length">
+        <app-appointment-scheduler [clients]="this.appointment.app.messages.sentTo"
+                                   [replies]="this.appointment.app.replies"
+                                   [appId]="this.appointment.app._id"></app-appointment-scheduler>
       </mat-tab>
 
     </mat-tab-group>

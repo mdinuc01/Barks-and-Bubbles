@@ -10,13 +10,6 @@ import { MatCardModule } from '@angular/material/card';
 import { PanelService } from '../../services/panel service/panel-service';
 import { MatDialog } from '@angular/material/dialog';
 import { lastValueFrom } from 'rxjs';
-import {
-  animate,
-  state,
-  style,
-  transition,
-  trigger,
-} from '@angular/animations';
 import { AppointmentSchedulerComponent } from '../appointment-scheduler/appointment-scheduler.component';
 import { MatBadgeModule } from '@angular/material/badge';
 import { MatTabsModule } from '@angular/material/tabs';
@@ -56,7 +49,7 @@ export class AppointmentPageComponent implements OnInit {
   ngOnInit(): void {
     this.DataService.currentAppointment$.subscribe((res) => {
       if (res.data) {
-        this.appointment = res.data;
+        this.appointment = { ...res.data };
         this.loadingReplies = false;
 
         if (res.message == 'Messages sent') {
@@ -96,7 +89,7 @@ export class AppointmentPageComponent implements OnInit {
       data: {
         title: 'Send Clients SMS',
         confirmMsg: `Are you sure you want to send a SMS message to all clients? <br><br>This will send a text message with a date of <b>${this.DataService.formatDate(
-          this.appointment.date,
+          this.appointment.app.date,
           false,
           true
         )}</b> to the clients in the following service areas: <br><br><b>${this.appointment.meta
@@ -111,7 +104,7 @@ export class AppointmentPageComponent implements OnInit {
 
     if (result) {
       let date = this.DataService.formatDate(
-        this.appointment.date,
+        this.appointment.app.date,
         true,
         false
       );
@@ -119,7 +112,7 @@ export class AppointmentPageComponent implements OnInit {
       this.DataService.sendText(
         this.appointment.meta,
         date,
-        this.appointment.id
+        this.appointment.app._id
       );
     }
   }
@@ -128,15 +121,13 @@ export class AppointmentPageComponent implements OnInit {
     this.loadingReplies = true;
 
     this.DataService.loadReplies(
-      this.appointment.id,
-      this.appointment.messages.sentDate
+      this.appointment.app._id,
+      this.appointment.app.messages.sentDate
     );
   }
 
   hasMessageSent(): Boolean {
-    if (this.appointment && this.appointment.messages)
-      return Object.keys(this.appointment.messages).length > 0;
-    else return false;
+    return this.appointment.app?.messages?.sentDate != null || false;
   }
 
   showCard(message: any, client: any) {
@@ -168,8 +159,8 @@ export class AppointmentPageComponent implements OnInit {
   }
 
   getFailedMessages() {
-    if (this.appointment && this.appointment.replies)
-      return this.appointment.replies.filter(
+    if (this.appointment.app && this.appointment.app.replies)
+      return this.appointment.app.replies.filter(
         (r: { status: string }) => r.status == 'failed'
       );
   }

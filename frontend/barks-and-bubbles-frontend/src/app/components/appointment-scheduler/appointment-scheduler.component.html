@@ -16,15 +16,19 @@
   </button>
 
   <button mat-icon-button
-          color="accent"
           matTooltip="Send Reply Texts"
           (click)="openPanel()">
-    <mat-icon>
-      <span class="material-symbols-outlined">
-        outgoing_mail
-      </span>
+    <mat-icon class="mat-accent-icon-btn">
+      outgoing_mail
     </mat-icon>
   </button>
+</div>
+
+<div class="location-colors scroll">
+  <p *ngFor="let location of this.locations; index as index">
+    <span class="location-circle"
+          [style.background-color]="colors[index]"></span>{{location}}
+  </p>
 </div>
 
 <div class="layout">
@@ -34,6 +38,19 @@
        (touchend)="onDrop($event, null)"
        class="replies-container scroll"
        [ngClass]="{'no-scroll': !filter(this.replies, null).length}">
+
+    <mat-accordion *ngFor="let reply of filter(this.replies, null)"
+                   draggable="true"
+                   (dragstart)="onDragStart(reply)"
+                   (touchstart)="onDragStart(reply)">
+      <mat-expansion-panel>
+        <mat-expansion-panel-header *ngIf="reply.body.length > 10"
+                                    matTooltip="{{reply.body}}">{{reply.body}}</mat-expansion-panel-header>
+        <mat-expansion-panel-header *ngIf="reply.body.length <= 10">{{reply.body}}</mat-expansion-panel-header>
+
+      </mat-expansion-panel>
+    </mat-accordion>
+
     <mat-card *ngFor="let reply of filter(this.replies, null)"
               draggable="true"
               (dragstart)="onDragStart(reply)"

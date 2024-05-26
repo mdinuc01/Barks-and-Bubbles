@@ -1,18 +1,16 @@
 const Appointment = require('../models/Appointment.js');
+const Pet = require('../models/Pet.js');
+
 const { JsonDB, Config } = require('node-json-db');
 
 class AppointmentController {
 
   async getAllAppointments(req, res, next) {
     try {
-      let db = new JsonDB(new Config("appointments", true, false, '/'));
-      let data = await db.getData("/appointments");
+      let data = await Appointment.find();
 
-      if (data.length) {
-        return res.status(200).json({ message: `Appointments found: ${data.length}`, data });
-      } else {
-        return res.status(404).json({ message: "No Appointments found" });
-      }
+      return res.status(200).json({ message: `Appointments found: ${data.length}`, data });
+
     } catch (error) {
       return res.status(500).json({ message: "Internal Server Error", error });
     }
@@ -20,17 +18,17 @@ class AppointmentController {
 
   async addAppointment(req, res, next) {
     try {
-      const data = req.body.data;
-      let db = new JsonDB(new Config("appointments", true, false, '/'));
-      if (data) {
-        const appData = Appointment.fromJSON(data);
-        await db.push('/appointments[]', appData.toData());
-      }
+      const data = req.body;
 
-      let currentData = await db.getData("/appointments");
+      await Appointment.create({
+        date: new Date(data.date),
+        location: data.location,
 
-      if (currentData.length) {
-        return res.status(200).json({ message: `Appointments: ${currentData.length}`, data: currentData });
+      })
+      let currentData = await Appointment.find();
+      if (currentData) {
+
+        return res.status(200).json({ message: `Appointments: ${data.length}`, data: currentData });
       } else {
         return res.status(404).json({ message: "No Appointments found" });
       }
@@ -41,21 +39,18 @@ class AppointmentController {
 
   async getAppointmentId(req, res, next) {
     try {
-      let appDB = new JsonDB(new Config("appointments", true, false, '/'));
-      let clientsDB = new JsonDB(new Config("clients", true, false, '/'));
       let location;
-      let appData = await appDB.getData("/appointments");
 
       const idToFind = req.params.id;
 
-      const app = await appData.find((app) => app.id == idToFind);
-
+      const app = await Appointment.findOne({ _id: idToFind });
+      let locations = app.location;
       //mapping locations clients to app
-      let clients = await clientsDB.getData("/clients");
+      let pets = await Pet.find({ serviceArea: { $in: locations } });
 
-      if (app.messages.sentTo.length) {
+      if (app.messages.sentTo) {
         location = app.location.map(locationVal => {
-          let clientsInLocation = clients.filter(client => {
+          let clientsInLocation = pets.filter(client => {
             // let result = false;
 
             for (const obj of app.messages.sentTo) {
@@ -70,13 +65,13 @@ class AppointmentController {
       } else {
 
         location = app.location.map(locationVal => {
-          let clientsInLocation = clients.filter(client => client.serviceArea === locationVal);
+          let clientsInLocation = pets.filter(client => client.serviceArea === locationVal);
           return { [locationVal]: clientsInLocation };
         });
       }
 
       let meta = app.location;
-      const data = { ...app, location, meta }
+      const data = { app, location, meta }
 
       if (app) {
         return res.status(200).json({ message: `Appointment found`, data });
@@ -93,13 +88,16 @@ class AppointmentController {
     try {
       const appId = req.params.id;
       const replies = req.body.replies;
-      let appDB = new JsonDB(new Config("appointments", true, false, '/'));
-      let appData = await appDB.getData("/appointments");
 
-      let index = await appData.findIndex((app) => app.id == appId);
-
-      appData[index].replies = replies;
-      await appDB.push("/appointments", appData);
+      await Appointment.findOneAndUpdate(
+        { _id: appId },
+        {
+          $set: {
+            'replies': replies,
+          }
+        },
+        { new: true }
+      );
 
       return res.status(200).json({ message: `Replies Saved` });
 

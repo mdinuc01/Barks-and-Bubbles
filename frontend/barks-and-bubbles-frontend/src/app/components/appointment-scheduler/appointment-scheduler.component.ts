@@ -9,6 +9,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { lastValueFrom } from 'rxjs';
 import { MatDialog } from '@angular/material/dialog';
+import { MatAccordion, MatExpansionModule } from '@angular/material/expansion';
 
 @Component({
   selector: 'app-appointment-scheduler',
@@ -19,6 +20,7 @@ import { MatDialog } from '@angular/material/dialog';
     MatIconModule,
     MatButtonModule,
     MatTooltipModule,
+    MatExpansionModule,
   ],
   templateUrl: './appointment-scheduler.component.html',
   styleUrl: './appointment-scheduler.component.scss',
@@ -28,9 +30,44 @@ export class AppointmentSchedulerComponent implements OnInit {
   @Input() clients!: any[];
   @Input() replies!: any[];
   @Input() appId!: string;
+
+  colors: string[] = [
+    '#FF0000',
+    '#00FF00',
+    '#0000FF',
+    '#FFFF00',
+    '#FF00FF',
+    '#00FFFF',
+    '#800000',
+    '#008000',
+    '#000080',
+    '#808000',
+    '#800080',
+    '#008080',
+    '#FF5733',
+    '#33FF57',
+    '#3357FF',
+    '#FF33A1',
+    '#A1FF33',
+    '#FFAA33',
+    '#33FFAA',
+    '#AA33FF',
+    '#FFA533',
+    '#33FFA5',
+    '#5733FF',
+    '#A533FF',
+    '#FF33F5',
+    '#33F5FF',
+    '#F5FF33',
+    '#33FF33',
+    '#FF5733',
+    '#FF3333',
+  ];
+
   currentReply: any;
   resetTime = false;
   resetSave = false;
+  locations: string[] = [];
 
   constructor(
     private ToastService: ToastService,
@@ -40,10 +77,17 @@ export class AppointmentSchedulerComponent implements OnInit {
     // Generate hours from 12:00 AM to 11:00 PM
     for (let i = 7; i < 12; i++) {
       this.hours.push(`${i === 0 ? 12 : i}:00 AM`);
+      this.hours.push(`${i === 0 ? 12 : i}:15 AM`);
+      this.hours.push(`${i === 0 ? 12 : i}:30 AM`);
+      this.hours.push(`${i === 0 ? 12 : i}:45 AM`);
     }
-    for (let i = 12; i < 22; i++) {
+    for (let i = 12; i < 21; i++) {
       this.hours.push(`${i === 12 ? 12 : i - 12}:00 PM`);
+      this.hours.push(`${i === 12 ? 12 : i - 12}:15 PM`);
+      this.hours.push(`${i === 12 ? 12 : i - 12}:30 PM`);
+      this.hours.push(`${i === 12 ? 12 : i - 12}:45 PM`);
     }
+    this.hours.push(`9:00 PM`);
   }
   ngOnInit(): void {
     this.DataService.currentAppointment$.subscribe((res) => {
@@ -60,6 +104,8 @@ export class AppointmentSchedulerComponent implements OnInit {
 
       this.resetTime = false;
     });
+
+    this.locations = this.getDistinctServiceAreas(this.clients);
   }
 
   filter(arr: any[], filterParam: any) {
@@ -85,9 +131,8 @@ export class AppointmentSchedulerComponent implements OnInit {
       (client) => client.contactMethod == findNumber
     );
     if (reply != undefined && client.petParentName) {
-      console.log({ reply, client });
       reply.time = time;
-      reply.name = client.petParentName;
+      reply.petParentName = client.petParentName;
     }
 
     this.currentReply = null;
@@ -130,5 +175,16 @@ export class AppointmentSchedulerComponent implements OnInit {
     if (result) {
       this.DataService.sendReplies(this.appId);
     }
+  }
+
+  getDistinctServiceAreas(objects: any[]): string[] {
+    if (!objects || !objects.length) return [];
+    const serviceAreaSet = new Set<string>();
+
+    for (const obj of objects) {
+      serviceAreaSet.add(obj.serviceArea);
+    }
+
+    return Array.from(serviceAreaSet);
   }
 }

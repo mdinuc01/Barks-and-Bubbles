@@ -12,16 +12,16 @@ class SMSUtils {
 
   async getReplies(date) {
 
-    const url = `https://api.twilio.com/2010-04-01/Accounts/${accountSid}/Messages.json`;
+    // const url = `https://api.twilio.com/2010-04-01/Accounts/${accountSid}/Messages.json`;
 
     const formattedDate = new Date(date);
     const dateAfter = formattedDate.toUTCString();
     const dateBefore = new Date().toUTCString();
 
-    const auth = {
-      username: accountSid,
-      password: authToken
-    };
+    // const auth = {
+    //   username: accountSid,
+    //   password: authToken
+    // };
 
     try {
       // const response = await axios.get(url, {
@@ -42,7 +42,7 @@ class SMSUtils {
           dateSentBefore: dateBefore,
         })
         .then(messages => res = messages);
-
+      console.log({ res })
       return res;
     } catch (error) {
       console.error('Error fetching messages:', error);

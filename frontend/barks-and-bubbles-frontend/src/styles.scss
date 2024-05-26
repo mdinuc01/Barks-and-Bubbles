@@ -67,6 +67,9 @@ $my-theme: mat.define-light-theme(
   color: white !important;
 }
 
+.mat-accent-icon-btn {
+  color: mat.get-color-from-palette($my-accent, 500);
+}
 .mat-success {
   background-color: mat.get-color-from-palette($custom-success, 500) !important;
   color: white !important;
