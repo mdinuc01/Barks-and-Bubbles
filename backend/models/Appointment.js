@@ -48,6 +48,11 @@ const appointmentScheme = mongoose.Schema(
       type: Array,
       required: true
     },
+    active: {
+      type: Boolean,
+      required: true,
+      default: true
+    },
     messages: {
       type: {},
       required: true,

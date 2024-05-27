@@ -28,7 +28,7 @@ class AppointmentController {
       let currentData = await Appointment.find();
       if (currentData) {
 
-        return res.status(200).json({ message: `Appointments: ${data.length}`, data: currentData });
+        return res.status(200).json({ message: `Appointment create`, data: currentData });
       } else {
         return res.status(404).json({ message: "No Appointments found" });
       }
@@ -103,8 +103,29 @@ class AppointmentController {
 
 
     } catch (error) {
+      return res.status(500).json({ message: "Internal Server Error", error });
+    }
+  }
 
+  async archiveAppointment(req, res, next) {
+    try {
+      const appId = req.params.id;
+      const isArchived = req.body.isArchived;
+      await Appointment.findOneAndUpdate(
+        { _id: appId },
+        {
+          $set: {
+            'active': isArchived,
+          }
+        }
+      );
 
+      const data = await Appointment.find();
+
+      return res.status(200).json({ message: `Appointment Archived Successfully`, data });
+
+    } catch (error) {
+      return res.status(500).json({ message: "Internal Server Error", error });
     }
   }
 }

@@ -1,8 +1,17 @@
-<h2 class="appointment-title">Appointments</h2>
+<div class="appointment-title">
+  <h2>{{archivedDisplayed ? 'Archived' : 'Active'}} Appointments</h2>
 
-<div *ngIf="appointments.length"
+  <button mat-icon-button
+          color="primary"
+          matTooltip="{{!archivedDisplayed? 'View Archived Appointments': 'View Active Appointments'}}"
+          (click)="archivedDisplayed = !archivedDisplayed">
+    <mat-icon>{{!archivedDisplayed? 'history': 'event_upcoming'}}</mat-icon>
+  </button>
+</div>
+<div *ngIf="filteredAppointments.length"
      class="appointments-layout">
-  <mat-card *ngFor="let app of appointments">
+  <mat-card *ngFor="let app of filteredAppointments"
+            (click)="viewAppointment(app)">
     <mat-card-title [innerHTML]="formatDate(app.date, false, false)"></mat-card-title>
     <mat-card-content>
       <p [ngClass]="{'location-layout' : app.location.length >= 2, 'no-scroll': app.location.length < 2}">
@@ -11,15 +20,28 @@
     </mat-card-content>
     <mat-card-actions align="end">
       <button mat-icon-button
+              color="warn"
+              *ngIf="!this.archivedDisplayed"
+              matTooltip="Archive Appointment"
+              (click)="archiveApp(app, false, $event)">
+        <mat-icon>
+          archive
+        </mat-icon>
+      </button>
+
+      <button mat-icon-button
               color="primary"
-              matTooltip="View Appointment"
-              (click)="viewAppointment(app)"><mat-icon><span class="material-symbols-outlined">
-            arrow_circle_right
-          </span></mat-icon></button>
+              matTooltip="Activate Appointment"
+              *ngIf="this.archivedDisplayed"
+              (click)="archiveApp(app, true, $event)">
+        <mat-icon>
+          history
+        </mat-icon>
+      </button>
     </mat-card-actions>
   </mat-card>
 </div>
 
-<div *ngIf="!appointments.length">
-  <h2 class="error-msg">No Appointments</h2>
+<div *ngIf="!filteredAppointments.length">
+  <h2 class="error-msg">No {{archivedDisplayed ? 'Archived' : 'Active'}} Appointments</h2>
 </div>

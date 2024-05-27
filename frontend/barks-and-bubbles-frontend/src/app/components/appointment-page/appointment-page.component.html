@@ -2,7 +2,7 @@
      (click)="this.togglePanel($event, true)">
   <mat-card class="message-list">
     <mat-card-title>
-      <h2 *ngIf="this.appointment.app && this.appointment.app.date"
+      <h2 *ngIf="this.appointment && this.appointment.app && this.appointment.app.date"
           [innerHTML]="this.DataService.formatDate(this.appointment.app.date ,false, false)">TITLE</h2>
       <button mat-icon-button
               color="primary"

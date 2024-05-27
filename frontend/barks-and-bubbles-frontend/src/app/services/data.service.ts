@@ -46,10 +46,7 @@ export class DataService {
     this.http
       .get<{ data: any[] }>(`${this.apiEndPoint}/appointment/`)
       .subscribe((response) => {
-        const sortedData = response.data.sort(
-          (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
-        );
-        this.appointmentsSubject.next(sortedData);
+        this.appointmentsSubject.next(response);
         this.loaderSubject.next(false);
       });
   }
@@ -67,7 +64,7 @@ export class DataService {
     this.http
       .post<{ data: any[] }>(`${this.apiEndPoint}/appointment/add`, { ...data })
       .subscribe((response) => {
-        this.appointmentsSubject.next(response.data);
+        this.appointmentsSubject.next(response);
         this.loaderSubject.next(false);
       });
   }
@@ -117,6 +114,17 @@ export class DataService {
       .subscribe((response) => {
         this.appointmentSubject.next(response);
         this.loaderSubject.next(false);
+      });
+  }
+
+  archiveAppointment(appId: String, isArchived: boolean) {
+    this.http
+      .put<{ data: any }>(
+        `${this.apiEndPoint}/appointment/time/archive/${appId}`,
+        { isArchived }
+      )
+      .subscribe((response) => {
+        this.appointmentsSubject.next(response);
       });
   }
 

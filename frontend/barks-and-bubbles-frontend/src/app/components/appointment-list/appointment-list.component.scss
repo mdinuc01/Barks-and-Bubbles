@@ -11,6 +11,7 @@ mat-card {
   margin: 0.5em;
   padding: 1em;
   height: 11.5em;
+  cursor: pointer;
 
   p {
     height: 2.75em;
@@ -19,9 +20,16 @@ mat-card {
 }
 
 .appointment-title {
+  display: inline-flex;
   position: relative;
   bottom: 1.1em;
   margin: 0;
+  align-items: flex-start;
+  flex-direction: row;
+
+  button {
+    bottom: 0.25em;
+  }
 }
 
 @media (max-width: 1460px) {
