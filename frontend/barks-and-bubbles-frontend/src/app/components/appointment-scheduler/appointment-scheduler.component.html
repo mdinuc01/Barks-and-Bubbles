@@ -24,43 +24,83 @@
   </button>
 </div>
 
-<div class="location-colors scroll">
-  <p *ngFor="let location of this.locations; index as index">
-    <span class="location-circle"
-          [style.background-color]="colors[index]"></span>{{location}}
-  </p>
-</div>
-
 <div class="layout">
   <div (dragover)="onDragOver($event)"
        (touchmove)="onDragOver($event)"
        (drop)="onDrop($event, null)"
        (touchend)="onDrop($event, null)"
        class="replies-container scroll"
-       [ngClass]="{'no-scroll': !filter(this.replies, null).length}">
+       [ngClass]="{'no-scroll': !this.replies.length}">
 
-    <mat-accordion *ngFor="let reply of filter(this.replies, null)"
-                   draggable="true"
-                   (dragstart)="onDragStart(reply)"
-                   (touchstart)="onDragStart(reply)">
-      <mat-expansion-panel>
-        <mat-expansion-panel-header *ngIf="reply.body.length > 10"
-                                    matTooltip="{{reply.body}}">{{reply.body}}</mat-expansion-panel-header>
-        <mat-expansion-panel-header *ngIf="reply.body.length <= 10">{{reply.body}}</mat-expansion-panel-header>
+    <div (dragover)="onDragOver($event)"
+         (touchmove)="onDragOver($event)"
+         (drop)="onDrop($event, null)"
+         (touchend)="onDrop($event, null)">
 
-      </mat-expansion-panel>
-    </mat-accordion>
+      <div *ngFor="let reply of replies"
+           class="reply-container">
+        <ng-container *ngFor="let key of objectKeys(reply)">
+          <div class="location-header">
+            <p class="location-title"><b>{{ key }} ({{reply[key].length}})</b></p>
+            <div class="increment-btns"
+                 *ngIf="reply[key].length">
+              <button mat-icon-button
+                      (click)="decrementCounter(key)"
+                      color="accent">
+                <mat-icon class="mat-accent-icon-btn">
+                  do_not_disturb_on
+                </mat-icon>
+              </button>
+              <span class="counter">{{ counters[key] }} hrs</span>
+              <button mat-icon-button
+                      (click)="incrementCounter(key)"
+                      color="primary">
+                <mat-icon>
+                  add_circle
+                </mat-icon></button>
+            </div>
+          </div>
 
-    <mat-card *ngFor="let reply of filter(this.replies, null)"
-              draggable="true"
-              (dragstart)="onDragStart(reply)"
-              (touchstart)="onDragStart(reply)">
-      <p *ngIf="reply.body.length > 10"
-         matTooltip="{{reply.body}}">{{reply.body}}</p>
-      <p *ngIf="reply.body.length <= 10">{{reply.body}}</p>
-      <mat-card-footer align="end">{{getClientName(reply.from)}}</mat-card-footer>
-    </mat-card>
-    <p *ngIf="!filter(this.replies, null).length"
+          <mat-card *ngFor="let message of filterByTime(reply[key].replies, '')"
+                    draggable="true"
+                    (dragstart)="onDragStart(message)"
+                    (touchstart)="onDragStart(message)">
+            <mat-card-title style="height: 0em"></mat-card-title>
+            <mat-card-content>
+              <div class="reply-layout">
+                <div>
+                  <mat-icon>pets</mat-icon>
+                  <p>{{message.petName}}</p>
+
+                  <mat-icon>face</mat-icon>
+                  <p>{{message.petParentName}}</p>
+
+                </div>
+
+                <p *ngIf="message.body.length > 2"
+                   class="longer-msg"
+                   matTooltip="{{ message.body }}">
+                  {{ message.body}}
+                </p>
+
+                <p *ngIf="message.body.length <= 2">
+                  {{ message.body}}
+                </p>
+              </div>
+            </mat-card-content>
+          </mat-card>
+
+          <p *ngIf="!filterByTime(reply[key].replies, '').length && reply[key].length">All replies scheduled</p>
+
+          <p *ngIf="filterByTime(reply[key].replies, '') && !reply[key].length"
+             style="width: 12em;">No Replies from this area</p>
+        </ng-container>
+      </div>
+    </div>
+
+
+
+    <p *ngIf="!this.replies.length"
        (dragover)="onDragOver($event)"
        (touchmove)="onDragOver($event)"
        (drop)="onDrop($event, null)"
@@ -76,20 +116,45 @@
          (drop)="onDrop($event, hour)"
          (touchend)="onDrop($event, hour)">
       <h3>{{hour}}</h3>
-      <div class="hour-reply-layout">
-        <mat-card *ngFor="let reply of filter(this.replies, hour)"
+      <div class="scheduled">
+        <mat-card *ngFor="let message of filterByTime(this.replies, hour)"
                   draggable="true"
-                  (dragstart)="onDragStart(reply)"
-                  (touchstart)="onDragStart(reply)">
-          <p *ngIf="reply.body.length > 10"
-             matTooltip="{{reply.body}}">{{reply.body}}</p>
-          <p *ngIf="reply.body.length <= 10">{{reply.body}}</p>
+                  (dragstart)="onDragStart(message)"
+                  (touchstart)="onDragStart(message)">
+          <mat-card-title align="end"
+                          style="height: 0em">
 
-          <mat-card-footer align="end">{{getClientName(reply.from)}}</mat-card-footer>
+            <p matBadge="{{getLocationInitials(message.serviceArea)}}"
+               matBadgePosition="below"
+               class="badge"
+               matTooltip="{{message.serviceArea}}"></p>
+
+          </mat-card-title>
+          <mat-card-content>
+            <div class="reply-layout"
+                 style="margin-bottom: 1em;">
+              <div>
+                <mat-icon>pets</mat-icon>
+                <p>{{message.petName}}</p>
+
+                <mat-icon>face</mat-icon>
+                <p>{{message.petParentName}}</p>
+              </div>
+
+              <p *ngIf="message.body.length > 2"
+                 class="longer-msg"
+                 matTooltip="{{ message.body }}">
+                {{ message.body}}
+              </p>
+
+              <p *ngIf="message.body.length <= 2">
+                {{ message.body}}
+              </p>
+            </div>
+          </mat-card-content>
         </mat-card>
       </div>
-
-      <h3 *ngIf="!filter(this.replies, hour).length"
+      <h3 *ngIf="!filterByTime(this.replies, hour).length"
           class="err-msg">Nothing Scheduled at {{hour}}</h3>
     </div>
   </div>

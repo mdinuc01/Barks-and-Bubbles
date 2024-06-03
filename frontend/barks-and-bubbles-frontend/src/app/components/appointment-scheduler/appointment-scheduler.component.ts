@@ -9,7 +9,29 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { lastValueFrom } from 'rxjs';
 import { MatDialog } from '@angular/material/dialog';
-import { MatAccordion, MatExpansionModule } from '@angular/material/expansion';
+import { MatExpansionModule } from '@angular/material/expansion';
+import { MatBadgeModule } from '@angular/material/badge';
+
+interface Reply {
+  sid: string;
+  body: string;
+  from: string;
+  to: string;
+  time: string | null;
+  status: string;
+  id: string;
+  petName: string;
+  petParentName: string;
+  serviceArea: string;
+}
+
+interface Location {
+  [key: string]: {
+    replies: Reply[];
+    location: String;
+    increment: String;
+  };
+}
 
 @Component({
   selector: 'app-appointment-scheduler',
@@ -21,6 +43,7 @@ import { MatAccordion, MatExpansionModule } from '@angular/material/expansion';
     MatButtonModule,
     MatTooltipModule,
     MatExpansionModule,
+    MatBadgeModule,
   ],
   templateUrl: './appointment-scheduler.component.html',
   styleUrl: './appointment-scheduler.component.scss',
@@ -30,6 +53,7 @@ export class AppointmentSchedulerComponent implements OnInit {
   @Input() clients!: any[];
   @Input() replies!: any[];
   @Input() appId!: string;
+  counters: { [key: string]: number } = {};
 
   colors: string[] = [
     '#FF0000',
@@ -106,10 +130,49 @@ export class AppointmentSchedulerComponent implements OnInit {
     });
 
     this.locations = this.getDistinctServiceAreas(this.clients);
+    this.initializeCounters();
   }
 
-  filter(arr: any[], filterParam: any) {
-    return arr.filter((a) => a.direction == 'inbound' && a.time == filterParam);
+  filterByTime(data: Location[], time: string): any[] {
+    let matchingReplies: any[] = [];
+    let repliesWithMatchingTime: any[];
+
+    if (time == '' && data.length) {
+      return (repliesWithMatchingTime = data.filter(
+        (reply) => reply['time'] == null
+      ));
+    }
+    if (data)
+      data.forEach((location) => {
+        Object.values(location).forEach((area) => {
+          if (area && area.replies.length) {
+            repliesWithMatchingTime = area.replies.filter(
+              (reply) => reply.time === time
+            );
+
+            matchingReplies = matchingReplies.concat(repliesWithMatchingTime);
+          }
+        });
+      });
+
+    return matchingReplies;
+  }
+
+  filterBySid(data: Location[], sid: string): Reply[] {
+    let matchingReplies: Reply[] = [];
+
+    data.forEach((location) => {
+      Object.values(location).forEach((area) => {
+        if (area.replies) {
+          const repliesWithMatchingTime = area.replies.filter(
+            (reply: { sid: string }) => reply.sid === sid
+          );
+          matchingReplies = matchingReplies.concat(repliesWithMatchingTime);
+        }
+      });
+    });
+
+    return matchingReplies;
   }
 
   getClientName(phoneNumber: string) {
@@ -119,14 +182,20 @@ export class AppointmentSchedulerComponent implements OnInit {
     return client.petName;
   }
 
+  objectKeys = Object.keys;
+
   onDragStart(reply: any) {
     this.currentReply = reply;
   }
 
   onDrop(event: any, time: any) {
     event.preventDefault();
+
+    if (!this.currentReply) return;
+
     let findNumber = this.currentReply.from.toString().substring(2);
-    let reply = this.replies.find((r) => r.sid == this.currentReply.sid);
+
+    let reply = this.filterBySid(this.replies, this.currentReply.sid)[0];
     let client = this.clients.find(
       (client) => client.contactMethod == findNumber
     );
@@ -134,7 +203,6 @@ export class AppointmentSchedulerComponent implements OnInit {
       reply.time = time;
       reply.petParentName = client.petParentName;
     }
-
     this.currentReply = null;
   }
 
@@ -148,11 +216,27 @@ export class AppointmentSchedulerComponent implements OnInit {
   }
 
   resetAppTimes() {
-    this.replies = this.replies.map((r) => {
-      r.time = null;
-      return r;
-    });
+    // this.replies = this.replies.map((location) => {
+    //   let local = this.objectKeys(location)[0];
+    //   console.log({ r: location[local].replies });
+    //   if (location[local].replies && location[local].replies.length)
+    //     return location[local].replies.forEach(
+    //       (reply: { time: string | null }) => {
+    //         reply.time = null;
+    //       }
+    //     );
+    //     return location;
+    //   });
 
+    this.replies = this.replies.map((location) => {
+      // Assuming location is an object whose values are the areas
+      Object.values(location).forEach((area: any) => {
+        area.increment = 0.5;
+        area.replies.forEach((reply: any) => (reply.time = null));
+      });
+      return location;
+    });
+    this.initializeCounters();
     this.resetTime = true;
     this.saveReplies(false);
   }
@@ -186,5 +270,46 @@ export class AppointmentSchedulerComponent implements OnInit {
     }
 
     return Array.from(serviceAreaSet);
+  }
+
+  initializeCounters() {
+    this.replies.forEach((reply) => {
+      this.objectKeys(reply).forEach((key) => {
+        const incrementValue = parseFloat(reply[key].increment);
+        this.counters[key] = isNaN(incrementValue) ? 0.5 : incrementValue;
+      });
+    });
+  }
+
+  incrementCounter(key: string) {
+    if (this.counters[key] !== undefined) {
+      this.counters[key] += 0.5;
+      this.updateIncrementInLocations(key);
+    }
+  }
+
+  decrementCounter(key: string) {
+    if (this.counters[key] !== undefined && this.counters[key] > 0.5) {
+      this.counters[key] -= 0.5;
+      this.updateIncrementInLocations(key);
+    }
+  }
+
+  updateIncrementInLocations(key: string) {
+    this.replies.forEach((reply) => {
+      if (reply[key]) {
+        reply[key].increment = this.counters[key].toString();
+      }
+    });
+  }
+
+  getLocationInitials(input: string): string {
+    // Split the string by spaces to get the words
+    const words = input.split(' ');
+
+    // Map over the words array and get the first letter of each word
+    const initials = words.map((word) => word.charAt(0)).join('');
+
+    return initials;
   }
 }

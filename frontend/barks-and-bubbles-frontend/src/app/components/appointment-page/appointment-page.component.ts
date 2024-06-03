@@ -127,10 +127,14 @@ export class AppointmentPageComponent implements OnInit {
   }
 
   hasMessageSent(): Boolean {
-    return this.appointment.app?.messages?.sentDate != null || false;
+    if (this.appointment && this.appointment.app)
+      return this.appointment.app?.messages?.sentDate != null || false;
+    else return false;
   }
 
   showCard(message: any, client: any) {
+    if (!message.to || !message.from) return;
+
     let to = message.to.replaceAll('+1', '');
     let from = message.from.replaceAll('+1', '');
 

@@ -8,7 +8,7 @@
               color="primary"
               matTooltip="Send Appointment Texts"
               (click)="openPanel()"
-              *ngIf="this.appointment.app"
+              *ngIf="this.appointment && this.appointment.app"
               [disabled]="this.appointment.app.messages && this.appointment.app.messages.sentDate">
         <mat-icon>
           <span class="material-symbols-outlined">
@@ -60,7 +60,7 @@
           <button mat-icon-button
                   color="warn"
                   (click)="showErrorPanel = true"
-                  *ngIf="this.appointment.app && this.appointment.app.replies && getFailedMessages().length">
+                  *ngIf="this.appointment && this.appointment.app && this.appointment.app.replies && getFailedMessages().length">
             <mat-icon color="warn"
                       matBadgeColor="primary"
                       aria-hidden="false"
@@ -95,9 +95,10 @@
           <div *ngIf="hasMessageSent()">
             <h2 class="error-msg"
                 style="width: 100%;"
-                *ngIf="this.appointment.app.replies.length == 0">Please load responses to see who replied</h2>
+                *ngIf="this.appointment &&this.appointment.app && this.appointment.app.replies && this.appointment.app.replies.length == 0">
+              Please load responses to see who replied</h2>
 
-            <div *ngIf="this.appointment.app.replies.length != 0"
+            <div *ngIf="this.appointment &&this.appointment.app && this.appointment.app.replies && this.appointment.app.replies.length != 0"
                  class="messages-layout scroll">
               <div *ngFor="let client of this.appointment.app.messages.sentTo">
                 <h2 class="client-name">{{client.petName}}
@@ -134,9 +135,9 @@
       </mat-tab>
       <mat-tab label="Route Scheduler"
                [disabled]="!hasMessageSent()"
-               *ngIf="this.appointment.app && this.appointment.app.replies.length">
+               *ngIf="this.appointment && this.appointment.app && this.appointment.app.replies.length">
         <app-appointment-scheduler [clients]="this.appointment.app.messages.sentTo"
-                                   [replies]="this.appointment.app.replies"
+                                   [replies]="this.appointment.app.scheduler"
                                    [appId]="this.appointment.app._id"></app-appointment-scheduler>
       </mat-tab>
 

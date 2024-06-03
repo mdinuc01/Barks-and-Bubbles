@@ -12,7 +12,7 @@
 
   h3 {
     position: sticky;
-    top: 0;
+    top: -1px;
     background-color: #f0f0f0;
     z-index: 200;
     height: 3em;
@@ -36,7 +36,7 @@
 
 .replies-container {
   height: 30em;
-  width: 15em;
+  width: 17em;
   overflow-y: scroll;
   border-radius: 3px;
   display: flex;
@@ -45,35 +45,21 @@
   margin-top: 1em;
   margin-left: 1em;
   padding: 1em 0;
-  background-color: rgba(171, 219, 232, 0.4901960784);
+  background-color: #cee5ec;
   border-top: 0.5em solid rgba(171, 219, 232, 0);
   border-bottom: 0.5em solid rgba(171, 219, 232, 0);
 }
 
-mat-accordion {
-  cursor: move;
-  margin-bottom: 2em;
-  padding: 1em;
-  height: 6em;
-  width: 10em;
-  text-overflow: ellipsis;
-
-  p {
-    text-overflow: ellipsis;
-    overflow: hidden;
-    white-space: nowrap;
-  }
-}
-
-mat-accordion:active {
-  border: 1px solid black;
-  opacity: 1;
-}
-
 .err-msg {
   color: #808080;
-  z-index: 1;
-  margin-left: 2em;
+  z-index: 1 !important;
+  background-color: #cee5ec !important;
+  border-radius: 3px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 6em !important;
+  margin-bottom: 1em !important;
 }
 
 .no-replies {
@@ -140,7 +126,6 @@ h2 {
 }
 
 .location-colors {
-  // p {
   display: flex;
   align-items: center;
   justify-content: flex-start;
@@ -148,8 +133,84 @@ h2 {
   flex-wrap: wrap;
   overflow-y: hidden;
   overflow-x: scroll;
-  // }
   p {
     display: flex;
   }
+}
+.location-header {
+  position: sticky;
+  top: -15px;
+  z-index: 10;
+  width: 15em;
+  background-color: #cee5ec;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.location-title {
+  position: sticky;
+  top: -15px;
+  z-index: 20;
+  background-color: #cee5ec;
+  padding: 0.5em 3em 0 3em;
+}
+
+.increment-btns {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.reply-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  width: 10em;
+  padding-top: 1em;
+  flex-direction: column;
+  gap: 1em;
+}
+
+.reply-layout {
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  width: 10em;
+  padding-top: 1.5em;
+
+  div {
+    border-right: grey 1px solid;
+    margin-right: 1.25em;
+    padding-left: 0.5em;
+    width: 15em;
+  }
+}
+
+.badge {
+  position: relative;
+  top: 1em;
+  right: 1em;
+  margin-right: 0.5em;
+}
+
+.scheduled {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.75em;
+  margin-bottom: 0.5em;
+}
+
+mat-card {
+  cursor: move;
+  height: 11em;
+  width: 14em;
+}
+
+.longer-msg {
+  width: 2em;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
 }
