@@ -42,7 +42,6 @@ class SMSUtils {
           dateSentBefore: dateBefore,
         })
         .then(messages => res = messages);
-      console.log({ res })
       return res;
     } catch (error) {
       console.error('Error fetching messages:', error);
@@ -67,9 +66,9 @@ class SMSUtils {
     }
   }
 
-  async sendReply(clientDate, date) {
-    let message = new Message(clientDate, date);
-    let number = `+1${clientDate.contactMethod}`;
+  async sendReply(clientData, date, increment) {
+    let message = new Message(clientData, date, increment);
+    let number = `+1${clientData.contactMethod}`;
 
     try {
       const messageObj = await client.messages

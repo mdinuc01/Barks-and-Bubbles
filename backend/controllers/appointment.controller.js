@@ -93,7 +93,7 @@ class AppointmentController {
         { _id: appId },
         {
           $set: {
-            'replies': replies,
+            'scheduler': replies,
           }
         },
         { new: true }

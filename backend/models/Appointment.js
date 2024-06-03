@@ -62,6 +62,11 @@ const appointmentScheme = mongoose.Schema(
       type: Array,
       required: true,
       default: []
+    },
+    scheduler: {
+      type: Array,
+      required: true,
+      default: []
     }
   }
 )

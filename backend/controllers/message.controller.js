@@ -68,23 +68,26 @@ class MessageController {
   async sendReplies(req, res, next) {
     try {
       let appId = req.params.id;
-      // let date = req.body.date;
-      let db = new JsonDB(new Config("appointments", true, false, '/'));
-      let apps = await db.getData("/appointments");
 
-      const app = await apps.find((app) => app.id == appId);
+      const app = await Appointment.findOne({ _id: appId });
 
 
-      if (app.replies.length) {
-        app.replies.forEach((reply) => {
-          if (reply.time && reply.time != null && reply.name) {
-            let name = { petParentName: reply.name, contactMethod: reply.from.substring(2) }
-            let message = new Message(name, reply.time);
 
-            SMSUtils.sendReply(name, reply.time);
+      if (app.scheduler && app.scheduler.length) {
+        app.location.forEach((l) => {
+          const scheduler = app.scheduler.find(obj => obj.hasOwnProperty(l));
 
+          if (scheduler[l].replies && scheduler[l].replies.length && scheduler[l].increment) {
+            scheduler[l].replies.forEach(async (reply) => {
+              if (reply.time && reply.time != null && reply.petParentName) {
+                let name = { petParentName: reply.petParentName, contactMethod: reply.from.substring(2) }
+                //     // let message = new Message(name, reply.time);
+                await SMSUtils.sendReply(name, reply.time, scheduler[l].increment);
+              }
+            })
           }
         })
+
         return res.status(200).json({ message: `Replies sent` });
       }
     } catch (error) {
@@ -96,7 +99,7 @@ class MessageController {
     try {
       const { sentDate, appId } = req.body;
       let replies = await SMSUtils.getReplies(sentDate);
-      let app = await Appointment.findOne({ _id: appId })
+      let app = await Appointment.findOne({ _id: appId });
 
 
       let messagesData = app.messages.sentTo;
@@ -119,17 +122,59 @@ class MessageController {
         if (currentReply && currentReply.time) {
           time = currentReply.time;
           petParentName = currentReply.petParentName;
+
         }
         return { ...r, time, petParentName }
+
 
       });
 
       newReplies = removeCircularReferences(newReplies);
 
+
+      let schedulerReplies = app.location.map((l) => {
+        const scheduler = app.scheduler.find(obj => obj.hasOwnProperty(l));
+        let replies = newReplies.filter((r) => {
+          if (r.from == "+13346410423") return;
+
+          let from = r.from.substring(2);
+          let meta = messagesData.find((m) => m.contactMethod == from);
+
+          return !!(meta && meta.serviceArea == l);
+        }).map((r) => {
+          let from = r.from.substring(2);
+          let meta = messagesData.find((m) => m.contactMethod == from);
+
+          if (meta) {
+            let { contactMethod, ...metaWithoutContactMethod } = meta;
+
+            let time;
+            let currentReply = scheduler[l].replies.find((reply) => reply.sid === r.sid);
+            if (currentReply && currentReply.time) {
+              time = currentReply.time;
+            }
+
+            return {
+              sid: r.sid,
+              body: r.body,
+              from: r.from,
+              to: r.to,
+              time,
+              status: r.status,
+              ...metaWithoutContactMethod
+            };
+          }
+        });
+
+        return { [l]: { replies, length: replies.length, increment: scheduler[l].increment ? scheduler[l].increment : "0.5" } };
+      });
+
+
       let newApp = await Appointment.findOneAndUpdate(
         { _id: appId },
         {
           'replies': newReplies,
+          'scheduler': schedulerReplies
         },
         { new: true }
       );
@@ -146,7 +191,6 @@ class MessageController {
               return client;
             }
           }
-          return;
         });
         return { [locationVal]: clientsInLocation };
       });
@@ -156,7 +200,6 @@ class MessageController {
 
       return res.status(200).json({ message: `Found Replies`, data });
     } catch (error) {
-      console.log({ error })
       return res.status(500).json({ message: "Internal Server Error", error });
     }
   }
