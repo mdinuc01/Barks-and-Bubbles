@@ -309,7 +309,6 @@ export class AppointmentSchedulerComponent implements OnInit {
 
     // Map over the words array and get the first letter of each word
     const initials = words.map((word) => word.charAt(0)).join('');
-
-    return initials;
+    return initials.substring(0, 2);
   }
 }
