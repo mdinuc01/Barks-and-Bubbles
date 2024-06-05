@@ -1,0 +1,210 @@
+.layout {
+  display: grid;
+  grid-template-columns: 1fr 3fr;
+}
+
+.reply-list {
+  width: 95%;
+  height: 43em;
+  padding: 2em;
+  margin: 1em;
+}
+.message-list {
+  width: 35em;
+  height: 43em;
+  padding: 2em;
+  margin: 1em;
+
+  mat-card-title {
+    display: flex;
+
+    button {
+      margin-left: 1em;
+    }
+  }
+
+  h4 {
+    margin-left: 0.5em;
+  }
+
+  .client-cards-container {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    row-gap: 1em;
+  }
+  .client-card {
+    width: 12em;
+    height: 12em;
+    padding: 2em;
+    margin-bottom: 1em;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+}
+
+.location-layout {
+  height: 35em;
+  overflow-y: scroll;
+}
+
+.location-title {
+  position: sticky;
+  top: -1px;
+  background-color: white;
+  z-index: 20;
+}
+
+.rotate-image {
+  animation: rotate 1s linear infinite; /* Adjust the duration (5s) as needed */
+}
+
+@keyframes rotate {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.messages-layout {
+  overflow-y: scroll;
+  height: 32em;
+}
+
+.client-name {
+  position: sticky;
+  top: -1px;
+  z-index: 5;
+  background-color: white;
+  border-bottom: #9a9a9a solid 1px;
+  padding-bottom: 1em;
+  margin-bottom: 0;
+}
+
+.message {
+  min-width: 15em;
+  max-width: 20em;
+  margin: 10px;
+  padding: 5px;
+  border-radius: 10px;
+  display: flex;
+  flex-direction: column;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  align-content: center;
+  align-self: flex-end;
+  sub {
+    color: grey;
+    margin-right: 10px;
+  }
+}
+
+.sent {
+  background-color: #dcf8c6;
+}
+
+.unsent {
+  background-color: #f8c6c6;
+}
+.received {
+  background-color: #e0e0e0;
+  left: 22vw;
+}
+
+.panel-container {
+  position: fixed;
+  top: 5em;
+  right: 0;
+  width: 50%;
+  height: 45em;
+  background-color: #f0f0f0;
+  box-shadow: -2px 0 5px rgba(0, 0, 0, 0.5);
+  z-index: 50;
+  border-radius: 3px;
+}
+
+.panel {
+  width: 100%;
+  height: 100%;
+  overflow-y: auto;
+  z-index: 50;
+}
+
+.panel-layout {
+  background-color: white;
+  border-radius: 1em;
+  border: 1px solid #ededed;
+  position: absolute;
+  z-index: 10;
+  box-shadow: 3px 3px 3px #afafaf;
+  height: 18em;
+  overflow-y: scroll;
+  padding: 0 0.5em 0.5em 0.5em;
+}
+
+.error-messages {
+  font-size: medium;
+  width: 27em !important;
+  min-width: 0 !important;
+  max-width: 30em !important;
+}
+
+.error-title {
+  position: sticky;
+  top: 0;
+  background-color: white;
+  z-index: 20;
+  padding: 0.5em 0;
+}
+
+@media only screen and (min-width: 1366px) and (min-height: 1024px) {
+  .client-cards-container {
+    display: grid;
+    grid-template-columns: repeat(1, 1fr) !important;
+    justify-items: center;
+  }
+
+  .message-list {
+    width: 22em;
+    height: 66em;
+  }
+
+  .location-layout {
+    height: 58em;
+  }
+
+  .reply-list {
+    height: 66em;
+  }
+
+  .messages-layout {
+    height: 55em;
+  }
+}
+
+@media only screen and (min-width: 1024px) and (min-height: 1366px) {
+  .client-cards-container {
+    display: grid;
+    grid-template-columns: repeat(1, 1fr) !important;
+    justify-items: center;
+  }
+
+  .message-list {
+    width: 22em;
+    height: 90em;
+  }
+
+  .location-layout {
+    height: 83em;
+  }
+
+  .reply-list {
+    height: 90em;
+  }
+
+  .messages-layout {
+    height: 80em;
+  }
+}

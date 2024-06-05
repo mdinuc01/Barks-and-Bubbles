@@ -1,44 +1,33 @@
 const express = require('express');
 const cors = require('cors');
 const { JsonDB, Config } = require('node-json-db');
-const Client = require('./models/Client');
 const Message = require('./models/Message');
-const clientRoute = require('./routes/client.js');
+const petRoute = require('./routes/pet.js');
 const appRoute = require('./routes/appointment.js');
+const messageRoute = require('./routes/message.js');
 const corsOptions = require('./config/corsOption.js');
-
+require('dotenv').config();
+const mongoose = require('mongoose');
 let app = express();
+const PORT = process.env.PORT || 8800;
 
 app.use(cors(corsOptions));
 app.use(express.json());
 
 //Routes
-app.use("/api/client", clientRoute);
+app.use("/api/pet", petRoute);
 app.use("/api/appointment", appRoute);
+app.use("/api/message", messageRoute);
 
-app.listen(8800, async () => {
-  console.log("Connected to Backend");
 
-});
+mongoose.connect(process.env.MONGO_URI)
+  .then(() => {
+    console.log('Connected to DB');
+    app.listen(PORT, () => {
+      console.log(`Server is running on port ${PORT}`);
+    });
+  })
+  .catch(err => {
+    console.error('Failed to connect to MongoDB', err);
+  });
 
-let addToDB = async () => {
-  let db = new JsonDB(new Config("clients", true, false, '/'));
-
-  try {
-
-    let client = new Client("Test", "6477676278", "Dog", "Lab Mix", "Teo", "Holland Centre");
-    // await db.push('/clients[]', client.toData());
-
-    let data = await db.getData("/clients");
-
-    if (data) {
-      //TODO - Message Generation Code
-      data.forEach(client => {
-        const message = new Message(client, 'May 12th');
-        console.log(message.createMessage());
-      });
-    }
-  } catch (error) {
-    console.log({ error });
-  }
-}

@@ -1,29 +1,42 @@
-<mat-toolbar color="primary">
-  <div>
-    <span>Barks and Bubbles</span>
+<nav class="navbar navbar-expand-lg bg-dark border-bottom border-body mat-background-primary"
+     data-bs-theme="dark"
+     (click)="hidePanels()">
+  <div class="container-fluid">
+    <a (click)="this.DataService.goHome()"
+       style="cursor: pointer;
+         display: flex;
+         flex-wrap: nowrap;
+         align-items: center;
+         margin-bottom: 0.15em;">
+      <img class="logo"
+           src="../assets/logo.png"
+           alt="">
+      <h2>Barks & Bubbles</h2>
+    </a>
   </div>
 
-  <div>
+  <div class="button-layout">
     <button mat-icon-button
-            matTooltip="Add Clients"
-            (click)="showClientPanel = !showClientPanel; showAppPanel = false;">
+            matTooltip="Add Pet"
+            (click)="showPanel($event, true)">
       <mat-icon><span class="material-symbols-outlined">
           pets
         </span></mat-icon>
     </button>
     <button mat-icon-button
-            matTooltip="Add Appointments"
-            (click)="showAppPanel = !showAppPanel; showClientPanel = false">
+            matTooltip="Add Appointment"
+            (click)="showPanel($event, false)">
       <mat-icon>alarm</mat-icon>
     </button>
   </div>
 
-</mat-toolbar>
+</nav>
+<!-- </div> -->
 
 <div id="client-panel"
      class="panel-layout"
      *ngIf="showClientPanel">
-  <app-file-reader-component style="padding: 1em;"></app-file-reader-component>
+  <app-pet-form [hidePanels]="hidePanels.bind(this)"></app-pet-form>
 </div>
 
 <div id="appointment-panel"
@@ -71,4 +84,7 @@
   </form>
 </div>
 
-<router-outlet></router-outlet>
+<div (click)="hidePanels()">
+  <app-loader *ngIf="showLoader"></app-loader>
+  <router-outlet></router-outlet>
+</div>

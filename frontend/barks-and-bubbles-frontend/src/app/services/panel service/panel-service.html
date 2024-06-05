@@ -1,0 +1,21 @@
+<div class="dialog-panel">
+  <div mat-dialog-title
+       class="panel-header-primary"
+       style="width: 96%;">
+    <h2>{{ data.title }}</h2>
+  </div>
+  <mat-dialog-content>
+    <p style="color: black;"
+       [innerHTML]="data.confirmMsg">{{ data.confirmMsg }}</p>
+    <p style="color: black;">{{ data.subMsg }}</p>
+  </mat-dialog-content>
+  <mat-dialog-actions align="end">
+    <button mat-raised-button
+            color="warn"
+            (click)="onConfirm()">{{data.btnTitle}}</button>
+    <button mat-raised-button
+            color="accent"
+            style="color: white;"
+            (click)="onCancel()">Cancel</button>
+  </mat-dialog-actions>
+</div>

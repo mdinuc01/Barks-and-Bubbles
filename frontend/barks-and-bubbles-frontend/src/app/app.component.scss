@@ -1,9 +1,24 @@
-mat-toolbar {
+nav {
   position: sticky;
   top: 0;
-  z-index: 20;
+  z-index: 100;
   display: flex;
   justify-content: space-between;
+  flex-wrap: nowrap;
+  height: 5em;
+  align-items: center;
+
+  h2 {
+    color: white;
+    font-family: "Roboto", sans-serif;
+    font-weight: 500;
+    font-style: normal;
+    margin: 0.5em 0.1em;
+  }
+
+  .button-layout {
+    display: flex;
+  }
 
   div {
     button {
@@ -17,12 +32,7 @@ form {
 }
 
 #client-panel {
-  height: 22em;
-  width: 30em;
   right: 10%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
 }
 
 #appointment-panel {
@@ -42,4 +52,10 @@ form {
   position: absolute;
   z-index: 10;
   box-shadow: 3px 3px 3px #afafaf;
+}
+
+.logo {
+  object-fit: contain !important;
+  height: 7em;
+  padding: 1em 0.15em;
 }

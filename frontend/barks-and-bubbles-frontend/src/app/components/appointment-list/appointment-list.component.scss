@@ -11,6 +11,7 @@ mat-card {
   margin: 0.5em;
   padding: 1em;
   height: 11.5em;
+  cursor: pointer;
 
   p {
     height: 2.75em;
@@ -18,23 +19,17 @@ mat-card {
   }
 }
 
-.error-msg {
-  background-color: #c4c4c4;
-  color: black;
-  width: 30vw;
-  border-radius: 1em;
-  margin-left: 1em;
-  height: 65vh;
-  display: flex;
-  align-content: center;
-  flex-wrap: wrap;
-  justify-content: center;
-}
-
 .appointment-title {
+  display: inline-flex;
   position: relative;
   bottom: 1.1em;
   margin: 0;
+  align-items: flex-start;
+  flex-direction: row;
+
+  button {
+    bottom: 0.25em;
+  }
 }
 
 @media (max-width: 1460px) {
@@ -69,5 +64,14 @@ mat-card {
 
   .appointment-title {
     margin-left: 1em;
+  }
+}
+
+@media only screen and (min-width: 1366px) and (min-height: 1024px) {
+  .appointments-layout {
+    grid-template-columns: repeat(2, 1fr);
+    padding: 1em;
+    height: 60em;
+    width: 25em;
   }
 }

@@ -1,8 +1,8 @@
 import { Component } from '@angular/core';
-import { FileReaderComponent } from '../file-reader-component/file-reader-component.component';
 import { ClientListComponent } from '../client-list/client-list.component';
 import { MatButtonModule } from '@angular/material/button';
 import { AppointmentListComponent } from '../appointment-list/appointment-list.component';
+import { LoaderService } from '../../services/loader/loader.service';
 
 @Component({
   selector: 'app-home',
@@ -10,10 +10,10 @@ import { AppointmentListComponent } from '../appointment-list/appointment-list.c
   templateUrl: './home.component.html',
   styleUrl: './home.component.scss',
   imports: [
-    FileReaderComponent,
     ClientListComponent,
     MatButtonModule,
     AppointmentListComponent,
+    LoaderService,
   ],
 })
 export class HomeComponent {}

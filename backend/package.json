@@ -1,7 +1,7 @@
 {
   "name": "barks-and-bubbles-backend",
   "version": "1.0.0",
-  "description": "Barks and Bubbles backend server.",
+  "description": "Barks & Bubbles backend server.",
   "main": "server.js",
   "repository": {
     "type": "git",
@@ -15,8 +15,11 @@
   "license": "ISC",
   "dependencies": {
     "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
     "express": "^4.19.2",
+    "mongoose": "^8.4.0",
     "node-json-db": "^2.3.0",
-    "nodemon": "^3.1.0"
+    "nodemon": "^3.1.0",
+    "twilio": "^5.0.4"
   }
 }

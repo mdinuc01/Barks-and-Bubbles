@@ -1,0 +1,17 @@
+div {
+  padding: 1em;
+}
+
+form {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.75em;
+
+  h3 {
+    grid-column: 1 / span 2;
+  }
+
+  mat-hint {
+    color: grey;
+  }
+}
