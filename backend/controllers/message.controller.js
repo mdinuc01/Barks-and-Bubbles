@@ -124,15 +124,14 @@ class MessageController {
           petParentName = currentReply.petParentName;
 
         }
-                console.log({ r, time, petParentName });
-
+                
         return { ...r, time, petParentName }
 
 
       });
 
       newReplies = removeCircularReferences(newReplies);
-
+      console.log("1: ", {newReplies});
 
       let schedulerReplies = app.location.map((l) => {
         const scheduler = app.scheduler.find(obj => obj.hasOwnProperty(l));
@@ -171,7 +170,7 @@ class MessageController {
         return { [l]: { replies, length: replies.length, increment: scheduler[l].increment ? scheduler[l].increment : "0.5" } };
       });
 
-
+console.log("2: ", {schedulerReplies});
       let newApp = await Appointment.findOneAndUpdate(
         { _id: appId },
         {
@@ -181,7 +180,7 @@ class MessageController {
         { new: true }
       );
 
-
+      console.log("3: ", {newApp});
 
       let pets = await Pet.find();
 
@@ -199,7 +198,7 @@ class MessageController {
 
       let meta = app.location;
       const data = { app: newApp._doc, location, meta };
-
+ console.log("4: ", {data});
       return res.status(200).json({ message: `Found Replies`, data });
     } catch (error) {
       return res.status(500).json({ message: "Internal Server Error", error });
