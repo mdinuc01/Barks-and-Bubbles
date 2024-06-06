@@ -124,6 +124,8 @@ class MessageController {
           petParentName = currentReply.petParentName;
 
         }
+                console.log({ r, time, petParentName });
+
         return { ...r, time, petParentName }
 
 
