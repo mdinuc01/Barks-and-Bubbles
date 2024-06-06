@@ -34,9 +34,7 @@ export class AppointmentListComponent implements OnInit {
     public router: Router,
     private AppointmentFilterPipe: AppointmentFilterPipe,
     private ToastService: ToastService
-  ) {}
-
-  ngOnInit(): void {
+  ) {
     this.DataService.appointments$.subscribe((res) => {
       if (res.data && res.data.length) {
         console.log({ res });
@@ -63,7 +61,9 @@ export class AppointmentListComponent implements OnInit {
         }
       }
     });
+  }
 
+  ngOnInit(): void {
     this.DataService.getAllAppointments();
   }
 
