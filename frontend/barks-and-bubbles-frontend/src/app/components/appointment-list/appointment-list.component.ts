@@ -39,6 +39,7 @@ export class AppointmentListComponent implements OnInit {
   ngOnInit(): void {
     this.DataService.appointments$.subscribe((res) => {
       if (res.data && res.data.length) {
+        console.log({ res });
         this.appointments = res.data.sort(
           (
             a: { date: string | number | Date },
