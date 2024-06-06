@@ -49,6 +49,7 @@ export class AppointmentPageComponent implements OnInit {
   ngOnInit(): void {
     this.DataService.currentAppointment$.subscribe((res) => {
       if (res.data) {
+        console.log({ res });
         this.appointment = { ...res.data };
         this.loadingReplies = false;
 
