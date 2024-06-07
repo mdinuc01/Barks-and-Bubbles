@@ -1,7 +1,7 @@
 import { ToastService } from './../../services/toast.service';
 import { MatCardModule } from '@angular/material/card';
 import { DataService } from './../../services/data.service';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { MatTooltipModule } from '@angular/material/tooltip';
@@ -23,7 +23,7 @@ import { AppointmentFilterPipe } from '../../pipes/appointment-filter.pipe';
   templateUrl: './appointment-list.component.html',
   styleUrl: './appointment-list.component.scss',
 })
-export class AppointmentListComponent implements OnInit {
+export class AppointmentListComponent implements OnInit, OnDestroy {
   appointments: any[] = [];
   formatDate = this.DataService.formatDate;
   archivedDisplayed = false;
@@ -61,6 +61,10 @@ export class AppointmentListComponent implements OnInit {
         }
       }
     });
+  }
+  ngOnDestroy(): void {
+    this.appointments = [];
+    this.DataService.appointments$.subscribe();
   }
 
   ngOnInit(): void {
