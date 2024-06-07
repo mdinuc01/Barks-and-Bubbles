@@ -64,7 +64,9 @@ export class AppointmentListComponent implements OnInit, OnDestroy {
         }
       }
     });
-    this.archivedDisplayedSubject.subscribe(this.onArchivedDisplayedChange);
+    this.archivedDisplayedSubject.subscribe(
+      this.onArchivedDisplayedChange.bind(this)
+    );
   }
   ngOnDestroy(): void {
     this.appointments = [];
@@ -77,7 +79,8 @@ export class AppointmentListComponent implements OnInit, OnDestroy {
 
   // Function to run whenever the value changes
   onArchivedDisplayedChange(newValue: boolean) {
-    // console.log(`archivedDisplayed changed to: ${newValue}`);
+    this.archivedDisplayed = newValue;
+
     this.DataService.getAllAppointments();
   }
 
