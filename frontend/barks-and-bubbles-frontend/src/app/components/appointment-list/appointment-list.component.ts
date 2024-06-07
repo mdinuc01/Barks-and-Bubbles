@@ -8,6 +8,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatIconModule } from '@angular/material/icon';
 import { Router } from '@angular/router';
 import { AppointmentFilterPipe } from '../../pipes/appointment-filter.pipe';
+import { BehaviorSubject } from 'rxjs';
 
 @Component({
   selector: 'app-appointment-list',
@@ -27,6 +28,8 @@ export class AppointmentListComponent implements OnInit, OnDestroy {
   appointments: any[] = [];
   formatDate = this.DataService.formatDate;
   archivedDisplayed = false;
+  archivedDisplayedSubject = new BehaviorSubject<boolean>(false);
+
   // filteredAppointments: any[] = [];
 
   constructor(
@@ -61,6 +64,7 @@ export class AppointmentListComponent implements OnInit, OnDestroy {
         }
       }
     });
+    this.archivedDisplayedSubject.subscribe(this.onArchivedDisplayedChange);
   }
   ngOnDestroy(): void {
     this.appointments = [];
@@ -69,6 +73,16 @@ export class AppointmentListComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.DataService.getAllAppointments();
+  }
+
+  // Function to run whenever the value changes
+  onArchivedDisplayedChange(newValue: boolean) {
+    // console.log(`archivedDisplayed changed to: ${newValue}`);
+    this.DataService.getAllAppointments();
+  }
+
+  setArchivedDisplayed(value: boolean) {
+    this.archivedDisplayedSubject.next(value);
   }
 
   formatLocations(locations: string[]) {
