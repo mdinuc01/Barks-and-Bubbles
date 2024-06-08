@@ -98,23 +98,18 @@ class MessageController {
   async getReplies(req, res, next) {
     try {
       const { sentDate, appId } = req.body;
-      console.log("1: Request body:", { sentDate, appId });
 
       let replies = await SMSUtils.getReplies(sentDate);
-      console.log("2: Replies from SMSUtils.getReplies:", replies);
 
       let app = await Appointment.findOne({ _id: appId });
-      console.log("3: Appointment found:", app);
 
       if (!app) {
         return res.status(404).json({ message: "Appointment not found" });
       }
 
       let messagesData = app.messages.sentTo;
-      console.log("4: Messages data from appointment:", messagesData);
 
       const numbersSentTo = messagesData.map((message) => message.contactMethod.toString());
-      console.log("5: Numbers sent to:", numbersSentTo);
 
       replies = replies.filter((reply) => {
         let to = reply.to.replaceAll("+1", "");
@@ -126,7 +121,6 @@ class MessageController {
           return reply;
         }
       });
-      console.log("6: Filtered replies:", replies);
 
       let newReplies = replies.map((r) => {
         let time;
@@ -139,18 +133,13 @@ class MessageController {
         return { ...r, time, petParentName };
       });
 
-      console.log("7: New replies with additional info:", newReplies);
-
       newReplies = removeCircularReferences(newReplies);
-      console.log("8: New replies after removing circular references:", newReplies);
 
       let schedulerReplies;
       try {
         schedulerReplies = app.location.map((l) => {
-          console.log("9.1: Processing location:", l);
           const scheduler = app.scheduler.find(obj => obj.hasOwnProperty(l));
           if (!scheduler) {
-            console.log(`9.2: Scheduler not found for location: ${l}`);
             return { [l]: { replies: [], length: 0, increment: "0.5" } };
           }
 
@@ -185,17 +174,13 @@ class MessageController {
             return null; // Explicitly return null for non-matching replies
           }).filter(reply => reply !== null); // Filter out null values
 
-          console.log("9.3: Replies for location:", l, replies);
 
           return { [l]: { replies, length: replies.length, increment: scheduler[l].increment ? scheduler[l].increment : "0.5" } };
         });
       } catch (error) {
-        console.error("9.4: Error processing scheduler replies:", error);
+        console.error("Error processing scheduler replies:", error);
         throw error; // Re-throw the error to be caught by the outer catch block
       }
-
-      console.log("10: Scheduler replies:", schedulerReplies);
-
 
       let newApp = await Appointment.findOneAndUpdate(
         { _id: appId },
@@ -206,10 +191,7 @@ class MessageController {
         { new: true }
       );
 
-      console.log("10: Updated appointment:", newApp);
-
       let pets = await Pet.find();
-      console.log("11: Pets found:", pets);
 
       let location = newApp.location.map(locationVal => {
         let clientsInLocation = pets.filter(client => {
@@ -222,11 +204,8 @@ class MessageController {
         return { [locationVal]: clientsInLocation };
       });
 
-      console.log("12: Location data:", location);
-
       let meta = app.location;
       const data = { app: newApp._doc, location, meta };
-      console.log("13: Response data:", { data });
 
       return res.status(200).json({ message: `Found Replies`, data });
     } catch (error) {
@@ -234,9 +213,6 @@ class MessageController {
       return res.status(500).json({ message: "Internal Server Error", error });
     }
   }
-
-
-
 }
 
 
