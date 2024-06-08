@@ -8,7 +8,6 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatIconModule } from '@angular/material/icon';
 import { Router } from '@angular/router';
 import { AppointmentFilterPipe } from '../../pipes/appointment-filter.pipe';
-import { BehaviorSubject } from 'rxjs';
 
 @Component({
   selector: 'app-appointment-list',
@@ -24,13 +23,10 @@ import { BehaviorSubject } from 'rxjs';
   templateUrl: './appointment-list.component.html',
   styleUrl: './appointment-list.component.scss',
 })
-export class AppointmentListComponent implements OnInit, OnDestroy {
+export class AppointmentListComponent implements OnInit {
   appointments: any[] = [];
   formatDate = this.DataService.formatDate;
   archivedDisplayed = false;
-  archivedDisplayedSubject = new BehaviorSubject<boolean>(false);
-
-  // filteredAppointments: any[] = [];
 
   constructor(
     private DataService: DataService,
@@ -40,7 +36,6 @@ export class AppointmentListComponent implements OnInit, OnDestroy {
   ) {
     this.DataService.appointments$.subscribe((res) => {
       if (res.data && res.data.length) {
-        console.log({ res });
         this.appointments = res.data.sort(
           (
             a: { date: string | number | Date },
@@ -64,28 +59,10 @@ export class AppointmentListComponent implements OnInit, OnDestroy {
         }
       }
     });
-    this.archivedDisplayedSubject.subscribe(
-      this.onArchivedDisplayedChange.bind(this)
-    );
-  }
-  ngOnDestroy(): void {
-    this.appointments = [];
-    this.DataService.appointments$.subscribe();
   }
 
   ngOnInit(): void {
     this.DataService.getAllAppointments();
-  }
-
-  // Function to run whenever the value changes
-  onArchivedDisplayedChange(newValue: boolean) {
-    this.archivedDisplayed = newValue;
-
-    this.DataService.getAllAppointments();
-  }
-
-  setArchivedDisplayed(value: boolean) {
-    this.archivedDisplayedSubject.next(value);
   }
 
   formatLocations(locations: string[]) {

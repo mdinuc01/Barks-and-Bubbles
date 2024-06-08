@@ -4,7 +4,7 @@
   <button mat-icon-button
           color="primary"
           matTooltip="{{!archivedDisplayed? 'View Archived Appointments': 'View Active Appointments'}}"
-          (click)="setArchivedDisplayed(!archivedDisplayed)">
+          (click)="archivedDisplayed = !archivedDisplayed">
     <mat-icon>{{!archivedDisplayed? 'history': 'event_upcoming'}}</mat-icon>
   </button>
 </div>
