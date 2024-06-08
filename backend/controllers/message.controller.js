@@ -98,39 +98,51 @@ class MessageController {
   async getReplies(req, res, next) {
     try {
       const { sentDate, appId } = req.body;
-      let replies = await SMSUtils.getReplies(sentDate);
-      let app = await Appointment.findOne({ _id: appId });
+      console.log("1: Request body:", { sentDate, appId });
 
+      let replies = await SMSUtils.getReplies(sentDate);
+      console.log("2: Replies from SMSUtils.getReplies:", replies);
+
+      let app = await Appointment.findOne({ _id: appId });
+      console.log("3: Appointment found:", app);
+
+      if (!app) {
+        return res.status(404).json({ message: "Appointment not found" });
+      }
 
       let messagesData = app.messages.sentTo;
+      console.log("4: Messages data from appointment:", messagesData);
 
       const numbersSentTo = messagesData.map((message) => message.contactMethod.toString());
+      console.log("5: Numbers sent to:", numbersSentTo);
+
       replies = replies.filter((reply) => {
         let to = reply.to.replaceAll("+1", "");
         let from = reply.from.replaceAll("+1", "");
 
-        if (reply.direction.includes("outbound") && numbersSentTo.includes(to)) { return reply; }
-
-        else if (reply.direction.includes("inbound") && numbersSentTo.includes(from))
+        if (reply.direction.includes("outbound") && numbersSentTo.includes(to)) {
           return reply;
+        } else if (reply.direction.includes("inbound") && numbersSentTo.includes(from)) {
+          return reply;
+        }
       });
+      console.log("6: Filtered replies:", replies);
 
-      let newReplies = await replies.map((r) => {
+      let newReplies = replies.map((r) => {
         let time;
         let petParentName;
         let currentReply = app.replies.find((reply) => reply.sid === r.sid);
         if (currentReply && currentReply.time) {
           time = currentReply.time;
           petParentName = currentReply.petParentName;
-
         }
-
-        return { ...r, time, petParentName }
-
-
+        return { ...r, time, petParentName };
       });
 
+      console.log("7: New replies with additional info:", newReplies);
+
       newReplies = removeCircularReferences(newReplies);
+      console.log("8: New replies after removing circular references:", newReplies);
 
       let schedulerReplies = app.location.map((l) => {
         const scheduler = app.scheduler.find(obj => obj.hasOwnProperty(l));
@@ -169,7 +181,8 @@ class MessageController {
         return { [l]: { replies, length: replies.length, increment: scheduler[l].increment ? scheduler[l].increment : "0.5" } };
       });
 
-      console.log("2: ", { schedulerReplies });
+      console.log("9: Scheduler replies:", schedulerReplies);
+
       let newApp = await Appointment.findOneAndUpdate(
         { _id: appId },
         {
@@ -179,13 +192,13 @@ class MessageController {
         { new: true }
       );
 
-      console.log("3: ", { newApp });
+      console.log("10: Updated appointment:", newApp);
 
       let pets = await Pet.find();
+      console.log("11: Pets found:", pets);
 
       let location = newApp.location.map(locationVal => {
         let clientsInLocation = pets.filter(client => {
-
           for (const obj of app.messages.sentTo) {
             if (obj.id === client.id && client.serviceArea == locationVal) {
               return client;
@@ -195,14 +208,19 @@ class MessageController {
         return { [locationVal]: clientsInLocation };
       });
 
+      console.log("12: Location data:", location);
+
       let meta = app.location;
       const data = { app: newApp._doc, location, meta };
-      console.log("4: ", { data });
+      console.log("13: Response data:", { data });
+
       return res.status(200).json({ message: `Found Replies`, data });
     } catch (error) {
+      console.error("Error:", error);
       return res.status(500).json({ message: "Internal Server Error", error });
     }
   }
+
 
 
 }
