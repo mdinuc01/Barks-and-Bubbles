@@ -144,44 +144,58 @@ class MessageController {
       newReplies = removeCircularReferences(newReplies);
       console.log("8: New replies after removing circular references:", newReplies);
 
-      let schedulerReplies = app.location.map((l) => {
-        const scheduler = app.scheduler.find(obj => obj.hasOwnProperty(l));
-        let replies = newReplies.filter((r) => {
-          if (r.from == "+13346410423") return;
-
-          let from = r.from.substring(2);
-          let meta = messagesData.find((m) => m.contactMethod == from);
-
-          return !!(meta && meta.serviceArea == l);
-        }).map((r) => {
-          let from = r.from.substring(2);
-          let meta = messagesData.find((m) => m.contactMethod == from);
-
-          if (meta) {
-            let { contactMethod, ...metaWithoutContactMethod } = meta;
-
-            let time;
-            let currentReply = scheduler[l].replies.find((reply) => reply.sid === r.sid);
-            if (currentReply && currentReply.time) {
-              time = currentReply.time;
-            }
-
-            return {
-              sid: r.sid,
-              body: r.body,
-              from: r.from,
-              to: r.to,
-              time,
-              status: r.status,
-              ...metaWithoutContactMethod
-            };
+      let schedulerReplies;
+      try {
+        schedulerReplies = app.location.map((l) => {
+          console.log("9.1: Processing location:", l);
+          const scheduler = app.scheduler.find(obj => obj.hasOwnProperty(l));
+          if (!scheduler) {
+            console.log(`9.2: Scheduler not found for location: ${l}`);
+            return { [l]: { replies: [], length: 0, increment: "0.5" } };
           }
+
+          let replies = newReplies.filter((r) => {
+            if (r.from == "+13346410423") return false; // Changed from return to return false to avoid including undefined elements
+            let from = r.from.substring(2);
+            let meta = messagesData.find((m) => m.contactMethod == from);
+            return !!(meta && meta.serviceArea == l);
+          }).map((r) => {
+            let from = r.from.substring(2);
+            let meta = messagesData.find((m) => m.contactMethod == from);
+
+            if (meta) {
+              let { contactMethod, ...metaWithoutContactMethod } = meta;
+
+              let time;
+              let currentReply = scheduler[l].replies.find((reply) => reply.sid === r.sid);
+              if (currentReply && currentReply.time) {
+                time = currentReply.time;
+              }
+
+              return {
+                sid: r.sid,
+                body: r.body,
+                from: r.from,
+                to: r.to,
+                time,
+                status: r.status,
+                ...metaWithoutContactMethod
+              };
+            }
+            return null; // Explicitly return null for non-matching replies
+          }).filter(reply => reply !== null); // Filter out null values
+
+          console.log("9.3: Replies for location:", l, replies);
+
+          return { [l]: { replies, length: replies.length, increment: scheduler[l].increment ? scheduler[l].increment : "0.5" } };
         });
+      } catch (error) {
+        console.error("9.4: Error processing scheduler replies:", error);
+        throw error; // Re-throw the error to be caught by the outer catch block
+      }
 
-        return { [l]: { replies, length: replies.length, increment: scheduler[l].increment ? scheduler[l].increment : "0.5" } };
-      });
+      console.log("10: Scheduler replies:", schedulerReplies);
 
-      console.log("9: Scheduler replies:", schedulerReplies);
 
       let newApp = await Appointment.findOneAndUpdate(
         { _id: appId },
