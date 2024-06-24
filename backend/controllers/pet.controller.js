@@ -5,7 +5,7 @@ class ClientController {
 
   async getAllClients(req, res, next) {
     try {
-      let data = await Pet.find();
+      let data = await Pet.find({ created_by: req.userId });
 
       return res.status(200).json({ message: `Clients found: ${data.length}`, data });
 
@@ -48,9 +48,12 @@ class ClientController {
         serviceArea,
         address } = req.body;
 
-      await Pet.create({ petParentName, contactMethod, animalType, breed, petName, serviceArea, address });
+      await Pet.create({
+        petParentName, contactMethod, animalType, breed, petName, serviceArea, address,
+        created_by: req.userId
+      });
 
-      let data = await Pet.find();
+      let data = await Pet.find({ created_by: req.userId });
 
       if (data)
         return res.status(200).json({ message: `Client created`, data });

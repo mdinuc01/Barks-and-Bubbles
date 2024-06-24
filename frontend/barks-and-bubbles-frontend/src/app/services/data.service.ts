@@ -1,6 +1,7 @@
+import { StorageService } from './storage.service';
 import { Injectable } from '@angular/core';
 import { Observable, BehaviorSubject } from 'rxjs';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { environment } from '../../environments/environment';
 import { Router } from '@angular/router';
 
@@ -8,7 +9,6 @@ import { Router } from '@angular/router';
 export class DataService {
   private loaderSubject: BehaviorSubject<any> = new BehaviorSubject<any>([]);
   private clientsSubject: BehaviorSubject<any> = new BehaviorSubject<any>([]);
-
   private appointmentsSubject: BehaviorSubject<any> = new BehaviorSubject<any>(
     []
   );
@@ -21,21 +21,34 @@ export class DataService {
   appointments$: Observable<any> = this.appointmentsSubject.asObservable();
   currentAppointment$: Observable<any> = this.appointmentSubject.asObservable();
   apiEndPoint = environment.domain;
+  token = '';
+  headers: HttpHeaders;
 
-  constructor(private http: HttpClient, private router: Router) {}
+  constructor(
+    private http: HttpClient,
+    private router: Router,
+    private storageService: StorageService
+  ) {
+    this.token = this.storageService.getCookie('aj') ?? '';
+    this.headers = new HttpHeaders().set('x-access-token', this.token);
+  }
 
   getAllPets() {
     this.http
-      .get<{ data: any[] }>(`${this.apiEndPoint}/pet/`)
+      .get<{ data: any[] }>(`${this.apiEndPoint}/pet/`, {
+        headers: this.headers,
+      })
       .subscribe((response) => {
         this.clientsSubject.next(response);
         this.loaderSubject.next(false);
       });
   }
 
-  addPet(data: {}) {
+  addPet(data: any) {
     this.http
-      .post<{ data: any[] }>(`${this.apiEndPoint}/pet/add`, { ...data })
+      .post<{ data: any[] }>(`${this.apiEndPoint}/pet/add`, data, {
+        headers: this.headers,
+      })
       .subscribe((response) => {
         this.clientsSubject.next(response);
         this.loaderSubject.next(false);
@@ -44,7 +57,9 @@ export class DataService {
 
   getAllAppointments() {
     this.http
-      .get<{ data: any[] }>(`${this.apiEndPoint}/appointment/`)
+      .get<{ data: any[] }>(`${this.apiEndPoint}/appointment/`, {
+        headers: this.headers,
+      })
       .subscribe((response) => {
         this.appointmentsSubject.next(response);
         this.loaderSubject.next(false);
@@ -53,7 +68,9 @@ export class DataService {
 
   getAppointmentById(id: string) {
     this.http
-      .get<{ data: any }>(`${this.apiEndPoint}/appointment/${id}`)
+      .get<{ data: any }>(`${this.apiEndPoint}/appointment/${id}`, {
+        headers: this.headers,
+      })
       .subscribe((response) => {
         this.appointmentSubject.next(response);
         this.loaderSubject.next(false);
@@ -62,20 +79,22 @@ export class DataService {
 
   addAppointment(data: any) {
     this.http
-      .post<{ data: any[] }>(`${this.apiEndPoint}/appointment/add`, { ...data })
+      .post<{ data: any[] }>(`${this.apiEndPoint}/appointment/add`, data, {
+        headers: this.headers,
+      })
       .subscribe((response) => {
         this.appointmentsSubject.next(response);
         this.loaderSubject.next(false);
       });
   }
 
-  sendText(locations: [], date: string, appId: string) {
+  sendText(locations: any[], date: string, appId: string) {
     this.http
-      .put<{ data: any }>(`${this.apiEndPoint}/message/sendMessage`, {
-        locations,
-        date,
-        appId,
-      })
+      .put<{ data: any }>(
+        `${this.apiEndPoint}/message/sendMessage`,
+        { locations, date, appId },
+        { headers: this.headers }
+      )
       .subscribe((response) => {
         this.appointmentSubject.next(response);
         this.loaderSubject.next(false);
@@ -84,10 +103,11 @@ export class DataService {
 
   loadReplies(appId: string, sentDate: string) {
     this.http
-      .put<{ data: any }>(`${this.apiEndPoint}/message/getReplies`, {
-        appId,
-        sentDate,
-      })
+      .put<{ data: any }>(
+        `${this.apiEndPoint}/message/getReplies`,
+        { appId, sentDate },
+        { headers: this.headers }
+      )
       .subscribe((response) => {
         this.appointmentSubject.next(response);
         this.loaderSubject.next(false);
@@ -96,9 +116,11 @@ export class DataService {
 
   saveTimes(appId: string, replies: any[]) {
     this.http
-      .put<{ data: any }>(`${this.apiEndPoint}/appointment/time/${appId}`, {
-        replies,
-      })
+      .put<{ data: any }>(
+        `${this.apiEndPoint}/appointment/time/${appId}`,
+        { replies },
+        { headers: this.headers }
+      )
       .subscribe((response) => {
         this.appointmentSubject.next(response);
         this.loaderSubject.next(false);
@@ -109,7 +131,8 @@ export class DataService {
     this.http
       .put<{ message: string }>(
         `${this.apiEndPoint}/message/sendReplies/${appId}`,
-        {}
+        {},
+        { headers: this.headers }
       )
       .subscribe((response) => {
         this.appointmentSubject.next(response);
@@ -117,11 +140,12 @@ export class DataService {
       });
   }
 
-  archiveAppointment(appId: String, isArchived: boolean) {
+  archiveAppointment(appId: string, isArchived: boolean) {
     this.http
       .put<{ data: any }>(
         `${this.apiEndPoint}/appointment/time/archive/${appId}`,
-        { isArchived }
+        { isArchived },
+        { headers: this.headers }
       )
       .subscribe((response) => {
         this.appointmentsSubject.next(response);
@@ -188,6 +212,6 @@ export class DataService {
   }
 
   goHome() {
-    this.router.navigateByUrl('/');
+    this.router.navigateByUrl('/home');
   }
 }
