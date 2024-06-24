@@ -1,10 +1,9 @@
 const express = require('express');
 const cors = require('cors');
-const { JsonDB, Config } = require('node-json-db');
-const Message = require('./models/Message');
 const petRoute = require('./routes/pet.js');
 const appRoute = require('./routes/appointment.js');
 const messageRoute = require('./routes/message.js');
+const authRoute = require('./routes/auth.js');
 const corsOptions = require('./config/corsOption.js');
 require('dotenv').config();
 const mongoose = require('mongoose');
@@ -18,6 +17,7 @@ app.use(express.json());
 app.use("/api/pet", petRoute);
 app.use("/api/appointment", appRoute);
 app.use("/api/message", messageRoute);
+app.use("/api/auth", authRoute);
 
 
 mongoose.connect(process.env.MONGO_URI)

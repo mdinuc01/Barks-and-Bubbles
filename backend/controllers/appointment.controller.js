@@ -1,13 +1,12 @@
 const Appointment = require('../models/Appointment.js');
 const Pet = require('../models/Pet.js');
 
-const { JsonDB, Config } = require('node-json-db');
 
 class AppointmentController {
 
   async getAllAppointments(req, res, next) {
     try {
-      let data = await Appointment.find();
+      let data = await Appointment.find({ created_by: req.userId });
 
       return res.status(200).json({ message: `Appointments found: ${data.length}`, data });
 
@@ -25,7 +24,7 @@ class AppointmentController {
         location: data.location,
 
       })
-      let currentData = await Appointment.find();
+      let currentData = await Appointment.find({ created_by: req.userId });
       if (currentData) {
 
         return res.status(200).json({ message: `Appointment create`, data: currentData });
@@ -43,10 +42,10 @@ class AppointmentController {
 
       const idToFind = req.params.id;
 
-      const app = await Appointment.findOne({ _id: idToFind });
+      const app = await Appointment.findOne({ _id: idToFind, created_by: req.userId });
       let locations = app.location;
       //mapping locations clients to app
-      let pets = await Pet.find({ serviceArea: { $in: locations } });
+      let pets = await Pet.find({ serviceArea: { $in: locations }, created_by: req.userId });
 
       if (app.messages.sentTo) {
         location = app.location.map(locationVal => {
@@ -90,7 +89,7 @@ class AppointmentController {
       const replies = req.body.replies;
 
       await Appointment.findOneAndUpdate(
-        { _id: appId },
+        { _id: appId, created_by: req.userId },
         {
           $set: {
             'scheduler': replies,
@@ -112,7 +111,7 @@ class AppointmentController {
       const appId = req.params.id;
       const isArchived = req.body.isArchived;
       await Appointment.findOneAndUpdate(
-        { _id: appId },
+        { _id: appId, created_by: req.userId },
         {
           $set: {
             'active': isArchived,
@@ -120,7 +119,7 @@ class AppointmentController {
         }
       );
 
-      const data = await Appointment.find();
+      const data = await Appointment.find({ created_by: req.userId, created_by: req.userId });
 
       return res.status(200).json({ message: `Appointment Archived Successfully`, data });
 

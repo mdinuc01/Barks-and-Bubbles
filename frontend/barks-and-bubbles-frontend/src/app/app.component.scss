@@ -7,6 +7,7 @@ nav {
   flex-wrap: nowrap;
   height: 5em;
   align-items: center;
+  padding-right: 2.5em;
 
   h2 {
     color: white;
@@ -58,4 +59,10 @@ form {
   object-fit: contain !important;
   height: 7em;
   padding: 1em 0.15em;
+}
+
+.user {
+  h3 {
+    margin: 0 !important;
+  }
 }
