@@ -22,6 +22,7 @@ class AppointmentController {
       await Appointment.create({
         date: new Date(data.date),
         location: data.location,
+        created_by: req.userId
 
       })
       let currentData = await Appointment.find({ created_by: req.userId });
