@@ -6,7 +6,11 @@ class AuthController {
   async signup(req, res) {
     try {
       let user = {};
-      const userExists = await User.findOne({ username: req.body.username, email: req.body.email });
+      let userExists = await User.findOne({ username: req.body.username });
+      if (!userExists) {
+        userExists = await User.findOne({ email: req.body.username });
+      }
+
       const salt = await bcrypt.genSalt(10);
       if (!userExists) {
         user = new User({
