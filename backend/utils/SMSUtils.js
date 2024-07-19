@@ -18,22 +18,8 @@ class SMSUtils {
     const dateAfter = formattedDate.toUTCString();
     const dateBefore = new Date().toUTCString();
 
-    // const auth = {
-    //   username: accountSid,
-    //   password: authToken
-    // };
-
     try {
-      // const response = await axios.get(url, {
-      //   params: {
-      //     dateSentAfter: dateAfter,
-      //     dateSentBefore: dateBefore,
 
-      //   },
-      //   auth: auth
-      // });
-
-      // return response.data.messages;
       let res;
 
       await client.messages
@@ -49,9 +35,12 @@ class SMSUtils {
     }
   }
 
-  async sendText(clientDate, date) {
-    let message = new Message(clientDate, date);
-    let number = `+1${clientDate.contactMethod}`;
+  async sendText(clientData, date) {
+
+    if (!clientData || !clientData.contactMethod || !this.isValidPhoneNumber(clientData.contactMethod)) return;
+
+    let message = new Message(clientData, date);
+    let number = `+1${clientData.contactMethod}`;
 
     try {
       const messageObj = await client.messages
@@ -67,6 +56,8 @@ class SMSUtils {
   }
 
   async sendReply(clientData, date, increment) {
+    if (!clientData || !clientData.contactMethod || !this.isValidPhoneNumber(clientData.contactMethod)) return;
+
     let message = new Message(clientData, date, increment);
     let number = `+1${clientData.contactMethod}`;
 
@@ -81,6 +72,12 @@ class SMSUtils {
     } catch (error) {
       console.log({ error })
     }
+  }
+
+  isValidPhoneNumber(phoneNumber) {
+    const phoneRegex = /^\d{10}$/;
+
+    return phoneRegex.test(phoneNumber);
   }
 }
 module.exports = new SMSUtils();
