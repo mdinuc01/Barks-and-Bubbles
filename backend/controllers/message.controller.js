@@ -1,10 +1,6 @@
-const Message = require('../models/Message.js');
 const Pet = require('../models/Pet.js');
 const Appointment = require('../models/Appointment.js');
-const { JsonDB, Config } = require('node-json-db');
 const SMSUtils = require('../utils/SMSUtils.js');
-
-
 class MessageController {
 
   async sendMessage(req, res, next) {
@@ -13,8 +9,6 @@ class MessageController {
       let date = req.body.date;
       let appId = req.body.appId;
 
-      // const appDB = new JsonDB(new Config("appointments", true, false, "/"));
-      // const clientDB = new JsonDB(new Config("clients", true, false, '/'));
       let pets = await Pet.find();
       let clientSentTo = [];
 
@@ -135,7 +129,7 @@ class MessageController {
       let schedulerReplies = app.location.map((l) => {
         const scheduler = app.scheduler.find(obj => obj.hasOwnProperty(l));
         let replies = newReplies.filter((r) => {
-          if (r.from == "+13346410423") return;
+          if (r.from == process.env.TWILIO_PHONE_NUMBER || !r.from || r.from == "" || ["Messenger", "messenger"].includes(r.from)) return;
 
           let from = r.from.substring(2);
           let meta = messagesData.find((m) => m.contactMethod == from);
@@ -168,7 +162,6 @@ class MessageController {
 
         return { [l]: { replies, length: replies.length, increment: scheduler[l].increment ? scheduler[l].increment : "0.5" } };
       });
-
 
       let newApp = await Appointment.findOneAndUpdate(
         { _id: appId },
