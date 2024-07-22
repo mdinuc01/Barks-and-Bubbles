@@ -69,9 +69,7 @@ export class StorageService {
   }
 
   public isLoggedIn(): boolean {
-    this.loaderSubject.next(true);
     const user = this.getCookie(TOKEN_KEY);
-    this.loaderSubject.next(false);
     return !!user;
   }
 }

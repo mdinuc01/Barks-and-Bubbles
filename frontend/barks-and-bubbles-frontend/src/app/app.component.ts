@@ -1,5 +1,10 @@
 import { Component, HostListener, OnInit } from '@angular/core';
-import { Router, RouterOutlet } from '@angular/router';
+import {
+  ActivatedRoute,
+  NavigationEnd,
+  Router,
+  RouterOutlet,
+} from '@angular/router';
 import { DataService } from './services/data.service';
 import {
   FormGroup,
@@ -22,7 +27,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { PetFormComponent } from './components/pet-form/pet-form.component';
 import { LoaderService } from './services/loader/loader.service';
-import { delay, of, switchMap } from 'rxjs';
+import { delay, filter, of, switchMap } from 'rxjs';
 import { AuthService } from './services/auth.service';
 import { StorageService } from './services/storage.service';
 @Component({
@@ -69,7 +74,8 @@ export class AppComponent implements OnInit {
   });
   isLoggedIn = false;
   username?: string;
-
+  currentRoute: string | undefined;
+  init = false;
   constructor(
     public DataService: DataService,
     private storageService: StorageService,
@@ -77,14 +83,22 @@ export class AppComponent implements OnInit {
     private router: Router
   ) {}
 
-  ngOnInit(): void {
-    this.isLoggedIn = this.storageService.isLoggedIn();
+  async ngOnInit() {
+    // debugger;
+    window.onbeforeunload = () => {
+      setTimeout(() => {
+        this.showLoader = true;
+      }, 200);
+    };
 
-    if (!this.isLoggedIn) {
-      this.showLoader = false;
-      this.router.navigateByUrl('/login');
-      return;
-    } else {
+    window.onload = () => {
+      setTimeout(() => {
+        this.showLoader = false;
+      }, 3100);
+    };
+    this.isLoggedIn = await this.storageService.isLoggedIn();
+
+    if (this.isLoggedIn) {
       this.DataService.clients$.subscribe((res) => {
         this.hidePanels();
 
@@ -97,16 +111,18 @@ export class AppComponent implements OnInit {
         }
       });
 
-      this.DataService.loader$
-        .pipe(
-          switchMap((show) => (show ? of(show) : of(show).pipe(delay(3100))))
-        )
-        .subscribe((show) => {
-          this.showLoader = show;
-        });
-
       this.DataService.getAllPets();
     }
+
+    this.DataService.loader$
+      .pipe(switchMap((show) => (show ? of(show) : of(show).pipe(delay(3100)))))
+      .subscribe((show) => {
+        this.showLoader = show;
+      });
+    let user = await this.storageService.getUser();
+    if (!user) this.showLoader = false;
+
+    this.init = true;
   }
 
   hidePanels() {

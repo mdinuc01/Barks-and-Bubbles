@@ -217,5 +217,12 @@ export class DataService {
 
   goHome() {
     this.router.navigateByUrl('/home');
+    this.loaderSubject.next(false);
+  }
+
+  goToLogin(): boolean {
+    this.router.navigateByUrl('/login');
+    this.loaderSubject.next(false);
+    return false;
   }
 }

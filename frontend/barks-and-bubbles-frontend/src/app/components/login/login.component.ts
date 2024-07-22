@@ -53,19 +53,16 @@ export class LoginComponent {
     private dataService: DataService
   ) {}
 
-  ngOnInit(): void {
-    this.loaderSubject.next(true);
-    if (this.storageService.isLoggedIn()) {
-      this.isLoggedIn = true;
-      this.roles = this.storageService.getUser().roles;
-    }
-
+  ngOnInit() {
     this.loginForm = this.fb.group({
       username: ['', [Validators.required]],
       password: ['', [Validators.required]],
     });
 
-    this.loaderSubject.next(false);
+    if (this.storageService.isLoggedIn()) {
+      this.isLoggedIn = true;
+      this.roles = this.storageService.getUser().roles;
+    }
   }
 
   togglePassword(event: Event): void {
@@ -75,7 +72,6 @@ export class LoginComponent {
 
   login(): void {
     const { username, password } = this.loginForm.value;
-    this.loaderSubject.next(true);
 
     this.authService.login(username, password).subscribe({
       next: async (data) => {

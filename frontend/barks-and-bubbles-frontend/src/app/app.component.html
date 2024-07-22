@@ -94,5 +94,14 @@
 <div (click)="hidePanels()">
   <app-loader *ngIf="showLoader"
               style="z-index: 100;"></app-loader>
-  <router-outlet></router-outlet>
+  <router-outlet>
+
+  </router-outlet>
+
+  <div *ngIf="!isLoggedIn && init"
+       class="login-err-message">
+    <h1>Opps! </h1>
+    <h3> Looks like you forgot to login! Click this to <a href="
+       /login">here</a> to login</h3>
+  </div>
 </div>
