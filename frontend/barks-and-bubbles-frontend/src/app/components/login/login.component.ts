@@ -54,6 +54,7 @@ export class LoginComponent {
   ) {}
 
   ngOnInit(): void {
+    this.loaderSubject.next(true);
     if (this.storageService.isLoggedIn()) {
       this.isLoggedIn = true;
       this.roles = this.storageService.getUser().roles;
@@ -63,6 +64,8 @@ export class LoginComponent {
       username: ['', [Validators.required]],
       password: ['', [Validators.required]],
     });
+
+    this.loaderSubject.next(false);
   }
 
   togglePassword(event: Event): void {
@@ -81,10 +84,10 @@ export class LoginComponent {
         this.isLoginFailed = false;
         this.isLoggedIn = true;
 
-        this.loaderSubject.next(false);
         this.dataService.goHome();
         setTimeout(() => {
           this.reloadPage();
+          this.loaderSubject.next(false);
         }, 200);
       },
       error: (err) => {

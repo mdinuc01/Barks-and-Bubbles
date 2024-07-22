@@ -156,6 +156,10 @@ export class DataService {
     this.loaderSubject.next(true);
   }
 
+  hideLoader() {
+    this.loaderSubject.next(false);
+  }
+
   formatDate(inputDate: string, forSMS: boolean, forPanel: boolean): string {
     const date = new Date(inputDate);
     const options: Intl.DateTimeFormatOptions = {
