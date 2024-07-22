@@ -20,6 +20,7 @@ export class ClientListComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
+    this.DataService.showLoader();
     this.DataService.clients$.subscribe((res) => {
       if (res.data) this.clients = res.data;
 
