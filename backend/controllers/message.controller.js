@@ -92,35 +92,39 @@ class MessageController {
   async getReplies(req, res, next) {
     try {
       const { sentDate, appId } = req.body;
+
       let replies = await SMSUtils.getReplies(sentDate);
+
       let app = await Appointment.findOne({ _id: appId });
 
+      if (!app) {
+        return res.status(404).json({ message: "Appointment not found" });
+      }
 
       let messagesData = app.messages.sentTo;
 
       const numbersSentTo = messagesData.map((message) => message.contactMethod.toString());
+
       replies = replies.filter((reply) => {
         let to = reply.to.replaceAll("+1", "");
         let from = reply.from.replaceAll("+1", "");
 
-        if (reply.direction.includes("outbound") && numbersSentTo.includes(to)) { return reply; }
-
-        else if (reply.direction.includes("inbound") && numbersSentTo.includes(from))
+        if (reply.direction.includes("outbound") && numbersSentTo.includes(to)) {
           return reply;
+        } else if (reply.direction.includes("inbound") && numbersSentTo.includes(from)) {
+          return reply;
+        }
       });
 
-      let newReplies = await replies.map((r) => {
+      let newReplies = replies.map((r) => {
         let time;
         let petParentName;
         let currentReply = app.replies.find((reply) => reply.sid === r.sid);
         if (currentReply && currentReply.time) {
           time = currentReply.time;
           petParentName = currentReply.petParentName;
-
         }
-        return { ...r, time, petParentName }
-
-
+        return { ...r, time, petParentName };
       });
 
       newReplies = removeCircularReferences(newReplies);
@@ -158,6 +162,40 @@ class MessageController {
               ...metaWithoutContactMethod
             };
           }
+
+          let replies = newReplies.filter((r) => {
+            if (r.from == process.env.TWILIO_PHONE_NUMBER) return false; // Changed from return to return false to avoid including undefined elements
+            let from = r.from.substring(2);
+            let meta = messagesData.find((m) => m.contactMethod == from);
+            return !!(meta && meta.serviceArea == l);
+          }).map((r) => {
+            let from = r.from.substring(2);
+            let meta = messagesData.find((m) => m.contactMethod == from);
+
+            if (meta) {
+              let { contactMethod, ...metaWithoutContactMethod } = meta;
+
+              let time;
+              let currentReply = scheduler[l].replies.find((reply) => reply.sid === r.sid);
+              if (currentReply && currentReply.time) {
+                time = currentReply.time;
+              }
+
+              return {
+                sid: r.sid,
+                body: r.body,
+                from: r.from,
+                to: r.to,
+                time,
+                status: r.status,
+                ...metaWithoutContactMethod
+              };
+            }
+            return null; // Explicitly return null for non-matching replies
+          }).filter(reply => reply !== null); // Filter out null values
+
+
+          return { [l]: { replies, length: replies.length, increment: scheduler[l].increment ? scheduler[l].increment : "0.5" } };
         });
 
         return { [l]: { replies, length: replies.length, increment: scheduler[l].increment ? scheduler[l].increment : "0.5" } };
@@ -172,13 +210,10 @@ class MessageController {
         { new: true }
       );
 
-
-
       let pets = await Pet.find();
 
       let location = newApp.location.map(locationVal => {
         let clientsInLocation = pets.filter(client => {
-
           for (const obj of app.messages.sentTo) {
             if (obj.id === client.id && client.serviceArea == locationVal) {
               return client;
@@ -193,11 +228,10 @@ class MessageController {
 
       return res.status(200).json({ message: `Found Replies`, data });
     } catch (error) {
+      console.error("Error:", error);
       return res.status(500).json({ message: "Internal Server Error", error });
     }
   }
-
-
 }
 
 
