@@ -70,6 +70,14 @@ class AuthController {
       token
     });
   }
+
+  async signout(req, res) {
+
+    res.clearCookie('aj');
+    res.clearCookie('un');
+
+    return res.status(200).json({ message: 'Logged out successfully' });
+  };
 }
 
 module.exports = new AuthController();

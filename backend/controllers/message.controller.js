@@ -1,10 +1,6 @@
-const Message = require('../models/Message.js');
 const Pet = require('../models/Pet.js');
 const Appointment = require('../models/Appointment.js');
-const { JsonDB, Config } = require('node-json-db');
 const SMSUtils = require('../utils/SMSUtils.js');
-
-
 class MessageController {
 
   async sendMessage(req, res, next) {
@@ -13,8 +9,6 @@ class MessageController {
       let date = req.body.date;
       let appId = req.body.appId;
 
-      // const appDB = new JsonDB(new Config("appointments", true, false, "/"));
-      // const clientDB = new JsonDB(new Config("clients", true, false, '/'));
       let pets = await Pet.find();
       let clientSentTo = [];
 
@@ -135,16 +129,42 @@ class MessageController {
 
       newReplies = removeCircularReferences(newReplies);
 
-      let schedulerReplies;
-      try {
-        schedulerReplies = app.location.map((l) => {
-          const scheduler = app.scheduler.find(obj => obj.hasOwnProperty(l));
-          if (!scheduler) {
-            return { [l]: { replies: [], length: 0, increment: "0.5" } };
+
+      let schedulerReplies = app.location.map((l) => {
+        const scheduler = app.scheduler.find(obj => obj.hasOwnProperty(l));
+        let replies = newReplies.filter((r) => {
+          if (r.from == process.env.TWILIO_PHONE_NUMBER || !r.from || r.from == "" || ["Messenger", "messenger"].includes(r.from)) return;
+
+          let from = r.from.substring(2);
+          let meta = messagesData.find((m) => m.contactMethod == from);
+
+          return !!(meta && meta.serviceArea == l);
+        }).map((r) => {
+          let from = r.from.substring(2);
+          let meta = messagesData.find((m) => m.contactMethod == from);
+
+          if (meta) {
+            let { contactMethod, ...metaWithoutContactMethod } = meta;
+
+            let time;
+            let currentReply = scheduler[l].replies.find((reply) => reply.sid === r.sid);
+            if (currentReply && currentReply.time) {
+              time = currentReply.time;
+            }
+
+            return {
+              sid: r.sid,
+              body: r.body,
+              from: r.from,
+              to: r.to,
+              time,
+              status: r.status,
+              ...metaWithoutContactMethod
+            };
           }
 
           let replies = newReplies.filter((r) => {
-            if (r.from == "+13346410423") return false; // Changed from return to return false to avoid including undefined elements
+            if (r.from == process.env.TWILIO_PHONE_NUMBER) return false; // Changed from return to return false to avoid including undefined elements
             let from = r.from.substring(2);
             let meta = messagesData.find((m) => m.contactMethod == from);
             return !!(meta && meta.serviceArea == l);
@@ -177,10 +197,9 @@ class MessageController {
 
           return { [l]: { replies, length: replies.length, increment: scheduler[l].increment ? scheduler[l].increment : "0.5" } };
         });
-      } catch (error) {
-        console.error("Error processing scheduler replies:", error);
-        throw error; // Re-throw the error to be caught by the outer catch block
-      }
+
+        return { [l]: { replies, length: replies.length, increment: scheduler[l].increment ? scheduler[l].increment : "0.5" } };
+      });
 
       let newApp = await Appointment.findOneAndUpdate(
         { _id: appId },

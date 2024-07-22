@@ -62,7 +62,19 @@ form {
 }
 
 .user {
+  cursor: pointer;
   h3 {
     margin: 0 !important;
   }
+}
+
+.login-err-message {
+  display: grid;
+  height: 45em;
+  width: 120em;
+  align-items: center;
+  justify-content: center;
+  grid-template-rows: 2em 1em;
+  margin-top: 10em;
+  grid-gap: 3em;
 }

@@ -156,6 +156,10 @@ export class DataService {
     this.loaderSubject.next(true);
   }
 
+  hideLoader() {
+    this.loaderSubject.next(false);
+  }
+
   formatDate(inputDate: string, forSMS: boolean, forPanel: boolean): string {
     const date = new Date(inputDate);
     const options: Intl.DateTimeFormatOptions = {
@@ -213,5 +217,12 @@ export class DataService {
 
   goHome() {
     this.router.navigateByUrl('/home');
+    this.loaderSubject.next(false);
+  }
+
+  goToLogin(): boolean {
+    this.router.navigateByUrl('/login');
+    this.loaderSubject.next(false);
+    return false;
   }
 }

@@ -1,5 +1,6 @@
 import { DOCUMENT, isPlatformBrowser } from '@angular/common';
 import { Inject, Injectable, PLATFORM_ID } from '@angular/core';
+import { BehaviorSubject, Observable } from 'rxjs';
 
 const TOKEN_KEY = 'aj';
 const USER_KEY = 'un';
@@ -9,6 +10,8 @@ const USER_KEY = 'un';
 })
 export class StorageService {
   private isBrowser: boolean;
+  private loaderSubject: BehaviorSubject<any> = new BehaviorSubject<any>([]);
+  loader$: Observable<any> = this.loaderSubject.asObservable();
 
   constructor(
     @Inject(PLATFORM_ID) private platformId: Object,

@@ -17,6 +17,7 @@
 
   <div class="button-layout">
     <button mat-icon-button
+            *ngIf="getUser() != null"
             matTooltip="Add Pet"
             (click)="showPanel($event, true)">
       <mat-icon><span class="material-symbols-outlined">
@@ -25,12 +26,15 @@
     </button>
     <button mat-icon-button
             matTooltip="Add Appointment"
+            *ngIf="getUser() != null"
             (click)="showPanel($event, false)">
       <mat-icon>alarm</mat-icon>
     </button>
   </div>
 
-  <div class="user">
+  <div class="user"
+       matTooltip="Double Click to Logout"
+       (dblclick)="logout()">
     <h3>{{getUser()}}</h3>
   </div>
 </nav>
@@ -88,6 +92,16 @@
 </div>
 
 <div (click)="hidePanels()">
-  <app-loader *ngIf="showLoader"></app-loader>
-  <router-outlet></router-outlet>
+  <app-loader *ngIf="showLoader"
+              style="z-index: 100;"></app-loader>
+  <router-outlet>
+
+  </router-outlet>
+
+  <div *ngIf="!isLoggedIn && init"
+       class="login-err-message">
+    <h1>Opps! </h1>
+    <h3> Looks like you forgot to login! Click this to <a href="
+       /login">here</a> to login</h3>
+  </div>
 </div>
