@@ -132,7 +132,7 @@
   z-index: 50;
 }
 
-.panel-layout {
+.err-panel-layout {
   background-color: white;
   border-radius: 1em;
   border: 1px solid #ededed;
@@ -140,6 +140,7 @@
   z-index: 10;
   box-shadow: 3px 3px 3px #afafaf;
   height: 18em;
+  width: 25em;
   overflow-y: scroll;
   padding: 0 0.5em 0.5em 0.5em;
 }
@@ -156,7 +157,7 @@
   top: 0;
   background-color: white;
   z-index: 20;
-  padding: 0.5em 0;
+  padding: 1em 0 0.5em 0;
 }
 
 @media only screen and (min-width: 1366px) and (min-height: 1024px) {
@@ -207,4 +208,9 @@
   .messages-layout {
     height: 80em;
   }
+}
+
+.err-list {
+  font-weight: 400;
+  font-size: smaller;
 }
