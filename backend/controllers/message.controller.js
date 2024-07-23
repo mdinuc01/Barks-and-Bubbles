@@ -138,7 +138,7 @@ class MessageController {
       let schedulerReplies;
       try {
         schedulerReplies = app.location.map((l) => {
-          const scheduler = app.scheduler.find(obj => obj.hasOwnProperty(l));
+          const scheduler = app.scheduler.find(obj => { if (obj) return obj.hasOwnProperty(l) });
           if (!scheduler) {
             return { [l]: { replies: [], length: 0, increment: "0.5" } };
           }
