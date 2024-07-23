@@ -42,7 +42,7 @@ class AuthController {
         email: req.body.username
       });
 
-      if (!user) return res.status(404).send({ message: "User Not found." });
+      if (!user) return res.status(404).send({ message: "Invalid user, please try again" });
     }
     if (!user.active) return res.status(401).send({ message: "Unauthorized user" });
 
@@ -54,7 +54,7 @@ class AuthController {
     if (!passwordIsValid) {
       return res.status(401).send({
         accessToken: null,
-        message: "Invalid Password!"
+        message: "Invalid credentials, please try again"
       });
     }
 
