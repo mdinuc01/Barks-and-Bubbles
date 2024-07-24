@@ -3,16 +3,28 @@ import { CommonModule } from '@angular/common';
 import { DataService } from './../../services/data.service';
 import { MatCardModule } from '@angular/material/card';
 import { Component, OnInit } from '@angular/core';
+import { SortPipe } from '../sort.pipe';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 @Component({
   selector: 'app-client-list',
   standalone: true,
-  imports: [CommonModule, MatCardModule],
+  imports: [
+    CommonModule,
+    MatCardModule,
+    SortPipe,
+    MatButtonModule,
+    MatIconModule,
+    MatTooltipModule,
+  ],
   templateUrl: './client-list.component.html',
   styleUrl: './client-list.component.scss',
 })
 export class ClientListComponent implements OnInit {
   clients: any[] = [];
+  isAscending = true;
 
   constructor(
     private DataService: DataService,
@@ -44,5 +56,9 @@ export class ClientListComponent implements OnInit {
     const formattedNumber = `(${areaCode}) ${middlePart}-${lastPart}`;
 
     return formattedNumber;
+  }
+
+  toggleSortOrder() {
+    this.isAscending = !this.isAscending;
   }
 }
