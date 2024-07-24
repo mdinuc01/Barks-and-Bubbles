@@ -38,6 +38,9 @@ export class AppointmentPageComponent implements OnInit {
   panelState: string = 'closed';
   isPanelOpen: boolean = false;
   showErrorPanel = false;
+  failedUnsentMessage: any;
+  showErrorBtn = false;
+  unsentContactMsg: errorContact[] = [];
 
   constructor(
     public DataService: DataService,
@@ -60,6 +63,13 @@ export class AppointmentPageComponent implements OnInit {
         if (res.message == 'Found Replies') {
           this.ToastService.showSuccess('Replies Loaded Successfully!');
         }
+
+        if (
+          this.appointment &&
+          this.appointment.app &&
+          this.appointment.app.replies
+        )
+          this.getUsersWithoutMessage();
       }
     });
 
@@ -175,4 +185,33 @@ export class AppointmentPageComponent implements OnInit {
       8
     )}-${number.substring(8, 12)}`;
   }
+
+  getUsersWithoutMessage(): any {
+    const pattern = /^(?!.*\d).*$|^$/;
+    let errorsFound = [];
+    if (this.appointment.app.messages && this.appointment.app.messages.sentTo) {
+      errorsFound = this.appointment.app.messages.sentTo.filter(
+        (contact: { contactMethod: string }) =>
+          pattern.test(contact.contactMethod)
+      );
+    }
+
+    if (errorsFound.length > 1) {
+      this.showErrorBtn = true;
+    }
+
+    this.unsentContactMsg = errorsFound;
+  }
+
+  getErrCount(client: { contactMethod: string }) {
+    return this.unsentContactMsg.filter(
+      (c) => c.contactMethod == client.contactMethod
+    ).length;
+  }
+}
+
+interface errorContact {
+  petParentName: string;
+  petName: string;
+  contactMethod: string;
 }

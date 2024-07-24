@@ -1,5 +1,18 @@
-<div *ngIf="clients.length">
-  <mat-card *ngFor="let client of clients">
+<div class="title-layout">
+  <h2>Pet Clients
+    <button mat-icon-button
+            (click)="toggleSortOrder()"
+            matTooltip="Sort clients"><mat-icon>{{isAscending ? "keyboard_arrow_up" :
+        "keyboard_arrow_down"}}</mat-icon></button>
+  </h2>
+  <div></div>
+  <div></div>
+
+</div>
+
+<div *ngIf="clients.length"
+     class="card-container scroll">
+  <mat-card *ngFor="let client of clients | sort: 'petName' : isAscending">
     <mat-card-header>
       <mat-card-title>{{client.petName}}</mat-card-title>
     </mat-card-header>
@@ -8,7 +21,9 @@
       <p>Pet Parent: {{client.petParentName}}</p>
       <p>Animal Type: {{client.animalType}}</p>
       <p>Breed: {{client.breed}}</p>
-      <p>Contact Method: {{formatNumber(client.contactMethod)}}</p>
+      <p>Contact Method: {{client.contactMethod == "" || client.contactMethod.toLowerCase() == "messenger" ?
+        client.contactMethod :
+        formatNumber(client.contactMethod)}}</p>
       <p>Service Area: {{client.serviceArea}}</p>
     </mat-card-content>
   </mat-card>

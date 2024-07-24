@@ -3,6 +3,13 @@ mat-card {
   background-color: white;
   margin: 1em;
   padding: 1em;
+  height: 18em;
+}
+
+.card-container {
+  margin-top: 1em;
+  overflow-y: scroll;
+  height: 95%;
 }
 
 div {
@@ -39,7 +46,21 @@ div {
   }
 }
 
+.title-layout {
+  display: flex;
+  width: 100%;
+  justify-content: space-around;
+  align-items: center;
+}
+
 @media (max-width: 600px) {
+  .title-layout {
+    display: flex;
+    width: 100%;
+    justify-content: space-around;
+    align-items: center;
+  }
+
   div {
     display: grid;
     grid-template-columns: repeat(1, 1fr);
@@ -48,4 +69,11 @@ div {
   mat-card {
     width: 90vw;
   }
+}
+
+.title-layout {
+  display: flex;
+  width: 100%;
+  justify-content: space-around;
+  align-items: center;
 }

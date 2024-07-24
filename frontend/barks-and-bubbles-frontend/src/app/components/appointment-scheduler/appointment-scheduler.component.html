@@ -41,7 +41,14 @@
            class="reply-container">
         <ng-container *ngFor="let key of objectKeys(reply)">
           <div class="location-header">
-            <p class="location-title"><b>{{ key }} ({{reply[key].length}})</b></p>
+            <div style=" display: flex;
+            flex-direction: row;
+            align-items: center;
+            justify-content: center;">
+              <p matBadge="{{getLocationInitials(key)}}"
+                 style="z-index: 21; margin-top: 1.5px;"></p>
+              <p class="location-title"><b>{{ key }} ({{reply[key].length}})</b></p>
+            </div>
             <div class="increment-btns"
                  *ngIf="reply[key].length">
               <button mat-icon-button

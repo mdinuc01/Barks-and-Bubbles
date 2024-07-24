@@ -84,17 +84,16 @@ export class AppComponent implements OnInit {
   ) {}
 
   async ngOnInit() {
-    // debugger;
     window.onbeforeunload = () => {
       setTimeout(() => {
         this.showLoader = true;
-      }, 200);
+      }, 1);
     };
 
     window.onload = () => {
       setTimeout(() => {
         this.showLoader = false;
-      }, 3100);
+      }, 2000);
     };
     this.isLoggedIn = await this.storageService.isLoggedIn();
 
@@ -115,7 +114,7 @@ export class AppComponent implements OnInit {
     }
 
     this.DataService.loader$
-      .pipe(switchMap((show) => (show ? of(show) : of(show).pipe(delay(3100)))))
+      .pipe(switchMap((show) => (show ? of(show) : of(show).pipe(delay(2000)))))
       .subscribe((show) => {
         this.showLoader = show;
       });
