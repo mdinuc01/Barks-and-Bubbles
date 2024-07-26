@@ -40,11 +40,11 @@ mat-card {
   }
 }
 
-@media (max-width: 1240px) {
+@media (max-width: 1440px) {
   .appointments-layout {
     grid-template-columns: repeat(2, 1fr);
     padding: 1em;
-    width: 94vw;
+    width: 30em;
   }
   .appointment-title {
     margin-left: 2em;
