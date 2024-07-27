@@ -5,13 +5,13 @@
 
 .reply-list {
   width: 95%;
-  height: 43em;
+  height: 80.5vh;
   padding: 2em;
   margin: 1em;
 }
 .message-list {
   width: 35em;
-  height: 43em;
+  height: 80.5vh;
   padding: 2em;
   margin: 1em;
 
@@ -44,7 +44,7 @@
 }
 
 .location-layout {
-  height: 35em;
+  height: 70vh;
   overflow-y: scroll;
 }
 
@@ -70,7 +70,7 @@
 
 .messages-layout {
   overflow-y: scroll;
-  height: 32em;
+  height: 60vh;
 }
 
 .client-name {

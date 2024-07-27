@@ -1,7 +1,7 @@
 .hours {
   display: flex;
   flex-direction: column;
-  height: 30em;
+  height: 59vh;
   overflow-y: scroll;
   margin: 1em;
 }
@@ -32,10 +32,11 @@
   display: grid;
   grid-template-columns: 1fr 3fr;
   background-color: #f0f0f0;
+  height: 62vh;
 }
 
 .replies-container {
-  height: 30em;
+  height: 59vh;
   width: 17em;
   overflow-y: scroll;
   border-radius: 3px;
@@ -87,7 +88,6 @@ h2 {
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-bottom: 0.5em;
 }
 
 @media only screen and (min-width: 1366px) and (min-height: 1024px) {
