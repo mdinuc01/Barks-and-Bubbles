@@ -5,14 +5,36 @@
             matTooltip="Sort clients"><mat-icon>{{isAscending ? "keyboard_arrow_up" :
         "keyboard_arrow_down"}}</mat-icon></button>
   </h2>
-  <div></div>
+  <form [formGroup]="queryForm">
+    <mat-form-field appearance="outline">
+      <mat-label>Search for a client</mat-label>
+
+      <input type="text"
+             name="clientQuery"
+             formControlName="clientQuery"
+             matInput
+             (ngModelChange)="filterList()" />
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-select formControlName="locationQuery"
+                  placeholder="Select a location"
+                  multiple
+                  (selectionChange)="filterList()">
+
+        <mat-option *ngFor="let option of options"
+                    [value]="option">{{ option }}</mat-option>
+
+      </mat-select>
+    </mat-form-field>
+  </form>
   <div></div>
 
 </div>
 
-<div *ngIf="clients.length"
+<div *ngIf="clientsQry.length"
      class="card-container scroll">
-  <mat-card *ngFor="let client of clients | sort: 'petName' : isAscending">
+  <mat-card *ngFor="let client of clientsQry | sort: 'petName' : isAscending">
     <mat-card-header>
       <mat-card-title>{{client.petName}}</mat-card-title>
     </mat-card-header>
@@ -21,7 +43,7 @@
       <p>Pet Parent: {{client.petParentName}}</p>
       <p>Animal Type: {{client.animalType}}</p>
       <p>Breed: {{client.breed}}</p>
-      <p>Contact Method: {{client.contactMethod == "" || client.contactMethod.toLowerCase() == "messenger" ?
+      <p>Contact: {{client.contactMethod == "" || client.contactMethod.toLowerCase() == "messenger" ?
         client.contactMethod :
         formatNumber(client.contactMethod)}}</p>
       <p>Service Area: {{client.serviceArea}}</p>
@@ -29,6 +51,6 @@
   </mat-card>
 </div>
 
-<div *ngIf="!clients.length">
+<div *ngIf="!clientsQry.length">
   <h2 class="error-msg">No Clients</h2>
 </div>

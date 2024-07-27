@@ -1,79 +1,57 @@
 mat-card {
   width: 20em;
   background-color: white;
-  margin: 1em;
+  margin-left: 1em;
   padding: 1em;
   height: 18em;
 }
 
 .card-container {
-  margin-top: 1em;
+  margin-top: 1.5em;
   overflow-y: scroll;
-  height: 95%;
+  height: 74.5vh;
+  width: 82vw;
 }
 
 div {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.75em;
 }
 
 .error-msg {
   background-color: #c4c4c4;
   color: black;
-  width: 58vw;
+  width: 77vw;
   border-radius: 1em;
   margin-left: 2em;
-  height: 65vh;
+  height: 74vh;
   display: flex;
   align-content: center;
   flex-wrap: wrap;
   justify-content: center;
+  margin-top: 1em;
 }
 
-@media (max-width: 900px) {
-  div {
-    display: grid;
-    grid-template-columns: repeat(2, 40vw);
-    column-gap: 2em;
-  }
-
+@media (min-width: 1400px) {
   mat-card {
-    width: 40vw;
-  }
-
-  .error-msg {
-    width: 85vw;
+    width: 18em;
   }
 }
 
 .title-layout {
   display: flex;
   width: 100%;
+  height: 2em;
   justify-content: space-around;
+  margin-top: 2em;
   align-items: center;
 }
 
-@media (max-width: 600px) {
-  .title-layout {
-    display: flex;
-    width: 100%;
-    justify-content: space-around;
-    align-items: center;
-  }
-
-  div {
-    display: grid;
-    grid-template-columns: repeat(1, 1fr);
-  }
-
-  mat-card {
-    width: 90vw;
-  }
-}
-
-.title-layout {
-  display: flex;
-  width: 100%;
-  justify-content: space-around;
+form {
+  display: inline-flex;
+  flex-direction: row;
   align-items: center;
+  justify-content: space-between;
+  width: 35vw;
 }

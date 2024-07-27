@@ -79,8 +79,7 @@ export class AppComponent implements OnInit {
   constructor(
     public DataService: DataService,
     private storageService: StorageService,
-    private authService: AuthService,
-    private router: Router
+    private authService: AuthService
   ) {}
 
   async ngOnInit() {
@@ -95,19 +94,23 @@ export class AppComponent implements OnInit {
         this.showLoader = false;
       }, 2000);
     };
+
+    this.DataService.serviceAreas$.subscribe((areas) => {
+      this.options = areas;
+    });
     this.isLoggedIn = await this.storageService.isLoggedIn();
 
     if (this.isLoggedIn) {
       this.DataService.clients$.subscribe((res) => {
         this.hidePanels();
 
-        if (res.data) {
-          res.data.forEach((client: { serviceArea: string }) => {
-            if (!this.options.includes(client.serviceArea)) {
-              this.options.push(client.serviceArea);
-            }
-          });
-        }
+        // if (res.data) {
+        //   res.data.forEach((client: { serviceArea: string }) => {
+        //     if (!this.options.includes(client.serviceArea)) {
+        //       this.options.push(client.serviceArea);
+        //     }
+        //   });
+        // }
       });
 
       this.DataService.getAllPets();
