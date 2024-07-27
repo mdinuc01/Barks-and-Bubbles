@@ -75,13 +75,17 @@ $my-theme: mat.define-light-theme(
   color: white !important;
 }
 
-.mat-success-icon {
+.mat-success-btn {
   color: mat.get-color-from-palette($custom-success, 500) !important;
 }
 
 .mat-danger {
   background-color: mat.get-color-from-palette($custom-danger, 500) !important;
   color: white !important;
+}
+
+.mat-danger-btn {
+  color: mat.get-color-from-palette($custom-danger, 500) !important;
 }
 
 .mat-danger-icon {

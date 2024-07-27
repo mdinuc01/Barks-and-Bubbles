@@ -17,10 +17,13 @@ class MessageController {
       // const clientDB = new JsonDB(new Config("clients", true, false, '/'));
       let pets = await Pet.find();
       let clientSentTo = [];
+      let sentDate = new Date();
+
 
       //sending messages and populating message array for response retrieval
       if (pets.length) {
         pets.forEach(async (pet) => {
+          if (!pet.active || !pet.contactMethod || !isValidPhoneNumber(pet.contactMethod)) return;
 
           if (locations.includes(pet.serviceArea)) {
 
@@ -36,7 +39,7 @@ class MessageController {
 
         const update = {
           'messages.sentTo': clientSentTo,
-          'messages.sentDate': new Date()
+          'messages.sentDate': sentDate
         };
 
         const app = await Appointment.findOneAndUpdate(
@@ -239,6 +242,13 @@ let removeCircularReferences = (obj, seen = new WeakSet()) => {
     }
   }
   return newObj;
+
+}
+
+isValidPhoneNumber = (phoneNumber) => {
+  const phoneRegex = /^\d{10}$/;
+
+  return phoneRegex.test(phoneNumber);
 }
 
 
