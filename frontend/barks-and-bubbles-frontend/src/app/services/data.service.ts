@@ -178,6 +178,43 @@ export class DataService {
       });
   }
 
+  updatePetStatus(id: any, status: any) {
+    this.http
+      .put<{ data: any[] }>(
+        `${this.apiEndPoint}/pet/status`,
+        {
+          id,
+          status,
+        },
+        {
+          headers: this.headers,
+        }
+      )
+      .subscribe((response) => {
+        this.clientsSubject.next(response);
+        this.loaderSubject.next(false);
+      });
+  }
+
+  updatePetStatusApp(id: any, status: any, appId: string) {
+    this.http
+      .put<{ data: any[] }>(
+        `${this.apiEndPoint}/pet/status`,
+        {
+          id,
+          status,
+        },
+        {
+          headers: this.headers,
+        }
+      )
+      .subscribe((response) => {
+        this.clientsSubject.next(response);
+        this.loaderSubject.next(false);
+        this.getAppointmentById(appId);
+      });
+  }
+
   showLoader() {
     this.loaderSubject.next(true);
   }

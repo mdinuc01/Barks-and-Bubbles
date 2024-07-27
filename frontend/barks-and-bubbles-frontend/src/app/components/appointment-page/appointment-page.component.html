@@ -30,6 +30,18 @@
                class="client-cards-container">
             <mat-card *ngFor="let client of clientArr"
                       class="client-card">
+              <mat-card-header style="display: flex;
+              padding: 0 !important;
+              justify-content: flex-end;
+              width: 10em;">
+                <mat-icon matTooltip="{{client.active ? 'Deactivate Client' : 'Activate Client'}}"
+                          style="cursor: pointer;"
+                          [ngClass]="{'mat-success-btn': client.active, 'mat-danger-btn': !client.active}"
+                          (click)="updateStatus(client._id, !client.active, local)">{{client.active
+                  ?
+                  "mark_email_read" : "unsubscribe"}}</mat-icon>
+
+              </mat-card-header>
               <mat-icon>pets</mat-icon>{{client.petName}}
               <mat-icon>face</mat-icon>{{client.petParentName}}
             </mat-card>

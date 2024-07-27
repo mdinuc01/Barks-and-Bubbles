@@ -208,6 +208,10 @@ export class AppointmentPageComponent implements OnInit {
       (c) => c.contactMethod == client.contactMethod
     ).length;
   }
+
+  updateStatus(id: any, status: any, location: String) {
+    this.DataService.updatePetStatusApp(id, status, this.appointment.app._id);
+  }
 }
 
 interface errorContact {

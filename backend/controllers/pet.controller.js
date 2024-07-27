@@ -62,6 +62,26 @@ class ClientController {
       return res.status(500).json({ message: "Internal Server Error", error });
     }
   }
+
+  async setActivate(req, res, next) {
+    try {
+      const { id, status } = req.body;
+
+      await Pet.findOneAndUpdate({ _id: id }, {
+        $set: {
+          'active': status,
+        }
+      })
+
+      let data = await Pet.find({ created_by: req.userId });
+
+      if (data)
+        return res.status(200).json({ message: `Status for ${id} was updated to ${status}`, data });
+
+    } catch (error) {
+      return res.status(500).json({ message: "Internal Server Error", error });
+    }
+  }
 }
 
 module.exports = new ClientController();

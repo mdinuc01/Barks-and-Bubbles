@@ -111,4 +111,8 @@ export class ClientListComponent implements OnInit {
       );
     }
   }
+
+  updateStatus(id: any, status: any) {
+    this.DataService.updatePetStatus(id, status);
+  }
 }
