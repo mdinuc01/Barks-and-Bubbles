@@ -98,10 +98,10 @@
 
   </router-outlet>
 
-  <div *ngIf="!isLoggedIn && init"
-       class="login-err-message">
+  <mat-card *ngIf="!isLoggedIn && init"
+            class="login-err-message">
     <h1>Opps! </h1>
     <h3> Looks like you forgot to login! Click this to <a href="
        /login">here</a> to login</h3>
-  </div>
+  </mat-card>
 </div>

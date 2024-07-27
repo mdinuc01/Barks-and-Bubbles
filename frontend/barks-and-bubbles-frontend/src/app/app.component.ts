@@ -25,6 +25,7 @@ import { LoaderService } from './services/loader/loader.service';
 import { delay, of, switchMap } from 'rxjs';
 import { AuthService } from './services/auth.service';
 import { StorageService } from './services/storage.service';
+import { MatCardModule } from '@angular/material/card';
 @Component({
   selector: 'app-root',
   standalone: true,
@@ -53,6 +54,7 @@ import { StorageService } from './services/storage.service';
     ReactiveFormsModule,
     PetFormComponent,
     LoaderService,
+    MatCardModule,
   ],
 })
 export class AppComponent implements OnInit {

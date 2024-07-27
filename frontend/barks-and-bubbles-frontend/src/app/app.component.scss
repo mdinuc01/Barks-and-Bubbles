@@ -70,11 +70,20 @@ form {
 
 .login-err-message {
   display: grid;
-  height: 45em;
-  width: 120em;
+  height: 40vh;
+  width: 62vw;
   align-items: center;
   justify-content: center;
   grid-template-rows: 2em 1em;
-  margin-top: 10em;
+  margin: 6em 20vw;
   grid-gap: 3em;
+  align-content: center;
+}
+
+@media (max-width: 600px) {
+  .login-err-message {
+    margin-left: 2em;
+    width: 85vw !important;
+    padding: 2em;
+  }
 }
