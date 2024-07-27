@@ -1,10 +1,12 @@
 .appointments-layout {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  width: 35em;
-  height: 38em;
+  grid-template-columns: repeat(1, 1fr);
   overflow-y: scroll;
-  margin-bottom: 2em;
+  margin-top: 0.25em;
+  justify-items: end;
+  padding-right: 1em;
+  height: 75vh;
+  width: 30vw;
 }
 
 mat-card {
@@ -12,6 +14,7 @@ mat-card {
   padding: 1em;
   height: 11.5em;
   cursor: pointer;
+  width: 13vw;
 
   p {
     height: 2.75em;
@@ -21,57 +24,73 @@ mat-card {
 
 .appointment-title {
   display: inline-flex;
-  position: relative;
-  bottom: 1.1em;
-  margin: 0;
-  align-items: flex-start;
-  flex-direction: row;
+  justify-content: flex-end;
+  width: 30vw;
+  flex-wrap: nowrap;
+  align-items: center;
 
   button {
     bottom: 0.25em;
   }
 }
 
-@media (max-width: 1460px) {
-  .appointments-layout {
-    grid-template-columns: repeat(1, 1fr);
-    padding: 1em;
-    width: 18vw;
-  }
+.error-layout {
 }
 
-@media (max-width: 1240px) {
-  .appointments-layout {
-    grid-template-columns: repeat(2, 1fr);
-    padding: 1em;
-    width: 94vw;
-  }
-  .appointment-title {
-    margin-left: 2em;
-  }
-
-  .error-msg {
-    width: 90vw;
-  }
+.error-layout {
+  background-color: #c4c4c4;
+  color: black;
+  border-radius: 1em;
+  height: 75vh;
+  padding: 4em;
+  float: right;
+  margin-right: 1em;
+  display: flex;
+  width: 16vw;
+  align-items: center;
+  justify-content: space-evenly;
 }
 
-@media (max-width: 570px) {
-  .appointments-layout {
-    grid-template-columns: repeat(1, 1fr);
-    padding: 1em;
-    width: 94vw;
-  }
+// @media (max-width: 1460px) {
+//   .appointments-layout {
+//     // grid-template-columns: repeat(1, 1fr);
+//     padding: 1em;
+//     width: 18vw;
+//   }
+// }
 
-  .appointment-title {
-    margin-left: 1em;
-  }
-}
+// @media (max-width: 1440px) {
+//   .appointments-layout {
+//     // grid-template-columns: repeat(2, 1fr);
+//     padding: 1em;
+//     width: 30em;
+//   }
+//   .appointment-title {
+//     margin-left: 2em;
+//   }
 
-@media only screen and (min-width: 1366px) and (min-height: 1024px) {
-  .appointments-layout {
-    grid-template-columns: repeat(2, 1fr);
-    padding: 1em;
-    height: 60em;
-    width: 25em;
-  }
-}
+//   .error-msg {
+//     width: 90vw;
+//   }
+// }
+
+// @media (max-width: 570px) {
+//   .appointments-layout {
+//     // grid-template-columns: repeat(1, 1fr);
+//     padding: 1em;
+//     width: 94vw;
+//   }
+
+//   .appointment-title {
+//     margin-left: 1em;
+//   }
+// }
+
+// @media only screen and (min-width: 1366px) and (min-height: 1024px) {
+//   .appointments-layout {
+//     // grid-template-columns: repeat(2, 1fr);
+//     padding: 1em;
+//     height: 60em;
+//     width: 25em;
+//   }
+// }

@@ -42,6 +42,7 @@
   </mat-card>
 </div>
 
-<div *ngIf="!filteredAppointments.length">
-  <h2 class="error-msg">No {{archivedDisplayed ? 'Archived' : 'Active'}} Appointments</h2>
+<div *ngIf="!filteredAppointments.length"
+     class="error-layout">
+  <h2>No {{archivedDisplayed ? 'Archived' : 'Active'}} Appointments</h2>
 </div>

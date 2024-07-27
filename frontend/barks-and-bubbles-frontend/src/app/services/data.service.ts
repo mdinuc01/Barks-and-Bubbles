@@ -9,6 +9,9 @@ import { Router } from '@angular/router';
 export class DataService {
   private loaderSubject: BehaviorSubject<any> = new BehaviorSubject<any>([]);
   private clientsSubject: BehaviorSubject<any> = new BehaviorSubject<any>([]);
+  private serviceAreaSubject: BehaviorSubject<any> = new BehaviorSubject<any>(
+    []
+  );
   private appointmentsSubject: BehaviorSubject<any> = new BehaviorSubject<any>(
     []
   );
@@ -18,6 +21,7 @@ export class DataService {
 
   loader$: Observable<any> = this.loaderSubject.asObservable();
   clients$: Observable<any> = this.clientsSubject.asObservable();
+  serviceAreas$: Observable<any> = this.serviceAreaSubject.asObservable();
   appointments$: Observable<any> = this.appointmentsSubject.asObservable();
   currentAppointment$: Observable<any> = this.appointmentSubject.asObservable();
   apiEndPoint = environment.domain;
@@ -39,6 +43,17 @@ export class DataService {
         headers: this.headers,
       })
       .subscribe((response) => {
+        let serviceAreas: string[] = [];
+        response.data.forEach((client: { serviceArea: string }) => {
+          if (!serviceAreas.includes(client.serviceArea)) {
+            serviceAreas.push(client.serviceArea);
+          }
+        });
+
+        if (serviceAreas.length)
+          serviceAreas = serviceAreas.sort((a, b) => a.localeCompare(b));
+
+        this.serviceAreaSubject.next(serviceAreas);
         this.clientsSubject.next(response);
         this.loaderSubject.next(false);
       });
@@ -50,6 +65,17 @@ export class DataService {
         headers: this.headers,
       })
       .subscribe((response) => {
+        let serviceAreas: string[] = [];
+        response.data.forEach((client: { serviceArea: string }) => {
+          if (!serviceAreas.includes(client.serviceArea)) {
+            serviceAreas.push(client.serviceArea);
+          }
+        });
+
+        if (serviceAreas.length)
+          serviceAreas = serviceAreas.sort((a, b) => a.localeCompare(b));
+
+        this.serviceAreaSubject.next(serviceAreas);
         this.clientsSubject.next(response);
         this.loaderSubject.next(false);
       });
