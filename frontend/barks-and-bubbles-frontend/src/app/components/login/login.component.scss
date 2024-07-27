@@ -28,4 +28,17 @@ mat-form-field {
 .page_layout {
   display: flex;
   justify-content: center;
+  overflow-x: hidden;
+  width: 90%;
+}
+
+@media (max-width: 600px) {
+  .loginForm {
+    width: 90vw !important;
+  }
+
+  mat-form-field,
+  .login-btn {
+    width: 81vw !important;
+  }
 }

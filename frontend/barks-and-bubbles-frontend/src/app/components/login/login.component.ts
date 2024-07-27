@@ -1,5 +1,6 @@
+import { ToastService } from './../../services/toast.service';
 import { DataService } from './../../services/data.service';
-import { Component } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { AuthService } from '../../services/auth.service';
 import { StorageService } from '../../services/storage.service';
 import { CommonModule } from '@angular/common';
@@ -33,7 +34,7 @@ import { BehaviorSubject, Observable } from 'rxjs';
   templateUrl: './login.component.html',
   styleUrl: './login.component.scss',
 })
-export class LoginComponent {
+export class LoginComponent implements OnInit {
   enterKeyClicked($event: Event) {
     throw new Error('Method not implemented.');
   }
@@ -50,7 +51,9 @@ export class LoginComponent {
     private fb: FormBuilder,
     private authService: AuthService,
     private storageService: StorageService,
-    private dataService: DataService
+    private dataService: DataService,
+    private ToastService: ToastService,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit() {
@@ -71,6 +74,7 @@ export class LoginComponent {
   }
 
   login(): void {
+    this.loaderSubject.next(true);
     const { username, password } = this.loginForm.value;
 
     this.authService.login(username, password).subscribe({
@@ -81,14 +85,23 @@ export class LoginComponent {
         this.isLoggedIn = true;
 
         this.dataService.goHome();
-        setTimeout(() => {
+        setTimeout(async () => {
           this.reloadPage();
           this.loaderSubject.next(false);
-        }, 200);
+          this.cdr.detectChanges();
+
+          setTimeout(() => {
+            this.ToastService.showSuccess(
+              `Welcome ${this.storageService.getUser()}!`
+            );
+          }, 1000 * 5);
+        }, 1);
       },
       error: (err) => {
         this.errorMessage = err.error.message;
         this.isLoginFailed = true;
+        this.loaderSubject.next(false);
+        this.ToastService.showSuccess(this.errorMessage);
       },
     });
   }

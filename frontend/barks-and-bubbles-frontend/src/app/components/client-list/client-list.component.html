@@ -51,6 +51,6 @@
   </mat-card>
 </div>
 
-<div *ngIf="!clientsQry.length">
-  <h2 class="error-msg">No Clients</h2>
+<div *ngIf="!clientsQry.length || !clients.length">
+  <h2 class="error-msg">{{!clients.length ? "No Clients" : "No clients found"}}</h2>
 </div>
