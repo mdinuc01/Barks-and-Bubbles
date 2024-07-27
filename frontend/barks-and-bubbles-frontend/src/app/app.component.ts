@@ -1,10 +1,5 @@
 import { Component, HostListener, OnInit } from '@angular/core';
-import {
-  ActivatedRoute,
-  NavigationEnd,
-  Router,
-  RouterOutlet,
-} from '@angular/router';
+import { Router, RouterOutlet } from '@angular/router';
 import { DataService } from './services/data.service';
 import {
   FormGroup,
@@ -27,7 +22,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { PetFormComponent } from './components/pet-form/pet-form.component';
 import { LoaderService } from './services/loader/loader.service';
-import { delay, filter, of, switchMap } from 'rxjs';
+import { delay, of, switchMap } from 'rxjs';
 import { AuthService } from './services/auth.service';
 import { StorageService } from './services/storage.service';
 @Component({
@@ -79,7 +74,8 @@ export class AppComponent implements OnInit {
   constructor(
     public DataService: DataService,
     private storageService: StorageService,
-    private authService: AuthService
+    private authService: AuthService,
+    private router: Router
   ) {}
 
   async ngOnInit() {
@@ -103,14 +99,6 @@ export class AppComponent implements OnInit {
     if (this.isLoggedIn) {
       this.DataService.clients$.subscribe((res) => {
         this.hidePanels();
-
-        // if (res.data) {
-        //   res.data.forEach((client: { serviceArea: string }) => {
-        //     if (!this.options.includes(client.serviceArea)) {
-        //       this.options.push(client.serviceArea);
-        //     }
-        //   });
-        // }
       });
 
       this.DataService.getAllPets();
@@ -124,7 +112,8 @@ export class AppComponent implements OnInit {
     let user = await this.storageService.getUser();
     if (!user) this.showLoader = false;
 
-    this.init = true;
+    const currentUrl = this.router.url;
+    if (!currentUrl.includes('login')) this.init = true;
   }
 
   hidePanels() {
