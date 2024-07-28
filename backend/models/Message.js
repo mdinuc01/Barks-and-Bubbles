@@ -1,13 +1,13 @@
 class Message {
   constructor(client = {}, date = '', increment = '') {
-    this.name = client.petParentName;
+    this.name = this.getName(client.petParentName);
     this.date = date;
     this.petName = client.petName
     this.increment = increment
   }
 
   createMessage() {
-    return `Hi ${this.name}! We’re back for nail trimming on ${this.date}! Please give us a \u{1F44D} if you’d like us to swing by for ${this.petName}’s nail trim, and we’ll get back to you a day prior with a timeframe \u{1F43E}`
+    return `Hi ${this.name}, it's Alex and Larissa from Barks & Bubbles, we are trying a new automated service.\n\nWe’re back for nail trimming on ${this.date}! Please give us a \u{1F44D} if you’d like us to swing by for ${this.petName}’s nail trim, and we’ll get back to you a day prior with a timeframe \u{1F43E}.\n\nAnything other then a "\u{1F44D}" or "\u{1F44E}" please send us a message at (647) 767-6216.`
   }
 
   createReply() {
@@ -50,6 +50,13 @@ class Message {
     // Construct the output string
     const newTime = `${newHours}:${newMinutesFormatted} ${newPeriod}`;
     return `${this.date} - ${newTime}`;
+  }
+
+  getName(name) {
+    const nameParts = name.split(" ");
+
+    // Return the first part
+    return nameParts[0];
   }
 
 }
