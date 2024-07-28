@@ -7,7 +7,7 @@ class Message {
   }
 
   createMessage() {
-    return `Hi ${this.name}, it's Alex and Larissa from Barks & Bubbles, we are trying a new automated service.\n\nWe’re back for nail trimming on ${this.date}! Please give us a \u{1F44D} if you’d like us to swing by for ${this.petName}’s nail trim, and we’ll get back to you a day prior with a timeframe \u{1F43E}.\n\nAnything other then a "\u{1F44D}" or "\u{1F44E}" please send us a message at (647) 767-6216.`
+    return `Hi ${this.name}, it's Alex and Larissa from Barks & Bubbles, we are trying a new automated service.\n\nWe’re back for nail trimming on ${this.date}! Please give us a \u{1F44D} if you’d like us to swing by for ${this.petName}’s nail trim, and we’ll get back to you a day prior with a timeframe \u{1F43E}.\n\nAnything other than a "\u{1F44D}" or "\u{1F44E}" please send us a message at (647) 767-6216.`
   }
 
   createReply() {
