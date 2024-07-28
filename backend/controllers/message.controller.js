@@ -1,9 +1,8 @@
 const Message = require('../models/Message.js');
 const Pet = require('../models/Pet.js');
 const Appointment = require('../models/Appointment.js');
-const { JsonDB, Config } = require('node-json-db');
 const SMSUtils = require('../utils/SMSUtils.js');
-
+const nodemailer = require("nodemailer");
 
 class MessageController {
 
@@ -12,13 +11,9 @@ class MessageController {
       let locations = req.body.locations;
       let date = req.body.date;
       let appId = req.body.appId;
-
-      // const appDB = new JsonDB(new Config("appointments", true, false, "/"));
-      // const clientDB = new JsonDB(new Config("clients", true, false, '/'));
       let pets = await Pet.find();
       let clientSentTo = [];
       let sentDate = new Date();
-
 
       //sending messages and populating message array for response retrieval
       if (pets.length) {
@@ -36,18 +31,16 @@ class MessageController {
           }
         });
 
-
-        const update = {
-          'messages.sentTo': clientSentTo,
-          'messages.sentDate': sentDate
-        };
+        const response = await fetchReplies(sentDate, appId);
+        const appData = response.app;
+        sendEmailUpdate(date, appData);
 
         const app = await Appointment.findOneAndUpdate(
           { _id: appId },
           {
             $set: {
               'messages.sentTo': clientSentTo,
-              'messages.sentDate': new Date()
+              'messages.sentDate': sentDate
             }
           },
           { new: true }
@@ -94,127 +87,137 @@ class MessageController {
         return res.status(200).json({ message: `Replies sent` });
       }
     } catch (error) {
-      return res.status(500).json({ message: "Internal Server Error", error });
     }
   }
 
   async getReplies(req, res, next) {
     try {
       const { sentDate, appId } = req.body;
-
-      let replies = await SMSUtils.getReplies(sentDate);
-
-      let app = await Appointment.findOne({ _id: appId });
-
-      if (!app) {
-        return res.status(404).json({ message: "Appointment not found" });
-      }
-
-      let messagesData = app.messages.sentTo;
-
-      const numbersSentTo = messagesData.map((message) => message.contactMethod.toString());
-
-      replies = replies.filter((reply) => {
-        let to = reply.to.replaceAll("+1", "");
-        let from = reply.from.replaceAll("+1", "");
-
-        if (reply.direction.includes("outbound") && numbersSentTo.includes(to)) {
-          return reply;
-        } else if (reply.direction.includes("inbound") && numbersSentTo.includes(from)) {
-          return reply;
-        }
-      });
-
-      let newReplies = replies.map((r) => {
-        let time;
-        let petParentName;
-        let currentReply = app.replies.find((reply) => reply.sid === r.sid);
-        if (currentReply && currentReply.time) {
-          time = currentReply.time;
-          petParentName = currentReply.petParentName;
-        }
-        return { ...r, time, petParentName };
-      });
-
-      newReplies = removeCircularReferences(newReplies);
-
-      let schedulerReplies;
-      try {
-        schedulerReplies = app.location.map((l) => {
-          const scheduler = app.scheduler.find(obj => { if (obj) return obj.hasOwnProperty(l) });
-          if (!scheduler) {
-            return { [l]: { replies: [], length: 0, increment: "0.5" } };
-          }
-
-          let replies = newReplies.filter((r) => {
-            if (r.from == "+13346410423") return false; // Changed from return to return false to avoid including undefined elements
-            let from = r.from.substring(2);
-            let meta = messagesData.find((m) => m.contactMethod == from);
-            return !!(meta && meta.serviceArea == l);
-          }).map((r) => {
-            let from = r.from.substring(2);
-            let meta = messagesData.find((m) => m.contactMethod == from);
-
-            if (meta) {
-              let { contactMethod, ...metaWithoutContactMethod } = meta;
-
-              let time;
-              let currentReply = scheduler[l].replies.find((reply) => reply.sid === r.sid);
-              if (currentReply && currentReply.time) {
-                time = currentReply.time;
-              }
-
-              return {
-                sid: r.sid,
-                body: r.body,
-                from: r.from,
-                to: r.to,
-                time,
-                status: r.status,
-                ...metaWithoutContactMethod
-              };
-            }
-            return null; // Explicitly return null for non-matching replies
-          }).filter(reply => reply !== null); // Filter out null values
-
-
-          return { [l]: { replies, length: replies.length, increment: scheduler[l].increment ? scheduler[l].increment : "0.5" } };
-        });
-      } catch (error) {
-        console.error("Error processing scheduler replies:", error);
-        throw error; // Re-throw the error to be caught by the outer catch block
-      }
-
-      let newApp = await Appointment.findOneAndUpdate(
-        { _id: appId },
-        {
-          'replies': newReplies,
-          'scheduler': schedulerReplies
-        },
-        { new: true }
-      );
-
-      let pets = await Pet.find();
-
-      let location = newApp.location.map(locationVal => {
-        let clientsInLocation = pets.filter(client => {
-          for (const obj of app.messages.sentTo) {
-            if (obj.id === client.id && client.serviceArea == locationVal) {
-              return client;
-            }
-          }
-        });
-        return { [locationVal]: clientsInLocation };
-      });
-
-      let meta = app.location;
-      const data = { app: newApp._doc, location, meta };
+      const data = await fetchReplies(sentDate, appId);
 
       return res.status(200).json({ message: `Found Replies`, data });
+
     } catch (error) {
-      console.error("Error:", error);
       return res.status(500).json({ message: "Internal Server Error", error });
+
     }
+  }
+}
+
+let fetchReplies = async (sentDate, appId) => {
+  try {
+
+    let replies = await SMSUtils.getReplies(sentDate);
+
+    let app = await Appointment.findOne({ _id: appId });
+
+    if (!app) {
+      return res.status(404).json({ message: "Appointment not found" });
+    }
+
+    let messagesData = app.messages.sentTo;
+
+    const numbersSentTo = messagesData.map((message) => message.contactMethod.toString());
+
+    replies = replies.filter((reply) => {
+      let to = reply.to.replaceAll("+1", "");
+      let from = reply.from.replaceAll("+1", "");
+
+      if (reply.direction.includes("outbound") && numbersSentTo.includes(to)) {
+        return reply;
+      } else if (reply.direction.includes("inbound") && numbersSentTo.includes(from)) {
+        return reply;
+      }
+    });
+
+    let newReplies = replies.map((r) => {
+      let time;
+      let petParentName;
+      let currentReply = app.replies.find((reply) => reply.sid === r.sid);
+      if (currentReply && currentReply.time) {
+        time = currentReply.time;
+        petParentName = currentReply.petParentName;
+      }
+      return { ...r, time, petParentName };
+    });
+
+    newReplies = removeCircularReferences(newReplies);
+
+    let schedulerReplies;
+    try {
+      schedulerReplies = app.location.map((l) => {
+        const scheduler = app.scheduler.find(obj => { if (obj) return obj.hasOwnProperty(l) });
+        if (!scheduler) {
+          return { [l]: { replies: [], length: 0, increment: "0.5" } };
+        }
+
+        let replies = newReplies.filter((r) => {
+          if (r.from == "+13346410423") return false; // Changed from return to return false to avoid including undefined elements
+          let from = r.from.substring(2);
+          let meta = messagesData.find((m) => m.contactMethod == from);
+          return !!(meta && meta.serviceArea == l);
+        }).map((r) => {
+          let from = r.from.substring(2);
+          let meta = messagesData.find((m) => m.contactMethod == from);
+
+          if (meta) {
+            let { contactMethod, ...metaWithoutContactMethod } = meta;
+
+            let time;
+            let currentReply = scheduler[l].replies.find((reply) => reply.sid === r.sid);
+            if (currentReply && currentReply.time) {
+              time = currentReply.time;
+            }
+
+            return {
+              sid: r.sid,
+              body: r.body,
+              from: r.from,
+              to: r.to,
+              time,
+              status: r.status,
+              ...metaWithoutContactMethod
+            };
+          }
+          return null; // Explicitly return null for non-matching replies
+        }).filter(reply => reply !== null); // Filter out null values
+
+
+        return { [l]: { replies, length: replies.length, increment: scheduler[l].increment ? scheduler[l].increment : "0.5" } };
+      });
+    } catch (error) {
+      console.error("Error processing scheduler replies:", error);
+      throw error; // Re-throw the error to be caught by the outer catch block
+    }
+
+    let newApp = await Appointment.findOneAndUpdate(
+      { _id: appId },
+      {
+        'replies': newReplies,
+        'scheduler': schedulerReplies
+      },
+      { new: true }
+    );
+
+    let pets = await Pet.find();
+
+    let location = newApp.location.map(locationVal => {
+      let clientsInLocation = pets.filter(client => {
+        for (const obj of app.messages.sentTo) {
+          if (obj.id === client.id && client.serviceArea == locationVal) {
+            return client;
+          }
+        }
+      });
+      return { [locationVal]: clientsInLocation };
+    });
+
+    let meta = app.location;
+    const data = { app: newApp._doc, location, meta };
+    return data;
+  } catch (error) {
+    console.error("Error:", error);
+    return res.status(500).json({ message: "Internal Server Error", error });
   }
 }
 
@@ -249,6 +252,101 @@ isValidPhoneNumber = (phoneNumber) => {
   const phoneRegex = /^\d{10}$/;
 
   return phoneRegex.test(phoneNumber);
+}
+
+sendEmailUpdate = (date, appData) => {
+  const mailTransport = nodemailer.createTransport({
+    service: "gmail",
+    auth: {
+      user: process.env.EMAIL,
+      pass: process.env.EMAIL_PASSWORD
+    }
+  });
+
+  const serviceAreas = appData.location.join(", ");
+  const replies = appData.replies;
+  const sentTo = appData.messages.sentTo.length;
+  const successMsgs = replies.filter((r) => r.status == "delivered").length;
+  const undeliveredMsgs = replies.filter((r) => r.status == "undelivered").length;
+  const failedMsgs = replies.filter((r) => r.status == "failed").length;
+
+  let mailDetails = {
+    from: "maddinuc98@gmail.com",
+    to: "larissadinuccio@gmail.com",
+    subject: `Barks & Bubbles Appointment - ${date}`,
+    html: `
+    <html>
+      <head>
+        <style>
+          body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            color: #333;
+            background-color: #ffffff !important;
+
+          }
+          h1, h3 {
+            color: #2c3e50;
+          }
+          table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+          }
+          table, th, td {
+            border: 1px solid #ddd;
+          }
+          th, td {
+            padding: 10px;
+            text-align: left;
+          }
+          th {
+            background-color: #f2f2f2 !important;
+          }
+          tr:nth-child(odd) {
+            background-color: #e0e0e0 !important;
+          }
+          tr:nth-child(even) {
+            background-color: #ffffff !important;
+          }
+        </style>
+        <title>Barks & Bubbles Appointment - ${date}</title>
+      </head>
+      <body>
+        <h1>Barks & Bubbles Appointment - ${date}</h1>
+        <h3>All messages have been sent out for this appointment! Please see the status of the messages below:</h3>
+        <table>
+          <tr>
+            <th>Service Areas in this appointment</th>
+            <td>${serviceAreas}</td>
+          </tr>
+          <tr>
+            <th>Clients in this appointment</th>
+            <td>${sentTo}</td>
+          </tr>
+          <tr>
+            <th>Messages Sent Successfully</th>
+            <td>${successMsgs}</td>
+          </tr>
+          <tr>
+            <th>Undelivered Messages</th>
+            <td>${undeliveredMsgs}</td>
+          </tr>
+          <tr>
+            <th>Failed Messages</th>
+            <td>${failedMsgs}</td>
+          </tr>
+        </table>
+      </body>
+    </html>`
+  };
+
+  mailTransport.sendMail(mailDetails, async (err, data) => {
+    if (err) {
+      console.log({ err });
+      throw err;
+    }
+  })
 }
 
 
