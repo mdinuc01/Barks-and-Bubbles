@@ -1,17 +1,32 @@
 class Message {
-  constructor(client = {}, date = '', increment = '') {
-    this.name = this.getName(client.petParentName);
+  constructor(client, date, increment, message) {
+    //client values
+    this.petParentName = this.getName(client.petParentName);
+    this.petName = client.petName;
+    this.contactMethod = client.contactMethod;
+    this.animalType = client.animalType;
+    this.breed = client.breed;
+    this.serviceArea = client.serviceArea;
+    this.address = client.address;
+
     this.date = date;
-    this.petName = client.petName
-    this.increment = increment
+    this.increment = increment;
+    this.message = message;
+
   }
 
   createMessage() {
-    return `Hi ${this.name}, it's Alex and Larissa from Barks & Bubbles, we are trying a new automated service.\n\nWe’re back for nail trimming on ${this.date}! Please give us a \u{1F44D} if you’d like us to swing by for ${this.petName}’s nail trim, and we’ll get back to you a day prior with a timeframe \u{1F43E}.\n\nAnything other than a "\u{1F44D}" or "\u{1F44E}" please send us a message at (647) 767-6216.`
+    return this.formatMessage(this.message);
   }
 
-  createReply() {
-    return `Hi ${this.name}! Aiming to be there around ${this.getTimeRange()} tomorrow \u{1F60A}`
+  formatMessage(message) {
+    return message.replace(/\$\{([^}]+)\}/g, (match, p1) => {
+      try {
+        return eval(p1);
+      } catch (e) {
+        return match;
+      }
+    });
   }
 
   getTimeRange() {
@@ -55,7 +70,6 @@ class Message {
   getName(name) {
     const nameParts = name.split(" ");
 
-    // Return the first part
     return nameParts[0];
   }
 
