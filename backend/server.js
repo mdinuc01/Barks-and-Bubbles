@@ -3,6 +3,7 @@ const cors = require('cors');
 const petRoute = require('./routes/pet.js');
 const appRoute = require('./routes/appointment.js');
 const messageRoute = require('./routes/message.js');
+const messageBuilderRoute = require('./routes/messageBuilder.js');
 const authRoute = require('./routes/auth.js');
 const corsOptions = require('./config/corsOption.js');
 require('dotenv').config();
@@ -17,7 +18,9 @@ app.use(express.json());
 app.use("/api/pet", petRoute);
 app.use("/api/appointment", appRoute);
 app.use("/api/message", messageRoute);
+app.use("/api/message/builder", messageBuilderRoute);
 app.use("/api/auth", authRoute);
+
 
 
 mongoose.connect(process.env.MONGO_URI)
