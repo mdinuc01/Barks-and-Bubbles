@@ -9,7 +9,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatCardModule } from '@angular/material/card';
 import { PanelService } from '../../services/panel service/panel-service';
 import { MatDialog } from '@angular/material/dialog';
-import { lastValueFrom } from 'rxjs';
+import { lastValueFrom, tap } from 'rxjs';
 import { AppointmentSchedulerComponent } from '../appointment-scheduler/appointment-scheduler.component';
 import { MatBadgeModule } from '@angular/material/badge';
 import { MatTabsModule } from '@angular/material/tabs';
@@ -41,6 +41,7 @@ export class AppointmentPageComponent implements OnInit {
   failedUnsentMessage: any;
   showErrorBtn = false;
   unsentContactMsg: errorContact[] = [];
+  messageEditor: [] = [];
 
   constructor(
     public DataService: DataService,
@@ -50,6 +51,10 @@ export class AppointmentPageComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
+    this.DataService.messageBuilder$.subscribe((res) => {
+      if (res) this.messageEditor = res.data;
+    });
+
     this.DataService.currentAppointment$.subscribe((res) => {
       if (res.data) {
         this.appointment = { ...res.data };
@@ -71,6 +76,8 @@ export class AppointmentPageComponent implements OnInit {
         )
           this.getUsersWithoutMessage();
       }
+
+      this.DataService.getMessages();
     });
 
     this.activatedRoute.paramMap.subscribe((paraMap) => {
@@ -107,6 +114,7 @@ export class AppointmentPageComponent implements OnInit {
           .replaceAll(',', ', ')}</b>`,
         subMsg: 'This action cannot be undone.',
         btnTitle: 'Confirm',
+        isMsgEditor: false,
       },
     });
 
@@ -125,6 +133,22 @@ export class AppointmentPageComponent implements OnInit {
         this.appointment.app._id
       );
     }
+  }
+
+  async openMsgPanel() {
+    const dialogRef = this.dialog.open(PanelService, {
+      data: {
+        title: 'Edit Messages',
+        confirmMsg:
+          'Edit the messages that are sent out to your clients below:',
+        subMsg: '',
+        btnTitle: 'Save',
+        isMsgEditor: true,
+        data: this.messageEditor,
+      },
+    });
+
+    const result = await lastValueFrom(dialogRef.afterClosed());
   }
 
   loadReplies() {
