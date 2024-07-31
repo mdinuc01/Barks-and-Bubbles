@@ -4,12 +4,86 @@
        style="width: 96%;">
     <h2>{{ data.title }}</h2>
   </div>
-  <mat-dialog-content>
+  <mat-dialog-content [ngClass]="{'scroll' : this.isMsgEditor}">
     <p style="color: black;"
        [innerHTML]="data.confirmMsg">{{ data.confirmMsg }}</p>
     <p style="color: black;">{{ data.subMsg }}</p>
+
+    <div *ngIf="isMsgEditor">
+      <mat-accordion class="example-headers-align"
+                     multi>
+
+        <mat-expansion-panel [expanded]="step() === 0"
+                             (opened)="setStep(0)"
+                             hideToggle>
+          <mat-expansion-panel-header>
+            <mat-panel-title>Message Rules</mat-panel-title>
+          </mat-expansion-panel-header>
+          <p>The following rules apply to the messages in the text boxes below.</p>
+          <ul>
+            <li>Any client value can be included in these messages. The values available to use are as follows:
+              <b>petParentName, contactMethod, animalType, breed, petName, serviceArea & address</b>. To insert these
+              values in
+              a message please follow the format in the next step. <b>Make sure to include "this." in front of the value
+                name. Note:</b> the contact method phone number will not be formatted if you include it in the message.
+            </li>
+            <li>To insert custom values for a client use this format: <b>{{example}}</b></li>
+            <li>Custom values are used to get specific values in a message. For example, this.date
+              and this.getTimeRange() are all created in the code. If you need something more specific reach out to
+              Michael to have it included.</li>
+          </ul>
+          <button style="float: right;"
+                  color="accent"
+                  mat-raised-button
+                  (click)="
+                  setStep(1)">Next Page</button>
+        </mat-expansion-panel>
+        <ng-container *ngFor="let data of dataVal; index as i">
+
+          <mat-expansion-panel [expanded]="step() === i+1"
+                               (opened)="setStep(i+1)"
+                               hideToggle>
+            <mat-expansion-panel-header>
+              <mat-panel-title>{{data.name}}
+              </mat-panel-title>
+              <mat-panel-description>
+                Update the {{data.name.toLowerCase()}}
+              </mat-panel-description>
+            </mat-expansion-panel-header>
+
+            <div class="editor-layout">
+              <textarea name="message-editor-{{data._id}}"
+                        id="message-editor-{{data._id}}"
+                        class="scroll"
+                        [innerHTML]="formatMessage(data.message)"
+                        (blur)="updateMessageObj($event, i)"></textarea>
+
+              <div class="btn-layout">
+                <button color="danger"
+                        mat-raised-button
+                        (click)="setStep(i)">
+                  Previous page
+                </button>
+
+                <button color="accent"
+                        mat-raised-button
+                        *ngIf="i == 0"
+                        (click)="setStep(i+2)">
+                  Next page
+                </button>
+                <button color="primary"
+                        mat-raised-button
+                        (click)="this.updateMessage(data._id)">Update Message</button>
+              </div>
+            </div>
+          </mat-expansion-panel>
+        </ng-container>
+      </mat-accordion>
+    </div>
+
   </mat-dialog-content>
-  <mat-dialog-actions align="end">
+  <mat-dialog-actions align="end"
+                      *ngIf="!this.isMsgEditor">
     <button mat-raised-button
             color="warn"
             (click)="onConfirm()">{{data.btnTitle}}</button>
