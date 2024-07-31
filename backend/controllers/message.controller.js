@@ -3,6 +3,7 @@ const Pet = require('../models/Pet.js');
 const Appointment = require('../models/Appointment.js');
 const SMSUtils = require('../utils/SMSUtils.js');
 const nodemailer = require("nodemailer");
+const Builder = require('../models/MessageBuilder.js');
 
 class MessageController {
 
@@ -15,6 +16,8 @@ class MessageController {
       let clientSentTo = [];
       let sentDate = new Date();
 
+      let messageObj = await Builder.findOne({ "name": "First Message" });
+
       //sending messages and populating message array for response retrieval
       if (pets.length) {
         pets.forEach(async (pet) => {
@@ -23,17 +26,13 @@ class MessageController {
           if (locations.includes(pet.serviceArea)) {
 
             //*Console logs for testing users to send message to
-            // let messageText = new Message(pet, date).createMessage();
+            // let messageText = new Message(pet, date, 0, messageObj.message).createMessage();
             // console.log(messageText + "\n");
-            SMSUtils.sendText(pet, date);
+            SMSUtils.sendText(pet, date, messageObj.message);
             clientSentTo.push({ id: pet.id, contactMethod: pet.contactMethod, petName: pet.petName, petParentName: pet.petParentName, serviceArea: pet.serviceArea });
 
           }
         });
-
-        const response = await fetchReplies(sentDate, appId);
-        const appData = response.app;
-        sendEmailUpdate(date, appData);
 
         const app = await Appointment.findOneAndUpdate(
           { _id: appId },
@@ -45,6 +44,13 @@ class MessageController {
           },
           { new: true }
         );
+
+        setTimeout(async () => {
+
+          const response = await fetchReplies(sentDate, appId);
+          const appData = response.app;
+          sendEmailUpdate(date, appData);
+        }, 60 * 1000)
 
         const location = app.location.map(locationVal => {
           const clientsInLocation = pets.filter(client => client.serviceArea === locationVal);
@@ -67,7 +73,7 @@ class MessageController {
 
       const app = await Appointment.findOne({ _id: appId });
 
-
+      let messageObj = await Builder.findOne({ "name": "Second Message" });
 
       if (app.scheduler && app.scheduler.length) {
         app.location.forEach((l) => {
@@ -78,7 +84,7 @@ class MessageController {
               if (reply.time && reply.time != null && reply.petParentName) {
                 let name = { petParentName: reply.petParentName, contactMethod: reply.from.substring(2) }
                 //     // let message = new Message(name, reply.time);
-                await SMSUtils.sendReply(name, reply.time, scheduler[l].increment);
+                await SMSUtils.sendReply(name, reply.time, scheduler[l].increment, messageObj.message);
               }
             })
           }
@@ -112,7 +118,7 @@ let fetchReplies = async (sentDate, appId) => {
     let app = await Appointment.findOne({ _id: appId });
 
     if (!app) {
-      return res.status(404).json({ message: "Appointment not found" });
+      return;
     }
 
     let messagesData = app.messages.sentTo;
@@ -152,7 +158,7 @@ let fetchReplies = async (sentDate, appId) => {
         }
 
         let replies = newReplies.filter((r) => {
-          if (r.from == "+13346410423") return false; // Changed from return to return false to avoid including undefined elements
+          if (r.from == process.env.TWILIO_PHONE_NUMBER) return false; // Changed from return to return false to avoid including undefined elements
           let from = r.from.substring(2);
           let meta = messagesData.find((m) => m.contactMethod == from);
           return !!(meta && meta.serviceArea == l);

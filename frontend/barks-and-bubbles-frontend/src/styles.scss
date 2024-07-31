@@ -107,7 +107,7 @@ $my-theme: mat.define-light-theme(
 
 .dialog-panel {
   width: 40em;
-  height: 25em;
+  height: 100%;
 }
 
 a {
@@ -186,4 +186,13 @@ app-loader {
   top: 5em;
   height: 100%;
   width: 100%;
+}
+
+.panel-layout {
+  background-color: white;
+  border-radius: 1em;
+  border: 1px solid #ededed;
+  position: absolute;
+  z-index: 10;
+  box-shadow: 3px 3px 3px #afafaf;
 }

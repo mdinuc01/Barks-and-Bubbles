@@ -16,6 +16,12 @@
           </span>
         </mat-icon>
       </button>
+
+      <button mat-icon-button
+              matTooltip="Edit Messages"
+              (click)="openMsgPanel()">
+        <mat-icon class="mat-accent-icon-btn">chat</mat-icon>
+      </button>
     </mat-card-title>
 
     <div class="scroll location-layout"
@@ -143,7 +149,7 @@
                                 class="message sent"
                                 [ngClass]="{'sent': this.message.status == 'delivered', 'unsent': this.message.status == 'failed', 'received': this.message.direction == 'inbound'}">
                         <mat-card-content>
-                          <p>{{message.body}}</p>
+                          <p [innerText]="message.body"></p>
                         </mat-card-content>
                         <mat-card-footer align="end">
                           <sub>{{formatStatus(message.status)}} -

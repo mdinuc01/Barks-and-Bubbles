@@ -1,3 +1,4 @@
+import { ToastService } from './toast.service';
 import { StorageService } from './storage.service';
 import { Injectable } from '@angular/core';
 import { Observable, BehaviorSubject } from 'rxjs';
@@ -18,12 +19,16 @@ export class DataService {
   private appointmentSubject: BehaviorSubject<any> = new BehaviorSubject<any>(
     []
   );
+  private messageBuilderSubject: BehaviorSubject<any> =
+    new BehaviorSubject<any>([]);
 
   loader$: Observable<any> = this.loaderSubject.asObservable();
   clients$: Observable<any> = this.clientsSubject.asObservable();
   serviceAreas$: Observable<any> = this.serviceAreaSubject.asObservable();
   appointments$: Observable<any> = this.appointmentsSubject.asObservable();
   currentAppointment$: Observable<any> = this.appointmentSubject.asObservable();
+  messageBuilder$: Observable<any> = this.messageBuilderSubject.asObservable();
+
   apiEndPoint = environment.domain;
   token = '';
   headers: HttpHeaders;
@@ -31,7 +36,8 @@ export class DataService {
   constructor(
     private http: HttpClient,
     private router: Router,
-    private storageService: StorageService
+    private storageService: StorageService,
+    private ToastService: ToastService
   ) {
     this.token = this.storageService.getCookie('aj') ?? '';
     this.headers = new HttpHeaders().set('x-access-token', this.token);
@@ -212,6 +218,35 @@ export class DataService {
         this.clientsSubject.next(response);
         this.loaderSubject.next(false);
         this.getAppointmentById(appId);
+      });
+  }
+
+  getMessages() {
+    this.http
+      .get(`${this.apiEndPoint}/message/builder`, {
+        headers: this.headers,
+      })
+      .subscribe((response) => {
+        this.messageBuilderSubject.next(response);
+      });
+  }
+
+  updateMessage(_id: string, updateMessage: string) {
+    this.http
+      .put(
+        `${this.apiEndPoint}/message/builder/update`,
+        {
+          _id,
+          updateMessage,
+        },
+        {
+          headers: this.headers,
+        }
+      )
+      .subscribe((response) => {
+        if (response)
+          this.ToastService.showSuccess('Message Updated Successfully');
+        // this.messageBuilderSubject.next(response);
       });
   }
 

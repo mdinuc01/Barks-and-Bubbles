@@ -35,11 +35,11 @@ class SMSUtils {
     }
   }
 
-  async sendText(clientData, date) {
+  async sendText(clientData, date, messageString) {
 
     if (!clientData || !clientData.contactMethod || !this.isValidPhoneNumber(clientData.contactMethod)) return;
 
-    let message = new Message(clientData, date);
+    let message = new Message(clientData, date, 0, messageString);
     let number = `+1${clientData.contactMethod}`;
 
     try {
@@ -55,16 +55,16 @@ class SMSUtils {
     }
   }
 
-  async sendReply(clientData, date, increment) {
+  async sendReply(clientData, date, increment, messageString) {
     if (!clientData || !clientData.contactMethod || !this.isValidPhoneNumber(clientData.contactMethod)) return;
 
-    let message = new Message(clientData, date, increment);
+    let message = new Message(clientData, date, increment, messageString);
     let number = `+1${clientData.contactMethod}`;
 
     try {
       const messageObj = await client.messages
         .create({
-          body: message.createReply(),
+          body: message.createMessage(),
           from: phone,
           to: number
         })
