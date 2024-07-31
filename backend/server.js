@@ -13,6 +13,8 @@ const PORT = process.env.PORT || 8800;
 
 app.use(cors(corsOptions));
 app.use(express.json());
+app.set('trust proxy', 1);
+
 
 //Routes
 app.use("/api/pet", petRoute);
