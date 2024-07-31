@@ -45,12 +45,6 @@ class MessageController {
           { new: true }
         );
 
-        setTimeout(async () => {
-
-          const response = await fetchReplies(sentDate, appId);
-          const appData = response.app;
-          sendEmailUpdate(date, appData);
-        }, 60 * 1000)
 
         const location = app.location.map(locationVal => {
           const clientsInLocation = pets.filter(client => client.serviceArea === locationVal);
@@ -59,6 +53,12 @@ class MessageController {
 
         let meta = app.location;
         const data = { app: app, location, meta };
+
+        setTimeout(async () => {
+          const response = await fetchReplies(sentDate, appId);
+          const appData = response.app;
+          sendEmailUpdate(date, appData);
+        }, 60 * 1000)
 
         return res.status(200).json({ message: `Messages sent`, data });
       }
