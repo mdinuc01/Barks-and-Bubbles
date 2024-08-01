@@ -135,6 +135,8 @@ let fetchReplies = async (sentDate, appId) => {
       }
     });
 
+
+
     let newReplies = replies.map((r) => {
       let time;
       let petParentName;
@@ -185,8 +187,20 @@ let fetchReplies = async (sentDate, appId) => {
             };
           }
           return null; // Explicitly return null for non-matching replies
-        }).filter(reply => reply !== null); // Filter out null values
+        }).filter(reply => reply !== null) // Filter out null values
 
+        replies = replies.sort((a, b) => {
+          // console.log({ a })
+          const propA = a.petName.toLowerCase();
+          const propB = b.petName.toLowerCase();
+          if (propA < propB) {
+            return -1;
+          }
+          if (propA > propB) {
+            return 1;
+          }
+          return 0;
+        })
 
         return { [l]: { replies, length: replies.length, increment: scheduler[l].increment ? scheduler[l].increment : "0.5" } };
       });
