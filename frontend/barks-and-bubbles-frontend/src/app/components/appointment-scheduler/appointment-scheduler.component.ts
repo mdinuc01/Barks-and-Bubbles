@@ -99,7 +99,7 @@ export class AppointmentSchedulerComponent implements OnInit {
     private dialog: MatDialog
   ) {
     // Generate hours from 12:00 AM to 11:00 PM
-    for (let i = 7; i < 12; i++) {
+    for (let i = 8; i < 12; i++) {
       this.hours.push(`${i === 0 ? 12 : i}:00 AM`);
       this.hours.push(`${i === 0 ? 12 : i}:15 AM`);
       this.hours.push(`${i === 0 ? 12 : i}:30 AM`);
