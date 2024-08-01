@@ -81,10 +81,9 @@ class MessageController {
 
           if (scheduler[l].replies && scheduler[l].replies.length && scheduler[l].increment) {
             scheduler[l].replies.forEach(async (reply) => {
-              if (reply.time && reply.time != null && reply.petParentName) {
-                let name = { petParentName: reply.petParentName, contactMethod: reply.from.substring(2) }
-                //     // let message = new Message(name, reply.time);
-                await SMSUtils.sendReply(name, reply.time, scheduler[l].increment, messageObj.message);
+              if (reply.id && reply.time && reply.time != null && reply.petParentName) {
+                const pet = await Pet.findOne({ _id: reply.id });
+                await SMSUtils.sendReply(pet, reply.time, scheduler[l].increment, messageObj.message);
               }
             })
           }
