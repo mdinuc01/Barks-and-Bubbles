@@ -157,6 +157,8 @@ class AppointmentController {
           petParentName: pet.petParentName,
           serviceArea: pet.serviceArea
         });
+        updatedScheduler.replies.sort((a, b) => a.petName.localeCompare(b.petName));
+
         updatedScheduler.length += 1;
 
         // Find the index of the object in the scheduler array that has the key matching the service area
