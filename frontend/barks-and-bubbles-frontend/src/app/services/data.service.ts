@@ -23,6 +23,8 @@ export class DataService {
     new BehaviorSubject<any>([]);
   private petsWithLocationsSubject: BehaviorSubject<any> =
     new BehaviorSubject<any>([]);
+  panelSubject = new BehaviorSubject<boolean>(false);
+  panel$ = this.panelSubject.asObservable();
 
   loader$: Observable<any> = this.loaderSubject.asObservable();
   clients$: Observable<any> = this.clientsSubject.asObservable();
@@ -261,7 +263,8 @@ export class DataService {
         { headers: this.headers }
       )
       .subscribe((response) => {
-        this.appointmentSubject.next(response);
+        // this.appointmentSubject.next(response);
+        this.getAppointmentById(appId);
       });
   }
 

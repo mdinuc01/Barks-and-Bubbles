@@ -12,6 +12,9 @@ import { MatDialog } from '@angular/material/dialog';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MatBadgeModule } from '@angular/material/badge';
 import { AppointmentClientListComponent } from '../appointment-client-list/appointment-client-list.component';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { ReactiveFormsModule } from '@angular/forms';
+import { MatInputModule } from '@angular/material/input';
 
 interface Reply {
   sid: string;
@@ -46,6 +49,9 @@ interface Location {
     MatExpansionModule,
     MatBadgeModule,
     AppointmentClientListComponent,
+    MatFormFieldModule,
+    ReactiveFormsModule,
+    MatInputModule,
   ],
   templateUrl: './appointment-scheduler.component.html',
   styleUrl: './appointment-scheduler.component.scss',
@@ -56,39 +62,6 @@ export class AppointmentSchedulerComponent implements OnInit {
   @Input() replies!: any[];
   @Input() appId!: string;
   counters: { [key: string]: number } = {};
-
-  colors: string[] = [
-    '#FF0000',
-    '#00FF00',
-    '#0000FF',
-    '#FFFF00',
-    '#FF00FF',
-    '#00FFFF',
-    '#800000',
-    '#008000',
-    '#000080',
-    '#808000',
-    '#800080',
-    '#008080',
-    '#FF5733',
-    '#33FF57',
-    '#3357FF',
-    '#FF33A1',
-    '#A1FF33',
-    '#FFAA33',
-    '#33FFAA',
-    '#AA33FF',
-    '#FFA533',
-    '#33FFA5',
-    '#5733FF',
-    '#A533FF',
-    '#FF33F5',
-    '#33F5FF',
-    '#F5FF33',
-    '#33FF33',
-    '#FF5733',
-    '#FF3333',
-  ];
 
   currentReply: any;
   resetTime = false;
@@ -118,6 +91,9 @@ export class AppointmentSchedulerComponent implements OnInit {
     this.hours.push(`9:00 PM`);
   }
   ngOnInit(): void {
+    this.DataService.panel$.subscribe((val) => {
+      this.showAddPanel = val;
+    });
     this.DataService.currentAppointment$.subscribe((res) => {
       if (res.data) {
         this.appointment = res.data;
@@ -236,18 +212,6 @@ export class AppointmentSchedulerComponent implements OnInit {
   }
 
   resetAppTimes() {
-    // this.replies = this.replies.map((location) => {
-    //   let local = this.objectKeys(location)[0];
-    //   console.log({ r: location[local].replies });
-    //   if (location[local].replies && location[local].replies.length)
-    //     return location[local].replies.forEach(
-    //       (reply: { time: string | null }) => {
-    //         reply.time = null;
-    //       }
-    //     );
-    //     return location;
-    //   });
-
     this.replies = this.replies.map((location) => {
       // Assuming location is an object whose values are the areas
       Object.values(location).forEach((area: any) => {
