@@ -121,6 +121,7 @@ export class AppComponent implements OnInit {
   hidePanels() {
     this.showClientPanel = false;
     this.showAppPanel = false;
+    this.DataService.panelSubject.next(false);
   }
 
   showPanel(event: Event, isClient: boolean) {
