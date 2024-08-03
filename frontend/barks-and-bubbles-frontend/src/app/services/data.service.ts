@@ -21,6 +21,8 @@ export class DataService {
   );
   private messageBuilderSubject: BehaviorSubject<any> =
     new BehaviorSubject<any>([]);
+  private petsWithLocationsSubject: BehaviorSubject<any> =
+    new BehaviorSubject<any>([]);
 
   loader$: Observable<any> = this.loaderSubject.asObservable();
   clients$: Observable<any> = this.clientsSubject.asObservable();
@@ -28,7 +30,8 @@ export class DataService {
   appointments$: Observable<any> = this.appointmentsSubject.asObservable();
   currentAppointment$: Observable<any> = this.appointmentSubject.asObservable();
   messageBuilder$: Observable<any> = this.messageBuilderSubject.asObservable();
-
+  petsWithLocation$: Observable<any> =
+    this.petsWithLocationsSubject.asObservable();
   apiEndPoint = environment.domain;
   token = '';
   headers: HttpHeaders;
@@ -247,6 +250,31 @@ export class DataService {
         if (response)
           this.ToastService.showSuccess('Message Updated Successfully');
         // this.messageBuilderSubject.next(response);
+      });
+  }
+
+  addToReply(appId: string, petId: string) {
+    this.http
+      .put<{ data: any }>(
+        `${this.apiEndPoint}/appointment/addPetToReplies`,
+        { appId, petId },
+        { headers: this.headers }
+      )
+      .subscribe((response) => {
+        this.appointmentSubject.next(response);
+      });
+  }
+
+  getPetsWithLocations(appId: string) {
+    this.http
+      .get<{ data: any[] }>(
+        `${this.apiEndPoint}/pet/petsWithLocations/${appId}`,
+        {
+          headers: this.headers,
+        }
+      )
+      .subscribe((response) => {
+        this.petsWithLocationsSubject.next(response);
       });
   }
 

@@ -214,3 +214,17 @@ mat-card {
   overflow: hidden;
   white-space: nowrap;
 }
+
+.add-reply-panel-layout {
+  background-color: white;
+  border-radius: 1em;
+  border: 1px solid #ededed;
+  position: absolute;
+  left: 24em;
+  z-index: 201;
+  box-shadow: 3px 3px 3px #afafaf;
+  height: 30em;
+  width: 32em;
+  overflow-y: scroll;
+  padding: 0 0.5em 0.5em 0.5em;
+}

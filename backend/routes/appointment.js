@@ -13,4 +13,6 @@ router.post('/add', AppointmentController.addAppointment);
 router.put("/time/:id", AppointmentController.saveAppointmentTimes);
 router.put("/time/archive/:id", AppointmentController.archiveAppointment);
 
+router.put('/addPetToReplies', AppointmentController.addPetToReplies);
+
 module.exports = router;

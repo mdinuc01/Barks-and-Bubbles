@@ -11,6 +11,7 @@ import { lastValueFrom } from 'rxjs';
 import { MatDialog } from '@angular/material/dialog';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MatBadgeModule } from '@angular/material/badge';
+import { AppointmentClientListComponent } from '../appointment-client-list/appointment-client-list.component';
 
 interface Reply {
   sid: string;
@@ -44,6 +45,7 @@ interface Location {
     MatTooltipModule,
     MatExpansionModule,
     MatBadgeModule,
+    AppointmentClientListComponent,
   ],
   templateUrl: './appointment-scheduler.component.html',
   styleUrl: './appointment-scheduler.component.scss',
@@ -92,6 +94,8 @@ export class AppointmentSchedulerComponent implements OnInit {
   resetTime = false;
   resetSave = false;
   locations: string[] = [];
+  appointment: any;
+  showAddPanel = false;
 
   constructor(
     private ToastService: ToastService,
@@ -115,6 +119,9 @@ export class AppointmentSchedulerComponent implements OnInit {
   }
   ngOnInit(): void {
     this.DataService.currentAppointment$.subscribe((res) => {
+      if (res.data) {
+        this.appointment = res.data;
+      }
       if (res.message == 'Replies Saved' && this.resetSave) {
         this.ToastService.showSuccess('Route Saved Successfully!');
         this.resetSave = false;

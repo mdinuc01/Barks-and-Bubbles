@@ -1,0 +1,80 @@
+<div class="location-layout"
+     *ngIf="this.appointment"
+     [ngClass]="{'location-without-scroll': this.addToList, 'location-layout' : !this.addToList}">
+
+  <ng-container *ngIf="!this.addToList">
+    <div *ngFor="let location of this.appointment.location">
+      <div *ngFor="let local of getObjectKeys(location)">
+        <div class="location-title">
+          <h3><b>{{ local }} ({{getNumOfClients(location)}})</b></h3>
+          <hr>
+        </div>
+        <div *ngFor="let clientArr of getObjectValue(location)"
+             class="client-cards-container">
+          <mat-card *ngFor="let client of clientArr"
+                    class="client-card">
+            <mat-card-header style="display: flex;
+              padding: 0 !important;
+              justify-content: flex-end;
+              width: 10em;">
+              <mat-icon *ngIf="!addToList"
+                        matTooltip="{{client.active ? 'Deactivate Client' : 'Activate Client'}}"
+                        style="cursor: pointer;"
+                        [ngClass]="{'mat-success-btn': client.active, 'mat-danger-btn': !client.active}"
+                        (click)="updateStatus(client._id, !client.active, local)">{{client.active
+                ?
+                "mark_email_read" : "unsubscribe"}}</mat-icon>
+
+              <mat-icon *ngIf="addToList"
+                        matTooltip="Add client to scheduler"
+                        style="cursor: pointer;"
+                        [color]="'primary'"
+                        (click)="addPetToReplyList(client._id)">person_add</mat-icon>
+
+            </mat-card-header>
+            <mat-icon>pets</mat-icon>{{client.petName}}
+            <mat-icon>face</mat-icon>{{client.petParentName}}
+          </mat-card>
+        </div>
+      </div>
+    </div>
+  </ng-container>
+
+  <ng-container *ngIf="this.addToList">
+    <div *ngFor="let location of this.petsWithLocations">
+      <div *ngFor="let local of getObjectKeys(location)">
+        <div class="location-title">
+          <h3><b>{{ local }} ({{getNumOfClients(location)}})</b></h3>
+          <hr>
+        </div>
+        <div *ngFor="let clientArr of getObjectValue(location)"
+             class="client-cards-container">
+          <mat-card *ngFor="let client of clientArr"
+                    class="client-card">
+            <mat-card-header style="display: flex;
+                padding: 0 !important;
+                justify-content: flex-end;
+                width: 10em;">
+              <mat-icon *ngIf="!addToList"
+                        matTooltip="{{client.active ? 'Deactivate Client' : 'Activate Client'}}"
+                        style="cursor: pointer;"
+                        [ngClass]="{'mat-success-btn': client.active, 'mat-danger-btn': !client.active}"
+                        (click)="updateStatus(client._id, !client.active, local)">{{client.active
+                ?
+                "mark_email_read" : "unsubscribe"}}</mat-icon>
+
+              <mat-icon *ngIf="addToList"
+                        matTooltip="Add client to scheduler"
+                        style="cursor: pointer;"
+                        [color]="'primary'"
+                        (click)="addPetToReplyList(client._id)">person_add</mat-icon>
+
+            </mat-card-header>
+            <mat-icon>pets</mat-icon>{{client.petName}}
+            <mat-icon>face</mat-icon>{{client.petParentName}}
+          </mat-card>
+        </div>
+      </div>
+    </div>
+  </ng-container>
+</div>
