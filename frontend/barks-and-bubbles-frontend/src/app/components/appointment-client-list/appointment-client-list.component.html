@@ -41,7 +41,20 @@
   </ng-container>
 
   <ng-container *ngIf="this.addToList">
-    <div *ngFor="let location of this.petsWithLocations">
+    <form [formGroup]="queryForm">
+      <mat-form-field appearance="outline"
+                      style="width: 100%;">
+        <mat-label>Search for a client</mat-label>
+
+        <input type="text"
+               name="clientQuery"
+               formControlName="clientQuery"
+               matInput
+               (ngModelChange)="filterList()" />
+      </mat-form-field>
+    </form>
+
+    <div *ngFor="let location of this.filteredList">
       <div *ngFor="let local of getObjectKeys(location)">
         <div class="location-title">
           <h3><b>{{ local }} ({{getNumOfClients(location)}})</b></h3>
