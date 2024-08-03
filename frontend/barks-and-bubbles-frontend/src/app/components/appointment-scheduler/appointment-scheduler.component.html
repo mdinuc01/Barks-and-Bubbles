@@ -22,9 +22,27 @@
       outgoing_mail
     </mat-icon>
   </button>
+
+  <button mat-icon-button
+          matTooltip="Add reply to scheduler"
+          (click)="showAddPanel = !showAddPanel"
+          [color]="'primary'">
+    <mat-icon>
+      maps_ugc
+    </mat-icon>
+  </button>
 </div>
 
-<div class="layout">
+<div class="add-reply-panel-layout scroll"
+     *ngIf="showAddPanel">
+  <h3>Add a pet to the replies:</h3>
+  <app-appointment-client-list [appointment]="this.appointment"
+                               [addToList]='true'></app-appointment-client-list>
+
+</div>
+
+<div class="layout"
+     (click)="showAddPanel = false">
   <div (dragover)="onDragOver($event)"
        (touchmove)="onDragOver($event)"
        (drop)="onDrop($event, null)"

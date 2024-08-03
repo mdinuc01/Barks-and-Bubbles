@@ -128,6 +128,84 @@ class AppointmentController {
       return res.status(500).json({ message: "Internal Server Error", error });
     }
   }
+
+  async addPetToReplies(req, res) {
+    try {
+      const { appId, petId } = req.body;
+
+      const pet = await Pet.findOne({ _id: petId, created_by: req.userId });
+      const app = await Appointment.findOne({ _id: appId });
+
+      if (!pet || !app) {
+        console.error('Pet or Appointment not found');
+        return;
+      }
+
+      let updatedScheduler = findLocationByAreaName(app.scheduler, pet.serviceArea);
+
+      if (updatedScheduler) {
+        // Update the existing scheduler entry
+        updatedScheduler.replies.push({
+          sid: generateUniqueId(),
+          body: '@Client Manually Added',
+          from: `+1${pet.contactMethod}`,
+          to: process.env.TWILIO_PHONE_NUMBER,
+          time: null,
+          status: 'received',
+          id: petId,
+          petName: pet.petName,
+          petParentName: pet.petParentName,
+          serviceArea: pet.serviceArea
+        });
+        updatedScheduler.length += 1;
+
+        // Find the index of the object in the scheduler array that has the key matching the service area
+        const index = app.scheduler.findIndex(obj => Object.keys(obj)[0] === pet.serviceArea);
+
+        // if (index !== -1) {
+        // If the service area exists, update the specific array element
+        const updateField = `scheduler.${index}.${pet.serviceArea}`;
+        await Appointment.findOneAndUpdate(
+          { _id: appId },
+          {
+            $set: {
+              [updateField]: updatedScheduler
+            }
+          }
+        );
+        const data = await Appointment.findOne({ _id: appId });
+        return res.status(200).json({ message: `Pet added to replies successfully!`, data });
+
+      }
+    } catch (error) {
+      return res.status(500).json({ message: "Internal Server Error", error });
+
+    }
+  }
+}
+
+function findLocationByAreaName(array, areaName) {
+  for (let obj of array) {
+    for (let key in obj) {
+      if (key === areaName) {
+        return obj[key];
+      }
+    }
+  }
+  return null; // Return null if no match is found
+}
+
+function generateUniqueId() {
+  // Get the current timestamp in milliseconds
+  const timestamp = Date.now();
+
+  // Generate a random number between 0 and 99999
+  const randomNum = Math.floor(Math.random() * 100000);
+
+  // Combine the timestamp and random number to create a unique ID
+  const uniqueId = `added-${timestamp}-${randomNum}`;
+
+  return uniqueId;
 }
 
 module.exports = new AppointmentController();

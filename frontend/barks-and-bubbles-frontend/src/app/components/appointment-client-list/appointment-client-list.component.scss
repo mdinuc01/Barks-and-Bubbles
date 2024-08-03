@@ -1,0 +1,29 @@
+.location-layout {
+  height: 70vh;
+  overflow-y: scroll;
+}
+
+.location-without-scroll {
+  overflow-y: none;
+}
+.location-title {
+  position: sticky;
+  top: -1px;
+  background-color: white;
+  z-index: 20;
+}
+
+.client-cards-container {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  row-gap: 1em;
+}
+.client-card {
+  width: 12em;
+  height: 12em;
+  padding: 2em;
+  margin-bottom: 1em;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}

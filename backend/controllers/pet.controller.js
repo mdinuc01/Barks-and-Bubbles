@@ -1,3 +1,4 @@
+const Appointment = require('../models/Appointment.js');
 const Pet = require('../models/Pet.js');
 
 class ClientController {
@@ -80,6 +81,28 @@ class ClientController {
     } catch (error) {
       return res.status(500).json({ message: "Internal Server Error", error });
     }
+  }
+
+  async getAllPetsWithLocations(req, res) {
+    try {
+      const { id } = req.params;
+      const app = await Appointment.findOne({ _id: id });
+
+      let locations = app.location;
+      //mapping locations clients to app
+      let pets = await Pet.find({ serviceArea: { $in: locations }, created_by: req.userId });
+
+      const data = app.location.map(locationVal => {
+        let clientsInLocation = pets.filter(client => client.serviceArea === locationVal);
+        return { [locationVal]: clientsInLocation };
+      });
+
+      return res.status(200).json({ message: `All clients found`, data });
+
+    } catch (error) {
+      return res.status(500).json({ message: "Internal Server Error", error });
+    }
+
   }
 }
 

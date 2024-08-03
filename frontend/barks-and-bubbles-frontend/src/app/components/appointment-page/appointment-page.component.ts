@@ -13,6 +13,7 @@ import { lastValueFrom, tap } from 'rxjs';
 import { AppointmentSchedulerComponent } from '../appointment-scheduler/appointment-scheduler.component';
 import { MatBadgeModule } from '@angular/material/badge';
 import { MatTabsModule } from '@angular/material/tabs';
+import { AppointmentClientListComponent } from '../appointment-client-list/appointment-client-list.component';
 
 @Component({
   selector: 'app-appointment-page',
@@ -29,6 +30,7 @@ import { MatTabsModule } from '@angular/material/tabs';
     MatBadgeModule,
     MatTabsModule,
     AppointmentSchedulerComponent,
+    AppointmentClientListComponent,
   ],
 })
 export class AppointmentPageComponent implements OnInit {
@@ -57,7 +59,7 @@ export class AppointmentPageComponent implements OnInit {
 
     this.DataService.currentAppointment$.subscribe((res) => {
       if (res.data) {
-        this.appointment = { ...res.data };
+        this.appointment = res.data;
         this.loadingReplies = false;
 
         if (res.message == 'Messages sent') {
@@ -83,22 +85,8 @@ export class AppointmentPageComponent implements OnInit {
     this.activatedRoute.paramMap.subscribe((paraMap) => {
       let id = paraMap.get('id')!;
       this.DataService.getAppointmentById(id);
+      this.DataService.getPetsWithLocations(id);
     });
-  }
-
-  getObjectKeys(obj: any): string[] {
-    return Object.keys(obj);
-  }
-
-  getObjectValue(obj: any): any[] {
-    return Object.values(obj);
-  }
-
-  getNumOfClients(obj: [any]) {
-    let obj1 = Object.values(obj);
-    let obj2 = Object.values(obj1);
-
-    return obj2[0].length;
   }
 
   async openPanel() {
@@ -231,10 +219,6 @@ export class AppointmentPageComponent implements OnInit {
     return this.unsentContactMsg.filter(
       (c) => c.contactMethod == client.contactMethod
     ).length;
-  }
-
-  updateStatus(id: any, status: any, location: String) {
-    this.DataService.updatePetStatusApp(id, status, this.appointment.app._id);
   }
 }
 
