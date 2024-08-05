@@ -37,37 +37,59 @@ export class DataService {
   apiEndPoint = environment.domain;
   token = '';
   headers: HttpHeaders;
+  AUTH_API = `${this.apiEndPoint}/auth/`;
+  httpOptions = {
+    headers: new HttpHeaders({ 'Content-Type': 'application/json' }),
+  };
 
   constructor(
     private http: HttpClient,
     private router: Router,
-    private storageService: StorageService,
+    private StorageService: StorageService,
     private ToastService: ToastService
   ) {
-    this.token = this.storageService.getCookie('aj') ?? '';
+    this.token = this.StorageService.getCookie('aj') ?? '';
     this.headers = new HttpHeaders().set('x-access-token', this.token);
   }
 
   getAllPets() {
     this.http
-      .get<{ data: any[] }>(`${this.apiEndPoint}/pet/`, {
+      .get<{
+        message: string;
+        data: any;
+      }>(`${this.apiEndPoint}/pet/`, {
         headers: this.headers,
       })
-      .subscribe((response) => {
-        let serviceAreas: string[] = [];
-        response.data.forEach((client: { serviceArea: string }) => {
-          if (!serviceAreas.includes(client.serviceArea)) {
-            serviceAreas.push(client.serviceArea);
+      .subscribe(
+        (response) => {
+          let serviceAreas: string[] = [];
+          response.data.forEach((client: { serviceArea: string }) => {
+            if (!serviceAreas.includes(client.serviceArea)) {
+              serviceAreas.push(client.serviceArea);
+            }
+          });
+
+          if (serviceAreas.length)
+            serviceAreas = serviceAreas.sort((a, b) => a.localeCompare(b));
+
+          this.serviceAreaSubject.next(serviceAreas);
+          this.clientsSubject.next(response);
+          this.loaderSubject.next(false);
+        },
+        async (error) => {
+          if (error.status === 401) {
+            await this.StorageService.clean();
+            this.goToLogin();
+            this.http
+              .post(this.AUTH_API + 'signout', {}, this.httpOptions)
+              .subscribe((r) => {
+                this.ToastService.showSuccess(
+                  'Session ended, please sign in again'
+                );
+              });
           }
-        });
-
-        if (serviceAreas.length)
-          serviceAreas = serviceAreas.sort((a, b) => a.localeCompare(b));
-
-        this.serviceAreaSubject.next(serviceAreas);
-        this.clientsSubject.next(response);
-        this.loaderSubject.next(false);
-      });
+        }
+      );
   }
 
   addPet(data: any) {
@@ -251,7 +273,6 @@ export class DataService {
       .subscribe((response) => {
         if (response)
           this.ToastService.showSuccess('Message Updated Successfully');
-        // this.messageBuilderSubject.next(response);
       });
   }
 
@@ -263,7 +284,6 @@ export class DataService {
         { headers: this.headers }
       )
       .subscribe((response) => {
-        // this.appointmentSubject.next(response);
         this.getAppointmentById(appId);
       });
   }
