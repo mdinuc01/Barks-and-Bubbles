@@ -130,10 +130,25 @@ export class DataService {
       .get<{ data: any }>(`${this.apiEndPoint}/appointment/${id}`, {
         headers: this.headers,
       })
-      .subscribe((response) => {
-        this.appointmentSubject.next(response);
-        this.loaderSubject.next(false);
-      });
+      .subscribe(
+        (response) => {
+          this.appointmentSubject.next(response);
+          this.loaderSubject.next(false);
+        },
+        async (error) => {
+          if (error.status === 401) {
+            await this.StorageService.clean();
+            this.goToLogin();
+            this.http
+              .post(this.AUTH_API + 'signout', {}, this.httpOptions)
+              .subscribe((r) => {
+                this.ToastService.showSuccess(
+                  'Session ended, please sign in again'
+                );
+              });
+          }
+        }
+      );
   }
 
   addAppointment(data: any) {
