@@ -1,0 +1,105 @@
+<mat-accordion class="routes-layout">
+  <mat-card>
+    <mat-card-header>
+      <h3>Create a Route</h3>
+    </mat-card-header>
+    <mat-card-content>
+      <form [formGroup]="routeForm">
+
+        <mat-form-field appearance="outline">
+          <mat-label>Route Name</mat-label>
+
+          <input type="text"
+                 name="name"
+                 formControlName="name"
+                 matInput />
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Locations for Routes</mat-label>
+          <mat-select formControlName="serviceAreas"
+                      placeholder="Select a location"
+                      multiple>
+
+            <mat-option *ngFor="let area of serviceAreas"
+                        [value]="area">{{ area }}</mat-option>
+          </mat-select>
+        </mat-form-field>
+
+
+        <div *ngIf="this.routeForm.get('serviceAreas')?.value && this.routeForm.get('serviceAreas')?.value.length">
+          <p>Locations selected:</p>
+          <p>
+            {{this.routeForm.get('serviceAreas')?.value.join(", ")}}</p>
+        </div>
+        <p *ngIf="!this.routeForm.get('serviceAreas')?.value || !this.routeForm.get('serviceAreas')?.value.length"
+           style="text-align: center;">No
+          locations have been selected</p>
+
+        <button mat-raised-button
+                [color]="'primary'"
+                [disabled]="this.routeForm.invalid"
+                (click)="createRoute()">Create Route</button>
+      </form>
+    </mat-card-content>
+  </mat-card>
+  <div>
+    <h3>Routes:</h3>
+    <ng-container *ngFor="let route of routes; index as i">
+      <mat-expansion-panel hideToggle
+                           [expanded]="step() === i"
+                           (opened)="setStep(i)">
+        <mat-expansion-panel-header>
+          <mat-panel-title>
+
+            <p>
+              {{route.name}}
+            </p>
+
+            <!-- <p *ngIf="!route.edit">{{route.name}}</p> -->
+
+            <button mat-icon-button
+                    [color]="'accent'"
+                    matTooltip="Edit route name"
+                    (click)="toggleRouteNameEdit($event, route, i)">
+              <mat-icon class="mat-accent-icon-btn">edit</mat-icon>
+            </button>
+          </mat-panel-title>
+        </mat-expansion-panel-header>
+
+        <p *ngIf="route.edit">Edit the name of this route:</p>
+        <p *ngIf="route.edit"
+           id="{{route.name}}-editor"
+           class="edit-route-enabled"
+           contenteditable="true">
+          {{route.name}}
+        </p>
+
+        <div cdkDropList
+             [cdkDropListData]="route.serviceAreas"
+             (cdkDropListDropped)="drop($event, route)">
+          <div *ngFor="let area of route.serviceAreas"
+               cdkDrag
+               class="location-layout">
+            {{ area }}
+
+            <mat-icon style="color: grey;">drag_handle</mat-icon>
+          </div>
+        </div>
+        <button mat-icon-button
+                [color]="'primary'"
+                matTooltip="Update Route"
+                style="float: right;"
+                (click)="updateRoute(route)">
+          <mat-icon>save</mat-icon>
+        </button>
+      </mat-expansion-panel>
+    </ng-container>
+
+    <ng-container *ngIf="routes && !routes.length">
+      <p class="error-msg"
+         style="height: 80% !important;
+    width: 100% !important;">No Routes created</p>
+    </ng-container>
+  </div>
+</mat-accordion>
