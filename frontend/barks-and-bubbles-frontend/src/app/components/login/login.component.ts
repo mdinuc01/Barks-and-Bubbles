@@ -74,7 +74,6 @@ export class LoginComponent implements OnInit {
   }
 
   login(): void {
-    this.loaderSubject.next(true);
     const { username, password } = this.loginForm.value;
 
     this.authService.login(username, password).subscribe({

@@ -22,6 +22,8 @@ export class AuthService {
   ) {}
 
   login(username: string, password: string): Observable<any> {
+    this.DataService.showLoader();
+
     return this.http.post(
       AUTH_API + 'signin',
       {
