@@ -4,6 +4,7 @@ import { BehaviorSubject, Observable } from 'rxjs';
 
 const TOKEN_KEY = 'aj';
 const USER_KEY = 'un';
+const TOAST_KEY = 't';
 
 @Injectable({
   providedIn: 'root',
@@ -20,7 +21,7 @@ export class StorageService {
     this.isBrowser = isPlatformBrowser(this.platformId);
   }
 
-  private setCookie(name: string, value: string, days: number): void {
+  public setCookie(name: string, value: string, days: number): void {
     if (this.isBrowser) {
       let expires = '';
       if (days) {
@@ -53,6 +54,7 @@ export class StorageService {
   clean(): void {
     this.eraseCookie(TOKEN_KEY);
     this.eraseCookie(USER_KEY);
+    this.eraseCookie(TOAST_KEY);
   }
 
   public saveUser(user: any): void {
@@ -61,6 +63,7 @@ export class StorageService {
     this.eraseCookie(USER_KEY);
     this.setCookie(TOKEN_KEY, token, 2);
     this.setCookie(USER_KEY, user.username, 2);
+    this.setCookie(TOAST_KEY, 'false', 2);
   }
 
   public getUser(): any {

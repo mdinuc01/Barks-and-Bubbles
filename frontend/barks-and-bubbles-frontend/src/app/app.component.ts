@@ -1,4 +1,10 @@
-import { Component, HostListener, OnInit } from '@angular/core';
+import { ToastService } from './services/toast.service';
+import {
+  ChangeDetectorRef,
+  Component,
+  HostListener,
+  OnInit,
+} from '@angular/core';
 import { Router, RouterOutlet } from '@angular/router';
 import { DataService } from './services/data.service';
 import {
@@ -79,7 +85,9 @@ export class AppComponent implements OnInit {
     public DataService: DataService,
     private storageService: StorageService,
     private authService: AuthService,
-    private router: Router
+    private router: Router,
+    private cdr: ChangeDetectorRef,
+    private ToastService: ToastService
   ) {}
 
   async ngOnInit() {
@@ -90,8 +98,16 @@ export class AppComponent implements OnInit {
     };
 
     window.onload = () => {
-      setTimeout(() => {
+      setTimeout(async () => {
         this.showLoader = false;
+        const toastFlag = await this.storageService.getCookie('t');
+
+        if (toastFlag == 'false') {
+          this.ToastService.showSuccess(
+            `Welcome ${this.storageService.getUser()}!`
+          );
+          this.storageService.setCookie('t', 'true', 2);
+        }
       }, 2000);
     };
 
@@ -121,6 +137,7 @@ export class AppComponent implements OnInit {
     if (!currentUrl.includes('login')) this.init = true;
 
     this.DataService.getAllRoutes();
+    this.cdr.detectChanges();
   }
 
   hidePanels() {
@@ -161,7 +178,6 @@ export class AppComponent implements OnInit {
   logout(): void {
     this.authService.logout().subscribe({
       next: (res) => {
-        console.log(res);
         this.storageService.clean();
 
         window.location.reload();

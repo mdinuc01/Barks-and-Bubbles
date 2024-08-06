@@ -52,8 +52,7 @@ export class LoginComponent implements OnInit {
     private authService: AuthService,
     private storageService: StorageService,
     private dataService: DataService,
-    private ToastService: ToastService,
-    private cdr: ChangeDetectorRef
+    private ToastService: ToastService // private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit() {
@@ -87,19 +86,12 @@ export class LoginComponent implements OnInit {
         setTimeout(async () => {
           this.reloadPage();
           this.loaderSubject.next(false);
-          this.cdr.detectChanges();
-
-          setTimeout(() => {
-            this.ToastService.showSuccess(
-              `Welcome ${this.storageService.getUser()}!`
-            );
-          }, 1000 * 5);
         }, 1);
       },
       error: (err) => {
         this.errorMessage = err.error.message;
         this.isLoginFailed = true;
-        this.loaderSubject.next(false);
+        this.dataService.hideLoader();
         this.ToastService.showSuccess(this.errorMessage);
       },
     });
