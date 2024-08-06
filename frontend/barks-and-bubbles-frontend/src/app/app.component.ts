@@ -100,17 +100,19 @@ export class AppComponent implements OnInit {
         this.showLoader = false;
         const toastFlag = await this.storageService.getCookie('t');
 
-        if (toastFlag == 'false')
+        if (toastFlag == 'false') {
           this.ToastService.showSuccess(
             `Welcome ${this.storageService.getUser()}!`
           );
-        this.storageService.setCookie('t', 'true', 2);
+          this.storageService.setCookie('t', 'true', 2);
+        }
       }, 2000);
     };
 
     this.DataService.serviceAreas$.subscribe((areas) => {
       this.options = areas;
     });
+
     this.isLoggedIn = await this.storageService.isLoggedIn();
 
     if (this.isLoggedIn) {

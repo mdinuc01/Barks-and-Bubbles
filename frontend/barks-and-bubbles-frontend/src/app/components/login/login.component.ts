@@ -91,7 +91,7 @@ export class LoginComponent implements OnInit {
       error: (err) => {
         this.errorMessage = err.error.message;
         this.isLoginFailed = true;
-        this.loaderSubject.next(false);
+        this.dataService.hideLoader();
         this.ToastService.showSuccess(this.errorMessage);
       },
     });
