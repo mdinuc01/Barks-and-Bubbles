@@ -103,6 +103,7 @@ export class AppointmentPageComponent implements OnInit {
         subMsg: 'This action cannot be undone.',
         btnTitle: 'Confirm',
         isMsgEditor: false,
+        panelType: 'confirmPanel',
       },
     });
 
@@ -133,6 +134,7 @@ export class AppointmentPageComponent implements OnInit {
         btnTitle: 'Save',
         isMsgEditor: true,
         data: this.messageEditor,
+        panelType: 'msgEditor',
       },
     });
 
