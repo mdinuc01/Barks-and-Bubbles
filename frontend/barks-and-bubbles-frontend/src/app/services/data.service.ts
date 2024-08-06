@@ -5,6 +5,8 @@ import { Observable, BehaviorSubject } from 'rxjs';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { environment } from '../../environments/environment';
 import { Router } from '@angular/router';
+import { subscribe } from 'diagnostics_channel';
+import { FormControl, FormGroup } from '@angular/forms';
 
 @Injectable({ providedIn: 'root' })
 export class DataService {
@@ -26,6 +28,7 @@ export class DataService {
   panelSubject = new BehaviorSubject<boolean>(false);
   panel$ = this.panelSubject.asObservable();
 
+  private routeSubject: BehaviorSubject<any> = new BehaviorSubject<any>([]);
   loader$: Observable<any> = this.loaderSubject.asObservable();
   clients$: Observable<any> = this.clientsSubject.asObservable();
   serviceAreas$: Observable<any> = this.serviceAreaSubject.asObservable();
@@ -34,6 +37,8 @@ export class DataService {
   messageBuilder$: Observable<any> = this.messageBuilderSubject.asObservable();
   petsWithLocation$: Observable<any> =
     this.petsWithLocationsSubject.asObservable();
+  routes$: Observable<any> = this.routeSubject.asObservable();
+
   apiEndPoint = environment.domain;
   token = '';
   headers: HttpHeaders;
@@ -291,6 +296,44 @@ export class DataService {
       });
   }
 
+  getAllRoutes() {
+    this.http
+      .get(`${this.apiEndPoint}/route/`, {
+        headers: this.headers,
+      })
+      .subscribe((response) => {
+        this.routeSubject.next(response);
+      });
+  }
+  createRoute(name: string, serviceAreas: []) {
+    this.http
+      .post(
+        `${this.apiEndPoint}/route/create`,
+        { name, serviceAreas },
+        {
+          headers: this.headers,
+        }
+      )
+      .subscribe((response) => {
+        this.routeSubject.next(response);
+      });
+  }
+
+  updateRoute(routeId: string, routeData: any) {
+    this.http
+      .put(
+        `${this.apiEndPoint}/route/update`,
+        { routeId, routeData },
+        {
+          headers: this.headers,
+        }
+      )
+      .subscribe((response: any) => {
+        this.routeSubject.next(response);
+        this.ToastService.showSuccess(response.message);
+      });
+  }
+
   addToReply(appId: string, petId: string) {
     this.http
       .put<{ data: any }>(
@@ -377,6 +420,17 @@ export class DataService {
     const year = date.getFullYear();
 
     return `${formattedHours}:${minutes} ${ending} - ${month} ${day}, ${year}`;
+  }
+
+  clearFormGroupErrors(formGroup: FormGroup) {
+    Object.keys(formGroup.controls).forEach((key) => {
+      const control = formGroup.get(key);
+      if (control instanceof FormControl) {
+        control.setErrors(null);
+      } else if (control instanceof FormGroup) {
+        this.clearFormGroupErrors(control);
+      }
+    });
   }
 
   goHome() {

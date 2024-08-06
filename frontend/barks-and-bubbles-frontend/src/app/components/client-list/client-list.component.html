@@ -22,17 +22,32 @@
                   multiple
                   (selectionChange)="filterList()">
 
-        <mat-option *ngFor="let option of options"
-                    [value]="option">{{ option }}</mat-option>
+        <mat-optgroup [label]="'Service Areas'"
+                      class="scroll">
+          <mat-option *ngFor="let area of serviceAreas"
+                      [value]="area">{{ area }}</mat-option>
+        </mat-optgroup>
 
+        <mat-optgroup [label]="'Routes'"
+                      style="background-color: grey;">
+          <mat-option *ngFor="let route of routes"
+                      [value]="route">{{ route.name }}</mat-option>
+        </mat-optgroup>
       </mat-select>
     </mat-form-field>
+
   </form>
+
+  <button mat-icon-button
+          matTooltip="Open Route Editor"
+          (click)="openRouteEditor()">
+    <mat-icon class="mat-accent-icon-btn">route</mat-icon>
+  </button>
   <div></div>
 
 </div>
 
-<div *ngIf="clientsQry.length"
+<div *ngIf="clientsQry && clientsQry.length"
      class="card-container scroll">
   <mat-card *ngFor="let client of clientsQry | sort: 'petName' : isAscending">
     <mat-card-header>

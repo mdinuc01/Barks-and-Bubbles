@@ -72,7 +72,7 @@
                   multiple>
 
         <mat-option *ngFor="let option of options"
-                    [value]="option">{{ option }}</mat-option>
+                    [value]="option._id">{{ option.name }}</mat-option>
       </mat-select>
     </mat-form-field>
 

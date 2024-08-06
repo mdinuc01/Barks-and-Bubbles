@@ -12,6 +12,7 @@ import { CommonModule, NgFor } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatCardModule } from '@angular/material/card';
+import { RouteEditorComponent } from '../../components/route-editor/route-editor.component';
 
 @Component({
   standalone: true,
@@ -25,6 +26,7 @@ import { MatCardModule } from '@angular/material/card';
     MatIconModule,
     MatTooltipModule,
     MatCardModule,
+    RouteEditorComponent,
   ],
   styleUrl: './panel-service.scss',
 })
@@ -38,9 +40,13 @@ export class PanelService {
   dataVal: any;
 
   //message editor
-  isMsgEditor: boolean = false;
+  panelType: String = '';
   format = '${}';
   example = '${this.value}';
+
+  //route editor
+  routes: any[] | undefined;
+  serviceAreas: any[] | undefined;
 
   step = signal(0);
 
@@ -54,7 +60,9 @@ export class PanelService {
       confirmMsg: string;
       subMsg: string;
       btnTitle: string;
-      isMsgEditor: boolean;
+      panelType: string;
+      routes: [];
+      serviceAreas: [];
     }
   ) {
     this.title = data.title;
@@ -62,8 +70,9 @@ export class PanelService {
     this.subMsg = data.subMsg;
     this.btnTitle = data.btnTitle;
     this.dataVal = data.data;
-    this.isMsgEditor = data.isMsgEditor;
-    console.log({ d: this.dataVal, b: data });
+    this.panelType = data.panelType;
+    this.routes = data.routes;
+    this.serviceAreas = data.serviceAreas;
   }
 
   onConfirm(): void {

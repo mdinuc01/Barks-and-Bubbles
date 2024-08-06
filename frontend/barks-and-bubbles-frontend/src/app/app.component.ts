@@ -26,6 +26,7 @@ import { delay, of, switchMap } from 'rxjs';
 import { AuthService } from './services/auth.service';
 import { StorageService } from './services/storage.service';
 import { MatCardModule } from '@angular/material/card';
+import { DragDropModule } from '@angular/cdk/drag-drop';
 @Component({
   selector: 'app-root',
   standalone: true,
@@ -55,6 +56,7 @@ import { MatCardModule } from '@angular/material/card';
     PetFormComponent,
     LoaderService,
     MatCardModule,
+    DragDropModule,
   ],
 })
 export class AppComponent implements OnInit {
@@ -63,7 +65,7 @@ export class AppComponent implements OnInit {
   showAppPanel = false;
   isPanelVisible = false;
   showLoader = true;
-  options: string[] = [];
+  options: any[] = [];
   selectedOption: string = '';
   appForm = new FormGroup({
     date: new FormControl(null, [Validators.required]),
@@ -93,9 +95,10 @@ export class AppComponent implements OnInit {
       }, 2000);
     };
 
-    this.DataService.serviceAreas$.subscribe((areas) => {
-      this.options = areas;
+    this.DataService.routes$.subscribe((routes) => {
+      this.options = routes.data;
     });
+
     this.isLoggedIn = await this.storageService.isLoggedIn();
 
     if (this.isLoggedIn) {
@@ -116,6 +119,8 @@ export class AppComponent implements OnInit {
 
     const currentUrl = this.router.url;
     if (!currentUrl.includes('login')) this.init = true;
+
+    this.DataService.getAllRoutes();
   }
 
   hidePanels() {

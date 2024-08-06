@@ -11,6 +11,9 @@ import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
 import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
+import { PanelService } from '../../services/panel service/panel-service';
+import { MatDialog } from '@angular/material/dialog';
+import { lastValueFrom } from 'rxjs';
 
 @Component({
   selector: 'app-client-list',
@@ -34,7 +37,8 @@ export class ClientListComponent implements OnInit {
   clients: any[] = [];
   clientsQry: any[] = [];
   isAscending = true;
-  options = [];
+  serviceAreas: any[] = [];
+  routes: any[] = [];
   queryForm: FormGroup = new FormGroup({
     clientQuery: new FormControl(null),
     locationQuery: new FormControl(null),
@@ -42,13 +46,11 @@ export class ClientListComponent implements OnInit {
 
   constructor(
     private DataService: DataService,
-    private ToastService: ToastService
+    private ToastService: ToastService,
+    private dialog: MatDialog
   ) {}
 
   ngOnInit(): void {
-    this.DataService.serviceAreas$.subscribe((areas) => {
-      this.options = areas;
-    });
     this.DataService.showLoader();
     this.DataService.clients$.subscribe((res) => {
       if (res.data) {
@@ -60,7 +62,15 @@ export class ClientListComponent implements OnInit {
         this.ToastService.showSuccess('Pet Added Successfully!');
     });
 
+    this.DataService.routes$.subscribe((routes) => {
+      this.routes = routes.data;
+    });
+    this.DataService.serviceAreas$.subscribe((areas) => {
+      this.serviceAreas = areas;
+    });
+
     this.DataService.getAllPets();
+    this.DataService.getAllRoutes();
   }
 
   formatNumber(number: string): string {
@@ -106,13 +116,51 @@ export class ClientListComponent implements OnInit {
 
     // Filter by location query if it exists
     if (locationQuery.length) {
-      this.clientsQry = this.clientsQry.filter((c) =>
-        locationQuery.includes(c.serviceArea)
+      let allAreas: string[] = [];
+
+      locationQuery.forEach((area: any) => {
+        if (!area.serviceAreas) return;
+        area.serviceAreas.forEach((sa: string) => {
+          if (!sa || !allAreas.includes(sa)) allAreas.push(sa);
+        });
+      });
+
+      this.clientsQry = this.clientsQry.filter(
+        (c) =>
+          locationQuery.includes(c.serviceArea) ||
+          allAreas.includes(c.serviceArea)
       );
     }
   }
 
+  resetFilter() {
+    this.queryForm.reset();
+    this.clientsQry = this.clients;
+  }
+
   updateStatus(id: any, status: any) {
     this.DataService.updatePetStatus(id, status);
+  }
+
+  async openRouteEditor() {
+    const dialogRef = this.dialog.open(PanelService, {
+      data: {
+        title: 'Edit Routes',
+        confirmMsg: '',
+        subMsg: '',
+        btnTitle: 'Save',
+        isMsgEditor: true,
+        panelType: 'routeEditor',
+        serviceAreas: this.serviceAreas,
+        routes: this.routes,
+      },
+    });
+
+    const result = await lastValueFrom(dialogRef.afterClosed());
+
+    if (result || !result) {
+      this.DataService.getAllRoutes();
+      this.resetFilter();
+    }
   }
 }

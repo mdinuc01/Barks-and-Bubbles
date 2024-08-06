@@ -4,12 +4,12 @@
        style="width: 96%;">
     <h2>{{ data.title }}</h2>
   </div>
-  <mat-dialog-content [ngClass]="{'scroll' : this.isMsgEditor}">
+  <mat-dialog-content [ngClass]="{'scroll' : this.panelType == 'msgEditor' || this.panelType == 'routeEditor'}">
     <p style="color: black;"
        [innerHTML]="data.confirmMsg">{{ data.confirmMsg }}</p>
     <p style="color: black;">{{ data.subMsg }}</p>
 
-    <div *ngIf="isMsgEditor">
+    <div *ngIf="panelType == 'msgEditor'">
       <mat-accordion class="example-headers-align"
                      multi>
 
@@ -81,9 +81,13 @@
       </mat-accordion>
     </div>
 
+    <app-route-editor *ngIf="this.panelType == 'routeEditor'"
+                      [serviceAreas]="serviceAreas"
+                      [routes]="routes"></app-route-editor>
+
   </mat-dialog-content>
   <mat-dialog-actions align="end"
-                      *ngIf="!this.isMsgEditor">
+                      *ngIf="this.panelType == 'confirmPanel'">
     <button mat-raised-button
             color="warn"
             (click)="onConfirm()">{{data.btnTitle}}</button>
