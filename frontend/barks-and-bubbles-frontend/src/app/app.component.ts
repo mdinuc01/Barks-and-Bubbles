@@ -129,6 +129,7 @@ export class AppComponent implements OnInit {
       .pipe(switchMap((show) => (show ? of(show) : of(show).pipe(delay(2000)))))
       .subscribe((show) => {
         this.showLoader = show;
+        this.cdr.detectChanges();
       });
     let user = await this.storageService.getUser();
     if (!user) this.showLoader = false;
