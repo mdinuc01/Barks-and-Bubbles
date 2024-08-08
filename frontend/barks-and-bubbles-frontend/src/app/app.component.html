@@ -68,8 +68,7 @@
     <mat-form-field appearance="outline"
                     style="width: 100%; margin-top: 0.75em;">
       <mat-select formControlName="location"
-                  placeholder="Select a location"
-                  multiple>
+                  placeholder="Select a route">
 
         <mat-option *ngFor="let option of options"
                     [value]="option._id">{{ option.name }}</mat-option>
