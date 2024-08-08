@@ -56,16 +56,17 @@
               {{route.name}}
             </p>
 
-            <!-- <p *ngIf="!route.edit">{{route.name}}</p> -->
-
-            <button mat-icon-button
-                    [color]="'accent'"
-                    matTooltip="Edit route name"
-                    (click)="toggleRouteNameEdit($event, route, i)">
-              <mat-icon class="mat-accent-icon-btn">edit</mat-icon>
-            </button>
           </mat-panel-title>
         </mat-expansion-panel-header>
+
+        <div class="btn-layout">
+          <button mat-icon-button
+                  [color]="'accent'"
+                  matTooltip="{{route.edit ? 'Hide the route name editor' : 'Edit the route name'}}"
+                  (click)="toggleRouteNameEdit($event, route, i)">
+            <mat-icon class="mat-accent-icon-btn">edit</mat-icon>
+          </button>
+        </div>
 
         <p *ngIf="route.edit">Edit the name of this route:</p>
         <p *ngIf="route.edit"

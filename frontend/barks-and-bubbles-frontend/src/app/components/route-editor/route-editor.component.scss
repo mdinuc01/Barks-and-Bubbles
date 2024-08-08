@@ -37,15 +37,12 @@ form {
   flex-direction: column;
 }
 
-mat-panel-title {
-  display: flex;
-  justify-content: space-between;
-  margin-right: 0;
-  flex-wrap: wrap;
-  align-items: flex-end;
-}
-
 .edit-route-enabled {
   border: solid black 1px !important;
   padding: 0 1em;
+}
+
+.btn-layout {
+  display: flex;
+  justify-content: flex-end;
 }
