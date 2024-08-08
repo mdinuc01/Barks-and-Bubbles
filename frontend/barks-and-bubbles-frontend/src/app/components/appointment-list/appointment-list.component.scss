@@ -15,11 +15,6 @@ mat-card {
   height: 11.5em;
   cursor: pointer;
   width: 13vw;
-
-  p {
-    height: 2.75em;
-    overflow-y: scroll;
-  }
 }
 
 .appointment-title {
@@ -32,9 +27,6 @@ mat-card {
   button {
     bottom: 0.25em;
   }
-}
-
-.error-layout {
 }
 
 .error-layout {

@@ -14,8 +14,7 @@
             (click)="viewAppointment(app)">
     <mat-card-title [innerHTML]="formatDate(app.date, false, false)"></mat-card-title>
     <mat-card-content>
-      <p [ngClass]="{'location-layout' : app.location.length >= 2, 'no-scroll': app.location.length < 2}">
-        {{formatLocations(app.location)}}</p>
+      <p>{{app.route.name}}</p>
 
     </mat-card-content>
     <mat-card-actions align="end">
