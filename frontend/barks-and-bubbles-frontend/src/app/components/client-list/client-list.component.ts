@@ -160,6 +160,7 @@ export class ClientListComponent implements OnInit {
 
     if (result || !result) {
       this.DataService.getAllRoutes();
+      this.DataService.getAllAppointments();
       this.resetFilter();
     }
   }
