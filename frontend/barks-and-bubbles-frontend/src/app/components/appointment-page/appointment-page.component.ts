@@ -67,10 +67,6 @@ export class AppointmentPageComponent implements OnInit {
           this.ToastService.showSuccess('Messages Sent Successfully!');
         }
 
-        // if (res.message == 'Found Replies') {
-        //   this.ToastService.showSuccess('Replies Loaded Successfully!');
-        // }
-
         if (
           this.appointment &&
           this.appointment.app &&

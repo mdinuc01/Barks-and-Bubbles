@@ -45,7 +45,7 @@ class AppointmentController {
 
       const idToFind = req.params.id;
 
-      const app = await Appointment.findOne({ _id: idToFind, created_by: req.userId }).populate('route', 'serviceAreas');;
+      const app = await Appointment.findOne({ _id: idToFind, created_by: req.userId }).populate('route', 'name serviceAreas');
       let locations = app.route.serviceAreas;
 
       //mapping locations clients to app
