@@ -167,16 +167,20 @@ export class DataService {
       });
   }
 
-  sendText(locations: any[], date: string, appId: string) {
+  sendText(date: string, appId: string) {
     this.http
       .put<{ data: any }>(
         `${this.apiEndPoint}/message/sendMessage`,
-        { locations, date, appId },
+        { date, appId },
         { headers: this.headers }
       )
       .subscribe((response) => {
         this.appointmentSubject.next(response);
         this.loaderSubject.next(false);
+        this.getPetsWithLocations(appId);
+        setTimeout(() => {
+          this.loadReplies(appId, response.data.app.messages.sentDate);
+        }, 5 * 1000);
       });
   }
 
@@ -190,6 +194,7 @@ export class DataService {
       .subscribe((response) => {
         this.appointmentSubject.next(response);
         this.loaderSubject.next(false);
+        this.ToastService.showSuccess('Replies Loaded Successfully!');
       });
   }
 
@@ -265,6 +270,7 @@ export class DataService {
         this.clientsSubject.next(response);
         this.loaderSubject.next(false);
         this.getAppointmentById(appId);
+        this.getPetsWithLocations(appId);
       });
   }
 
