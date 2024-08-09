@@ -154,7 +154,7 @@
       </mat-tab>
       <mat-tab label="Route Scheduler"
                [disabled]="!hasMessageSent()"
-               *ngIf="this.appointment && this.appointment.app && this.appointment.app.replies.length">
+               *ngIf="this.appointment && this.appointment.app && this.appointment.app.messages && this.appointment.app.replies.length">
         <app-appointment-scheduler [clients]="this.appointment.app.messages.sentTo"
                                    [replies]="this.appointment.app.scheduler"
                                    [appId]="this.appointment.app._id"></app-appointment-scheduler>
