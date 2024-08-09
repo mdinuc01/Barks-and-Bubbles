@@ -48,12 +48,12 @@ export class AppointmentClientListComponent implements OnInit {
 
   ngOnInit() {
     this.DataService.petsWithLocation$.subscribe((response) => {
-      if (response.data && response.data.sentClients.length)
-        this.petsWithLocations = response.data.sentClients;
       if (response.data && response.data.allClients) {
         this.petsWithLocations = response.data.allClients;
         this.filteredList = response.data.allClients;
       }
+      if (response.data && response.data.sentClients.length)
+        this.petsWithLocations = response.data.sentClients;
     });
 
     // if (this.appointment && this.appointment.app)
