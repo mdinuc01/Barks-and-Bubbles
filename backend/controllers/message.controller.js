@@ -114,7 +114,7 @@ let fetchReplies = async (sentDate, appId) => {
 
     let replies = await SMSUtils.getReplies(sentDate);
 
-    let app = await Appointment.findOne({ _id: appId }).populate('route', 'serviceAreas');
+    let app = await Appointment.findOne({ _id: appId }).populate('route', 'name serviceAreas');
 
     if (!app) {
       return;
@@ -216,7 +216,7 @@ let fetchReplies = async (sentDate, appId) => {
         'scheduler': schedulerReplies
       },
       { new: true }
-    ).populate('route', 'serviceAreas');
+    ).populate('route', 'name serviceAreas');
 
     const data = { app: newApp._doc };
     return data;
@@ -268,6 +268,7 @@ sendEmailUpdate = (date, appData) => {
     }
   });
 
+  const route = appData.route.name;
   const serviceAreas = appData.route.serviceAreas.join(", ");
   const replies = appData.replies;
   const sentTo = appData.messages.sentTo.length;
@@ -277,8 +278,8 @@ sendEmailUpdate = (date, appData) => {
 
   let mailDetails = {
     from: process.env.EMAIL,
-    to: process.env.EMAIL,
-    subject: `Barks & Bubbles Appointment - ${date}`,
+    to: process.env.EMAIL_TO,
+    subject: `Barks & Bubbles Appointment - ${route} - ${date}`,
     html: `
     <html>
       <head>
@@ -315,12 +316,16 @@ sendEmailUpdate = (date, appData) => {
             background-color: #ffffff !important;
           }
         </style>
-        <title>Barks & Bubbles Appointment - ${date}</title>
+        <title>Barks & Bubbles Appointment - ${route} - ${date}</title>
       </head>
       <body>
-        <h1>Barks & Bubbles Appointment - ${date}</h1>
+        <h1>Barks & Bubbles Appointment - ${route} - ${date}</h1>
         <h3>All messages have been sent out for this appointment! Please see the status of the messages below:</h3>
         <table>
+         <tr>
+            <th>Route for this appointment</th>
+            <td>${route}</td>
+          </tr>
           <tr>
             <th>Service Areas in this appointment</th>
             <td>${serviceAreas}</td>
