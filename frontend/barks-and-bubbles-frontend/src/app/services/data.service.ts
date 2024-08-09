@@ -114,7 +114,6 @@ export class DataService {
 
         this.serviceAreaSubject.next(serviceAreas);
         this.clientsSubject.next(response);
-        this.loaderSubject.next(false);
       });
   }
 
@@ -137,7 +136,6 @@ export class DataService {
       .subscribe(
         (response) => {
           this.appointmentSubject.next(response);
-          this.loaderSubject.next(false);
         },
         async (error) => {
           if (error.status === 401) {
@@ -162,11 +160,12 @@ export class DataService {
       })
       .subscribe((response) => {
         this.appointmentsSubject.next(response);
-        this.loaderSubject.next(false);
       });
   }
 
   sendText(date: string, appId: string) {
+    this.loaderSubject.next(true);
+
     this.http
       .put<{ data: any }>(
         `${this.apiEndPoint}/message/sendMessage`,
@@ -192,7 +191,6 @@ export class DataService {
       )
       .subscribe((response) => {
         this.appointmentSubject.next(response);
-        this.loaderSubject.next(false);
         this.ToastService.showSuccess('Replies Loaded Successfully!');
       });
   }
@@ -206,11 +204,12 @@ export class DataService {
       )
       .subscribe((response) => {
         this.appointmentSubject.next(response);
-        this.loaderSubject.next(false);
       });
   }
 
   sendReplies(appId: string) {
+    this.loaderSubject.next(true);
+
     this.http
       .put<{ message: string }>(
         `${this.apiEndPoint}/message/sendReplies/${appId}`,
@@ -249,7 +248,6 @@ export class DataService {
       )
       .subscribe((response) => {
         this.clientsSubject.next(response);
-        this.loaderSubject.next(false);
       });
   }
 
@@ -267,7 +265,6 @@ export class DataService {
       )
       .subscribe((response) => {
         this.clientsSubject.next(response);
-        this.loaderSubject.next(false);
         this.getAppointmentById(appId);
         this.getPetsWithLocations(appId);
       });
@@ -361,6 +358,7 @@ export class DataService {
       )
       .subscribe((response) => {
         this.petsWithLocationsSubject.next(response);
+        this.loaderSubject.next(false);
       });
   }
 
@@ -440,7 +438,6 @@ export class DataService {
 
   goHome() {
     this.router.navigateByUrl('/home');
-    this.loaderSubject.next(false);
   }
 
   goToLogin(): boolean {

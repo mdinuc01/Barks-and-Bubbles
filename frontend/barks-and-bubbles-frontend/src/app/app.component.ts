@@ -175,17 +175,23 @@ export class AppComponent implements OnInit {
     }
   }
 
-  logout(): void {
-    this.authService.logout().subscribe({
-      next: (res) => {
-        this.storageService.clean();
+  async logout() {
+    await this.DataService.showLoader();
+    setTimeout(() => {
+      this.authService.logout().subscribe({
+        next: (res) => {
+          this.storageService.clean();
+          this.ToastService.showSuccess('Successfully Logged Out!');
 
-        window.location.reload();
-      },
-      error: (err) => {
-        console.log(err);
-      },
-    });
+          setTimeout(() => {
+            window.location.reload();
+          }, 1000);
+        },
+        error: (err) => {
+          console.log(err);
+        },
+      });
+    }, 2000);
   }
 
   getUser() {
