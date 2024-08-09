@@ -79,7 +79,6 @@ export class DataService {
 
           this.serviceAreaSubject.next(serviceAreas);
           this.clientsSubject.next(response);
-          this.loaderSubject.next(false);
         },
         async (error) => {
           if (error.status === 401) {

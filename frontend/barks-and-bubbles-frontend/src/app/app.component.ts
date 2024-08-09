@@ -99,7 +99,6 @@ export class AppComponent implements OnInit {
 
     window.onload = () => {
       setTimeout(async () => {
-        this.showLoader = false;
         const toastFlag = await this.storageService.getCookie('t');
 
         if (toastFlag == 'false') {
