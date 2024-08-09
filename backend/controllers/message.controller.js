@@ -9,12 +9,12 @@ class MessageController {
 
   async sendMessage(req, res, next) {
     try {
-      let locations = req.body.locations;
       let date = req.body.date;
       let appId = req.body.appId;
-      let pets = await Pet.find();
+      let pets = await Pet.find({ created_by: req.userId });
       let clientSentTo = [];
       let sentDate = new Date();
+      let app = await Appointment.findOne({ _id: appId }).populate('route', 'serviceAreas');
 
       let messageObj = await Builder.findOne({ "name": "First Message" });
 
@@ -23,7 +23,7 @@ class MessageController {
         pets.forEach(async (pet) => {
           if (!pet.active || !pet.contactMethod || !isValidPhoneNumber(pet.contactMethod)) return;
 
-          if (locations.includes(pet.serviceArea)) {
+          if (app && app.route.serviceAreas.includes(pet.serviceArea)) {
 
             //*Console logs for testing users to send message to
             // let messageText = new Message(pet, date, 0, messageObj.message).createMessage();
@@ -34,7 +34,7 @@ class MessageController {
           }
         });
 
-        const app = await Appointment.findOneAndUpdate(
+        app = await Appointment.findOneAndUpdate(
           { _id: appId },
           {
             $set: {
@@ -43,15 +43,15 @@ class MessageController {
             }
           },
           { new: true }
-        );
+        ).populate('route', 'serviceAreas');
 
 
-        const location = app.location.map(locationVal => {
+        const location = app.route.serviceAreas.map(locationVal => {
           const clientsInLocation = pets.filter(client => client.serviceArea === locationVal);
           return { [locationVal]: clientsInLocation };
         });
 
-        let meta = app.location;
+        let meta = app.route.serviceAreas;
         const data = { app: app, location, meta };
 
         setTimeout(async () => {
@@ -71,12 +71,12 @@ class MessageController {
     try {
       let appId = req.params.id;
 
-      const app = await Appointment.findOne({ _id: appId });
+      const app = await Appointment.findOne({ _id: appId }).populate('route', 'serviceAreas');
 
       let messageObj = await Builder.findOne({ "name": "Second Message" });
 
       if (app.scheduler && app.scheduler.length) {
-        app.location.forEach((l) => {
+        app.route.serviceAreas.forEach((l) => {
           const scheduler = app.scheduler.find(obj => obj.hasOwnProperty(l));
 
           if (scheduler[l].replies && scheduler[l].replies.length && scheduler[l].increment) {
@@ -114,7 +114,7 @@ let fetchReplies = async (sentDate, appId) => {
 
     let replies = await SMSUtils.getReplies(sentDate);
 
-    let app = await Appointment.findOne({ _id: appId });
+    let app = await Appointment.findOne({ _id: appId }).populate('route', 'serviceAreas');
 
     if (!app) {
       return;
@@ -152,7 +152,7 @@ let fetchReplies = async (sentDate, appId) => {
 
     let schedulerReplies;
     try {
-      schedulerReplies = app.location.map((l) => {
+      schedulerReplies = app.route.serviceAreas.map((l) => {
         const scheduler = app.scheduler.find(obj => { if (obj) return obj.hasOwnProperty(l) });
         if (!scheduler) {
           return { [l]: { replies: [], length: 0, increment: "0.5" } };
@@ -216,23 +216,9 @@ let fetchReplies = async (sentDate, appId) => {
         'scheduler': schedulerReplies
       },
       { new: true }
-    );
+    ).populate('route', 'serviceAreas');
 
-    let pets = await Pet.find();
-
-    let location = newApp.location.map(locationVal => {
-      let clientsInLocation = pets.filter(client => {
-        for (const obj of app.messages.sentTo) {
-          if (obj.id === client.id && client.serviceArea == locationVal) {
-            return client;
-          }
-        }
-      });
-      return { [locationVal]: clientsInLocation };
-    });
-
-    let meta = app.location;
-    const data = { app: newApp._doc, location, meta };
+    const data = { app: newApp._doc };
     return data;
   } catch (error) {
     console.error("Error:", error);
@@ -282,7 +268,7 @@ sendEmailUpdate = (date, appData) => {
     }
   });
 
-  const serviceAreas = appData.location.join(", ");
+  const serviceAreas = appData.route.serviceAreas.join(", ");
   const replies = appData.replies;
   const sentTo = appData.messages.sentTo.length;
   const successMsgs = replies.filter((r) => r.status == "delivered").length;
@@ -290,8 +276,8 @@ sendEmailUpdate = (date, appData) => {
   const failedMsgs = replies.filter((r) => r.status == "failed").length;
 
   let mailDetails = {
-    from: "maddinuc98@gmail.com",
-    to: "larissadinuccio@gmail.com",
+    from: process.env.EMAIL,
+    to: process.env.EMAIL,
     subject: `Barks & Bubbles Appointment - ${date}`,
     html: `
     <html>
