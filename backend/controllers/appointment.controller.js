@@ -6,10 +6,11 @@ class AppointmentController {
 
   async getAllAppointments(req, res, next) {
     try {
-      let data = await Appointment.find({ created_by: req.userId });
+      let data = await Appointment.find({ created_by: req.userId })
+        .select('_id date location active route')
+        .populate('route', 'name');
 
       return res.status(200).json({ message: `Appointments found: ${data.length}`, data });
-
     } catch (error) {
       return res.status(500).json({ message: "Internal Server Error", error });
     }
@@ -21,11 +22,12 @@ class AppointmentController {
 
       await Appointment.create({
         date: new Date(data.date),
-        location: data.location,
+        route: data.location,
         created_by: req.userId
 
       })
-      let currentData = await Appointment.find({ created_by: req.userId });
+      let currentData = await Appointment.find({ created_by: req.userId }).select('_id date location active route')
+        .populate('route', 'name');
       if (currentData) {
 
         return res.status(200).json({ message: `Appointment create`, data: currentData });
@@ -43,13 +45,15 @@ class AppointmentController {
 
       const idToFind = req.params.id;
 
-      const app = await Appointment.findOne({ _id: idToFind, created_by: req.userId });
-      let locations = app.location;
+      const app = await Appointment.findOne({ _id: idToFind, created_by: req.userId }).populate('route', 'serviceAreas');;
+      let locations = app.route.serviceAreas;
+
       //mapping locations clients to app
       let pets = await Pet.find({ serviceArea: { $in: locations }, created_by: req.userId });
 
       if (app.messages.sentTo) {
-        location = app.location.map(locationVal => {
+
+        location = app.route.serviceAreas.map(locationVal => {
           let clientsInLocation = pets.filter(client => {
             // let result = false;
 
@@ -61,16 +65,9 @@ class AppointmentController {
           });
           return { [locationVal]: clientsInLocation };
         });
-
-      } else {
-
-        location = app.location.map(locationVal => {
-          let clientsInLocation = pets.filter(client => client.serviceArea === locationVal);
-          return { [locationVal]: clientsInLocation };
-        });
       }
 
-      let meta = app.location;
+      let meta = app.route.serviceAreas;
       const data = { app, location, meta }
 
       if (app) {
@@ -120,7 +117,8 @@ class AppointmentController {
         }
       );
 
-      const data = await Appointment.find({ created_by: req.userId, created_by: req.userId });
+      const data = await Appointment.find({ created_by: req.userId, created_by: req.userId }).select('_id date location active route')
+        .populate('route', 'name');
 
       return res.status(200).json({ message: `Appointment Archived Successfully`, data });
 

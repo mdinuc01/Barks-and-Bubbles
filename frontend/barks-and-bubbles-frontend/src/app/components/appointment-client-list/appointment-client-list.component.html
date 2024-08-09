@@ -3,7 +3,7 @@
      [ngClass]="{'location-without-scroll': this.addToList, 'location-layout' : !this.addToList}">
 
   <ng-container *ngIf="!this.addToList">
-    <div *ngFor="let location of this.appointment.location">
+    <div *ngFor="let location of this.petsWithLocations">
       <div *ngFor="let local of getObjectKeys(location)">
         <div class="location-title">
           <h3><b>{{ local }} ({{getNumOfClients(location)}})</b></h3>
@@ -21,7 +21,7 @@
                         matTooltip="{{client.active ? 'Deactivate Client' : 'Activate Client'}}"
                         style="cursor: pointer;"
                         [ngClass]="{'mat-success-btn': client.active, 'mat-danger-btn': !client.active}"
-                        (click)="updateStatus(client._id, !client.active, local)">{{client.active
+                        (click)="updateStatus(client._id, !client.active)">{{client.active
                 ?
                 "mark_email_read" : "unsubscribe"}}</mat-icon>
 
@@ -72,7 +72,7 @@
                         matTooltip="{{client.active ? 'Deactivate Client' : 'Activate Client'}}"
                         style="cursor: pointer;"
                         [ngClass]="{'mat-success-btn': client.active, 'mat-danger-btn': !client.active}"
-                        (click)="updateStatus(client._id, !client.active, local)">{{client.active
+                        (click)="updateStatus(client._id, !client.active)">{{client.active
                 ?
                 "mark_email_read" : "unsubscribe"}}</mat-icon>
 

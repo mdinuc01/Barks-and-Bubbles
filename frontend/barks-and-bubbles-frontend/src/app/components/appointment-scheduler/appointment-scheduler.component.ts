@@ -235,6 +235,7 @@ export class AppointmentSchedulerComponent implements OnInit {
         <br><br>The time for each reply will be the start for the range. If a reply was scheduled at 8:00 AM, then 8:00 AM - 9:00 AM will be used in the message.`,
         subMsg: 'This action cannot be undone.',
         btnTitle: 'Confirm',
+        panelType: 'confirmPanel',
       },
     });
 

@@ -67,9 +67,9 @@ export class AppointmentPageComponent implements OnInit {
           this.ToastService.showSuccess('Messages Sent Successfully!');
         }
 
-        if (res.message == 'Found Replies') {
-          this.ToastService.showSuccess('Replies Loaded Successfully!');
-        }
+        // if (res.message == 'Found Replies') {
+        //   this.ToastService.showSuccess('Replies Loaded Successfully!');
+        // }
 
         if (
           this.appointment &&
@@ -103,6 +103,7 @@ export class AppointmentPageComponent implements OnInit {
         subMsg: 'This action cannot be undone.',
         btnTitle: 'Confirm',
         isMsgEditor: false,
+        panelType: 'confirmPanel',
       },
     });
 
@@ -115,11 +116,7 @@ export class AppointmentPageComponent implements OnInit {
         false
       );
 
-      this.DataService.sendText(
-        this.appointment.meta,
-        date,
-        this.appointment.app._id
-      );
+      this.DataService.sendText(date, this.appointment.app._id);
     }
   }
 
@@ -133,6 +130,7 @@ export class AppointmentPageComponent implements OnInit {
         btnTitle: 'Save',
         isMsgEditor: true,
         data: this.messageEditor,
+        panelType: 'msgEditor',
       },
     });
 

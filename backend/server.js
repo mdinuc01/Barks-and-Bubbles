@@ -1,10 +1,11 @@
 const express = require('express');
 const cors = require('cors');
-const petRoute = require('./routes/pet.js');
 const appRoute = require('./routes/appointment.js');
+const authRoute = require('./routes/auth.js');
 const messageRoute = require('./routes/message.js');
 const messageBuilderRoute = require('./routes/messageBuilder.js');
-const authRoute = require('./routes/auth.js');
+const petRoute = require('./routes/pet.js');
+const routeRoute = require('./routes/route.js');
 const corsOptions = require('./config/corsOption.js');
 require('dotenv').config();
 const mongoose = require('mongoose');
@@ -17,11 +18,12 @@ app.set('trust proxy', 1);
 
 
 //Routes
-app.use("/api/pet", petRoute);
 app.use("/api/appointment", appRoute);
+app.use("/api/auth", authRoute);
 app.use("/api/message", messageRoute);
 app.use("/api/message/builder", messageBuilderRoute);
-app.use("/api/auth", authRoute);
+app.use("/api/pet", petRoute);
+app.use("/api/route", routeRoute);
 
 
 

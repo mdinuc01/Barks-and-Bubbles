@@ -9,8 +9,10 @@ import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { MatInputModule } from '@angular/material/input';
 
 interface Appointment {
+  route: any;
   location: any;
   app: {
+    route: any;
     _id: string;
     location: [];
   };
@@ -46,12 +48,14 @@ export class AppointmentClientListComponent implements OnInit {
 
   ngOnInit() {
     this.DataService.petsWithLocation$.subscribe((response) => {
-      this.petsWithLocations = response.data;
-      this.filteredList = response.data;
+      if (response.data.sentClients.length)
+        this.petsWithLocations = response.data.sentClients;
+      else this.petsWithLocations = response.data.allClients;
+      this.filteredList = response.data.allClients;
     });
 
-    if (this.appointment && this.appointment.app)
-      this.DataService.getPetsWithLocations(this.appointment.app._id);
+    // if (this.appointment && this.appointment.app)
+    //   this.DataService.getPetsWithLocations(this.appointment.app._id);
   }
 
   getObjectKeys(obj: any): string[] {
@@ -69,7 +73,7 @@ export class AppointmentClientListComponent implements OnInit {
     return obj2[0].length;
   }
 
-  updateStatus(id: any, status: any, location: String) {
+  updateStatus(id: any, status: any) {
     this.DataService.updatePetStatusApp(id, status, this.appointment.app._id);
   }
 

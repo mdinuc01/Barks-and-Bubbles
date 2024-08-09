@@ -86,16 +86,31 @@ class ClientController {
   async getAllPetsWithLocations(req, res) {
     try {
       const { id } = req.params;
-      const app = await Appointment.findOne({ _id: id });
-
-      let locations = app.location;
-      //mapping locations clients to app
+      const app = await Appointment.findOne({ _id: id }).populate('route', 'serviceAreas');
+      let locations = app.route.serviceAreas;
       let pets = await Pet.find({ serviceArea: { $in: locations }, created_by: req.userId });
 
-      const data = app.location.map(locationVal => {
+      const allClients = locations.map(locationVal => {
         let clientsInLocation = pets.filter(client => client.serviceArea === locationVal);
         return { [locationVal]: clientsInLocation };
       });
+
+      let sentClients = [];
+
+      if (!!app.messages.sentTo) {
+        pets = pets.filter((pet) => {
+          return app.messages.sentTo.some((c) => {
+            return c.id == pet._id;
+          });
+        });
+
+        sentClients = locations.map(locationVal => {
+          let clientsInLocation = pets.filter(client => client.serviceArea === locationVal);
+          return { [locationVal]: clientsInLocation };
+        });
+      }
+
+      const data = { allClients, sentClients };
 
       return res.status(200).json({ message: `All clients found`, data });
 
