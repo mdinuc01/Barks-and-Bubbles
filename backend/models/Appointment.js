@@ -6,10 +6,6 @@ const appointmentScheme = mongoose.Schema(
       type: Date,
       required: true
     },
-    location: {
-      type: Array,
-      required: true
-    },
     active: {
       type: Boolean,
       required: true,
@@ -33,6 +29,11 @@ const appointmentScheme = mongoose.Schema(
     created_by:
     {
       type: String,
+      required: true
+    },
+    route: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Routes',
       required: true
     }
   }
