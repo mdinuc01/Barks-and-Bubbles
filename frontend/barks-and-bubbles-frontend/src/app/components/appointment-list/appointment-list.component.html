@@ -8,7 +8,7 @@
     <mat-icon>{{!archivedDisplayed? 'history': 'event_upcoming'}}</mat-icon>
   </button>
 </div>
-<div *ngIf="filteredAppointments.length"
+<div *ngIf="filteredAppointments && filteredAppointments.length"
      class="appointments-layout">
   <mat-card *ngFor="let app of filteredAppointments"
             (click)="viewAppointment(app)">

@@ -15,6 +15,10 @@ mat-card {
   height: 11.5em;
   cursor: pointer;
   width: 13vw;
+
+  p {
+    overflow: hidden;
+  }
 }
 
 .appointment-title {
