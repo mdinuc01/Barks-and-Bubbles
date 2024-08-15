@@ -72,6 +72,7 @@ export class AppointmentSchedulerComponent implements OnInit {
   locations: string[] = [];
   appointment: any;
   panelType = '';
+  petsWithLocations: any;
 
   constructor(
     private ToastService: ToastService,
@@ -94,6 +95,10 @@ export class AppointmentSchedulerComponent implements OnInit {
     this.hours.push(`9:00 PM`);
   }
   ngOnInit(): void {
+    this.DataService.petsWithLocation$.subscribe((response) => {
+      if (response.data && response.data.allClients)
+        this.petsWithLocations = response.data.allClients;
+    });
     this.DataService.routes$.subscribe((response) => {
       if (response.message == 'Route Updated Successfully') {
         let routeData = response.data.find(
@@ -193,19 +198,32 @@ export class AppointmentSchedulerComponent implements OnInit {
 
   onDrop(event: any, time: any) {
     event.preventDefault();
-
     if (!this.currentReply) return;
 
     let area = this.appointment.app.route.serviceAreas.find(
       (a: { name: any }) => a.name == this.currentReply.serviceArea
     );
 
-    let findNumber = this.currentReply.from.toString().substring(2);
+    let findId = this.currentReply.id;
 
     let reply = this.filterBySid(this.replies, this.currentReply.sid)[0];
-    let client = this.clients.find(
-      (client) => client.contactMethod == findNumber
-    );
+    let client: any; // Initialize client variable
+
+    this.petsWithLocations.forEach((p: { [key: string]: any[] }) => {
+      // debugger;
+      for (const key in p) {
+        if (Array.isArray(p[key])) {
+          p[key].forEach((pet: any) => {
+            if (pet._id === findId) {
+              client = pet; // Store the matching pet in the client variable
+            }
+          });
+        }
+      }
+    });
+    // client will hold the last pet processed in the loop
+
+    console.log({ client });
     if (reply != undefined && client.petParentName) {
       reply.time = time;
       reply.petParentName = client.petParentName;
