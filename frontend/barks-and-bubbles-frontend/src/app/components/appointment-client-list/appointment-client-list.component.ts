@@ -55,9 +55,6 @@ export class AppointmentClientListComponent implements OnInit {
       if (response.data && response.data.sentClients.length)
         this.petsWithLocations = response.data.sentClients;
     });
-
-    // if (this.appointment && this.appointment.app)
-    //   this.DataService.getPetsWithLocations(this.appointment.app._id);
   }
 
   getObjectKeys(obj: any): string[] {
