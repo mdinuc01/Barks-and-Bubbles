@@ -220,15 +220,14 @@ export class AppointmentSchedulerComponent implements OnInit {
         if (Array.isArray(p[key])) {
           p[key].forEach((pet: any) => {
             if (pet._id === findId) {
-              client = pet; // Store the matching pet in the client variable
+              client = pet;
+              return client;
             }
           });
         }
       }
     });
-    // client will hold the last pet processed in the loop
 
-    console.log({ client });
     if (reply != undefined && client.petParentName) {
       reply.time = time;
       reply.petParentName = client.petParentName;
