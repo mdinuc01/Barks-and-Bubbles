@@ -120,8 +120,8 @@ export class ClientListComponent implements OnInit {
 
       locationQuery.forEach((area: any) => {
         if (!area.serviceAreas) return;
-        area.serviceAreas.forEach((sa: string) => {
-          if (!sa || !allAreas.includes(sa)) allAreas.push(sa);
+        area.serviceAreas.forEach((sa: { name: string }) => {
+          if (!sa.name || !allAreas.includes(sa.name)) allAreas.push(sa.name);
         });
       });
 

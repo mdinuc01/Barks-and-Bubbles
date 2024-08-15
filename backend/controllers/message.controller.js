@@ -15,7 +15,7 @@ class MessageController {
       let clientSentTo = [];
       let sentDate = new Date();
       let app = await Appointment.findOne({ _id: appId }).populate('route', 'serviceAreas');
-
+      let areas = app.route.serviceAreas.map((a) => a.name);
       let messageObj = await Builder.findOne({ "name": "First Message" });
 
       //sending messages and populating message array for response retrieval
@@ -23,7 +23,7 @@ class MessageController {
         pets.forEach(async (pet) => {
           if (!pet.active || !pet.contactMethod || !isValidPhoneNumber(pet.contactMethod)) return;
 
-          if (app && app.route.serviceAreas.includes(pet.serviceArea)) {
+          if (app && areas.includes(pet.serviceArea)) {
 
             //*Console logs for testing users to send message to
             // let messageText = new Message(pet, date, 0, messageObj.message).createMessage();
@@ -45,13 +45,14 @@ class MessageController {
           { new: true }
         ).populate('route', 'serviceAreas');
 
+        areas = app.route.serviceAreas.map((a) => a.name);
 
-        const location = app.route.serviceAreas.map(locationVal => {
+        const location = areas.map(locationVal => {
           const clientsInLocation = pets.filter(client => client.serviceArea === locationVal);
           return { [locationVal]: clientsInLocation };
         });
 
-        let meta = app.route.serviceAreas;
+        let meta = areas;
         const data = { app: app, location, meta };
 
         setTimeout(async () => {
@@ -72,16 +73,15 @@ class MessageController {
       let appId = req.params.id;
 
       const app = await Appointment.findOne({ _id: appId }).populate('route', 'serviceAreas');
-
+      let areas = app.route.serviceAreas.map((a) => a.name);
       let messageObj = await Builder.findOne({ "name": "Second Message" });
 
-      if (app.scheduler && app.scheduler.length) {
-        app.route.serviceAreas.forEach((l) => {
+      if (app.scheduler && app.scheduler.length && areas.length) {
+        areas.forEach((l) => {
           const scheduler = app.scheduler.find(obj => obj.hasOwnProperty(l));
-
           if (scheduler[l].replies && scheduler[l].replies.length && scheduler[l].increment) {
             scheduler[l].replies.forEach(async (reply) => {
-              if (reply.id && reply.time && reply.time != null && reply.petParentName && reply.from && SMSUtils.isValidPhoneNumber(reply.from)) {
+              if (reply.id && reply.time && reply.time != null && reply.petParentName && reply.from) {
                 const pet = await Pet.findOne({ _id: reply.id });
                 await SMSUtils.sendReply(pet, reply.time, scheduler[l].increment, messageObj.message);
               }
@@ -115,6 +115,7 @@ let fetchReplies = async (sentDate, appId) => {
     let replies = await SMSUtils.getReplies(sentDate);
 
     let app = await Appointment.findOne({ _id: appId }).populate('route', 'name serviceAreas');
+    let areas = app.route.serviceAreas.map((a) => a);
 
     if (!app) {
       return;
@@ -130,9 +131,9 @@ let fetchReplies = async (sentDate, appId) => {
 
       if (reply.direction.includes("outbound") && numbersSentTo.includes(to)) {
         return reply;
-      } else if (reply.direction.includes("inbound") && numbersSentTo.includes(from)) {
+      } else if (reply.direction.includes("inbound") && numbersSentTo.includes(from))
         return reply;
-      }
+
     });
 
 
@@ -152,17 +153,18 @@ let fetchReplies = async (sentDate, appId) => {
 
     let schedulerReplies;
     try {
-      schedulerReplies = app.route.serviceAreas.map((l) => {
-        const scheduler = app.scheduler.find(obj => { if (obj) return obj.hasOwnProperty(l) });
+      schedulerReplies = areas.map((l) => {
+        const scheduler = app.scheduler.find(obj => { if (obj) return obj.hasOwnProperty(l.name) });
+
         if (!scheduler) {
-          return { [l]: { replies: [], length: 0, increment: "0.5" } };
+          return { [l.name]: { replies: [], length: 0, increment: "0.5" } };
         }
 
         let replies = newReplies.filter((r) => {
           if (r.from == process.env.TWILIO_PHONE_NUMBER) return false; // Changed from return to return false to avoid including undefined elements
           let from = r.from.substring(2);
           let meta = messagesData.find((m) => m.contactMethod == from);
-          return !!(meta && meta.serviceArea == l);
+          return !!(meta && meta.serviceArea == l.name);
         }).map((r) => {
           let from = r.from.substring(2);
           let meta = messagesData.find((m) => m.contactMethod == from);
@@ -171,9 +173,21 @@ let fetchReplies = async (sentDate, appId) => {
             let { contactMethod, ...metaWithoutContactMethod } = meta;
 
             let time;
-            let currentReply = scheduler[l].replies.find((reply) => reply.sid === r.sid);
-            if (currentReply && currentReply.time) {
+            let defaultTime;
+
+            if (l && l.time) {
+              time = l.time;
+            }
+            let currentReply = scheduler[l.name].replies.find((reply) => reply.sid === r.sid);
+
+            if (currentReply && (currentReply.time || currentReply.time == null) && !currentReply.defaultTime) {
               time = currentReply.time;
+            }
+
+            if (currentReply && currentReply.defaultTime != null) {
+              defaultTime = currentReply.defaultTime
+            } else {
+              defaultTime = true;
             }
 
             return {
@@ -183,6 +197,7 @@ let fetchReplies = async (sentDate, appId) => {
               to: r.to,
               time,
               status: r.status,
+              defaultTime: defaultTime,
               ...metaWithoutContactMethod
             };
           }
@@ -202,7 +217,12 @@ let fetchReplies = async (sentDate, appId) => {
           return 0;
         })
 
-        return { [l]: { replies, length: replies.length, increment: scheduler[l].increment ? scheduler[l].increment : "0.5" } };
+        let increment = 0.5;
+        if (l && l.increment) {
+          increment = l.increment
+        }
+
+        return { [l.name]: { replies, length: replies.length, increment: increment } };
       });
     } catch (error) {
       console.error("Error processing scheduler replies:", error);
@@ -269,7 +289,9 @@ sendEmailUpdate = (date, appData) => {
   });
 
   const route = appData.route.name;
-  const serviceAreas = appData.route.serviceAreas.join(", ");
+  const areas = app.route.serviceAreas.map((a) => a.name);
+
+  const serviceAreas = areas.join(", ");
   const replies = appData.replies;
   const sentTo = appData.messages.sentTo.length;
   const successMsgs = replies.filter((r) => r.status == "delivered").length;

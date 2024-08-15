@@ -51,17 +51,13 @@
                            (opened)="setStep(i)">
         <mat-expansion-panel-header>
           <mat-panel-title>
-
-            <p>
-              {{route.name}}
-            </p>
-
+            <p>{{route.name}}</p>
           </mat-panel-title>
         </mat-expansion-panel-header>
 
         <div class="btn-layout">
           <button mat-icon-button
-                  [color]="'accent'"
+                  color="accent"
                   matTooltip="{{route.edit ? 'Hide the route name editor' : 'Edit the route name'}}"
                   (click)="toggleRouteNameEdit($event, route, i)">
             <mat-icon class="mat-accent-icon-btn">edit</mat-icon>
@@ -70,25 +66,28 @@
 
         <p *ngIf="route.edit">Edit the name of this route:</p>
         <p *ngIf="route.edit"
-           id="{{route.name}}-editor"
+           [attr.id]="route.name + '-editor'"
            class="edit-route-enabled"
            contenteditable="true">
           {{route.name}}
         </p>
 
-        <div cdkDropList
-             [cdkDropListData]="route.serviceAreas"
-             (cdkDropListDropped)="drop($event, route)">
-          <div *ngFor="let area of route.serviceAreas"
-               cdkDrag
-               class="location-layout">
-            {{ area }}
-
-            <mat-icon style="color: grey;">drag_handle</mat-icon>
+        <!-- Store the result of getRouteServiceAreas in a local variable 'areas' -->
+        <ng-container *ngIf="getRouteServiceAreas(route.serviceAreas) as areas">
+          <div cdkDropList
+               [cdkDropListData]="areas"
+               (cdkDropListDropped)="drop($event, route)">
+            <div *ngFor="let area of areas"
+                 cdkDrag
+                 class="location-layout">
+              {{ area }}
+              <mat-icon style="color: grey;">drag_handle</mat-icon>
+            </div>
           </div>
-        </div>
+        </ng-container>
+
         <button mat-icon-button
-                [color]="'primary'"
+                color="primary"
                 matTooltip="Update Route"
                 style="float: right;"
                 (click)="updateRoute(route)">
@@ -96,6 +95,7 @@
         </button>
       </mat-expansion-panel>
     </ng-container>
+
 
     <ng-container *ngIf="routes && !routes.length">
       <p class="error-msg"

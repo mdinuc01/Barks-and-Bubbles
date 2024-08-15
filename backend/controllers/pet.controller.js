@@ -63,7 +63,7 @@ class ClientController {
     try {
       const { id } = req.params;
       const app = await Appointment.findOne({ _id: id }).populate('route', 'serviceAreas');
-      let locations = app.route.serviceAreas;
+      let locations = app.route.serviceAreas.map((a) => a.name);
       let pets = await Pet.find({ serviceArea: { $in: locations }, created_by: req.userId });
 
       const allClients = locations.map(locationVal => {

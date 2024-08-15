@@ -15,8 +15,10 @@ import { AppointmentClientListComponent } from '../appointment-client-list/appoi
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { ReactiveFormsModule } from '@angular/forms';
 import { MatInputModule } from '@angular/material/input';
+import { SchedulerEditorComponent } from '../scheduler-editor/scheduler-editor.component';
 
 interface Reply {
+  defaultTime: boolean;
   sid: string;
   body: string;
   from: string;
@@ -52,6 +54,7 @@ interface Location {
     MatFormFieldModule,
     ReactiveFormsModule,
     MatInputModule,
+    SchedulerEditorComponent,
   ],
   templateUrl: './appointment-scheduler.component.html',
   styleUrl: './appointment-scheduler.component.scss',
@@ -68,7 +71,7 @@ export class AppointmentSchedulerComponent implements OnInit {
   resetSave = false;
   locations: string[] = [];
   appointment: any;
-  showAddPanel = false;
+  panelType = '';
 
   constructor(
     private ToastService: ToastService,
@@ -91,8 +94,13 @@ export class AppointmentSchedulerComponent implements OnInit {
     this.hours.push(`9:00 PM`);
   }
   ngOnInit(): void {
-    this.DataService.panel$.subscribe((val) => {
-      this.showAddPanel = val;
+    this.DataService.routes$.subscribe((response) => {
+      if (response.message == 'Route Updated Successfully') {
+        let routeData = response.data.find(
+          (r: { _id: any }) => r._id == this.appointment.route._id
+        );
+        this.appointment.route.serviceAreas = routeData.serviceAreas;
+      }
     });
     this.DataService.currentAppointment$.subscribe((res) => {
       if (res.data) {
@@ -189,6 +197,10 @@ export class AppointmentSchedulerComponent implements OnInit {
 
     if (!this.currentReply) return;
 
+    let area = this.appointment.app.route.serviceAreas.find(
+      (a: { name: any }) => a.name == this.currentReply.serviceArea
+    );
+
     let findNumber = this.currentReply.from.toString().substring(2);
 
     let reply = this.filterBySid(this.replies, this.currentReply.sid)[0];
@@ -198,6 +210,7 @@ export class AppointmentSchedulerComponent implements OnInit {
     if (reply != undefined && client.petParentName) {
       reply.time = time;
       reply.petParentName = client.petParentName;
+      reply.defaultTime = area.time == time;
     }
     this.currentReply = null;
   }
@@ -212,11 +225,22 @@ export class AppointmentSchedulerComponent implements OnInit {
   }
 
   resetAppTimes() {
+    // console.log({ a: this.appointment.app.route.serviceAreas });
     this.replies = this.replies.map((location) => {
-      // Assuming location is an object whose values are the areas
+      let key = Object.keys(location)[0];
+      let serviceArea = this.appointment.app.route.serviceAreas.find(
+        (a: { name: string }) => a.name == key
+      );
+      console.log({ serviceArea });
       Object.values(location).forEach((area: any) => {
-        area.increment = 0.5;
-        area.replies.forEach((reply: any) => (reply.time = null));
+        area.increment = serviceArea.increment || 0.5;
+        area.replies = area.replies.map((reply: any) => {
+          return {
+            ...reply,
+            time: serviceArea.time,
+            defaultTime: true,
+          };
+        });
       });
       return location;
     });

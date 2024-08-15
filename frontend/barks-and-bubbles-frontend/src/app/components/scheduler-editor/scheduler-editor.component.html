@@ -1,0 +1,90 @@
+<div class="title-layout">
+
+  <h3>Edit Route Schedule Defaults:</h3>
+
+  <button mat-icon-button
+          [color]="'primary'"
+          (click)="saveChanges()">
+    <mat-icon>save</mat-icon>
+  </button>
+</div>
+
+<div class="area-layout">
+  <div class="area-cards scroll"
+       (dragover)="onDragOver($event)"
+       (drop)="onDrop($event, null)"
+       (touchend)="onDrop($event, null)">
+    <ng-container *ngFor="let area of this.getAppsByTime(null)">
+      <mat-card [draggable]="true"
+                (dragstart)="onDragStart(area)"
+                (touchstart)="onDragStart(area)">
+        <mat-card-header class="area-header">
+          <h3>{{area.name}}</h3>
+        </mat-card-header>
+
+        <div class="increment-btns">
+          <button mat-icon-button
+                  (click)="decrementCounter(area)"
+                  color="accent">
+            <mat-icon class="mat-accent-icon-btn">
+              do_not_disturb_on
+            </mat-icon>
+          </button>
+          <span>{{ area.increment}} hrs</span>
+          <button mat-icon-button
+                  (click)="incrementCounter(area)"
+                  color="primary">
+            <mat-icon>
+              add_circle
+            </mat-icon></button>
+        </div>
+      </mat-card>
+    </ng-container>
+
+    <div *ngIf="!this.getAppsByTime(null).length">
+      <p class="err-msg"
+         style="height: 24em !important;">No Area to Schedule</p>
+    </div>
+  </div>
+
+
+  <div class="hours scroll"
+       (dragover)="onDragOver($event)">
+    <div *ngFor="let hour of hours"
+         (drop)="onDrop($event, hour)"
+         (touchend)="onDrop($event, hour)">
+      <h3>{{hour}}</h3>
+
+      <ng-container *ngFor="let area of this.getAppsByTime(hour)">
+        <mat-card draggable="true"
+                  (dragstart)="onDragStart(area)"
+                  (touchstart)="onDragStart(area)">
+          <mat-card-header class="area-header">
+            <h3>{{area.name}}</h3>
+          </mat-card-header>
+
+          <div class="increment-btns">
+            <button mat-icon-button
+                    (click)="decrementCounter(area)"
+                    color="accent">
+              <mat-icon class="mat-accent-icon-btn">
+                do_not_disturb_on
+              </mat-icon>
+            </button>
+            <span class="counter">{{ area.increment}} hrs</span>
+            <button mat-icon-button
+                    (click)="incrementCounter(area)"
+                    color="primary">
+              <mat-icon>
+                add_circle
+              </mat-icon></button>
+          </div>
+        </mat-card>
+      </ng-container>
+
+      <div *ngIf="!this.getAppsByTime(hour).length">
+        <p class="err-msg">No Area Scheduled</p>
+      </div>
+    </div>
+  </div>
+</div>

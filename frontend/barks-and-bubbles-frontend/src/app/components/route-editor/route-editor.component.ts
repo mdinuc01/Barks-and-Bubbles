@@ -70,6 +70,12 @@ export class RouteEditorComponent {
     );
   }
 
+  getRouteServiceAreas(areas: any) {
+    let result = areas.map((a: { name: string }) => a.name);
+
+    return result;
+  }
+
   setStep(index: number) {
     this.step.set(index);
   }
@@ -78,7 +84,10 @@ export class RouteEditorComponent {
     let name = this.routeForm.get('name')!.value;
     let serviceAreas = this.routeForm.get('serviceAreas')!.value;
 
-    this.DataService.createRoute(name, serviceAreas);
+    let transformedAreas = serviceAreas.map((a: any) => {
+      return { name: a, time: null, increment: 0.5 };
+    });
+    this.DataService.createRoute(name, transformedAreas);
   }
 
   updateRoute(route: any) {

@@ -86,6 +86,10 @@ export class AppointmentPageComponent implements OnInit {
   }
 
   async openPanel() {
+    console.log({ a: this.appointment });
+    let areas = this.appointment.app.route.serviceAreas.map(
+      (a: { name: any }) => a.name
+    );
     const dialogRef = this.dialog.open(PanelService, {
       data: {
         title: 'Send Clients SMS',
@@ -93,7 +97,7 @@ export class AppointmentPageComponent implements OnInit {
           this.appointment.app.date,
           false,
           true
-        )}</b> to the clients in the following service areas: <br><br><b>${this.appointment.meta
+        )}</b> to the clients in the following service areas: <br><br><b>${areas
           .toString()
           .replaceAll(',', ', ')}</b>`,
         subMsg: 'This action cannot be undone.',
