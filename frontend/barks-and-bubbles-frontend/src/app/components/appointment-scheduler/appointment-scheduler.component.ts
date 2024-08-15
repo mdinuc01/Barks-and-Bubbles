@@ -147,7 +147,6 @@ export class AppointmentSchedulerComponent implements OnInit {
       });
 
     matchingReplies = matchingReplies.sort((a, b) => {
-      // console.log({ a })
       const propA = a.petName.toLowerCase();
       const propB = b.petName.toLowerCase();
       if (propA < propB) {
