@@ -102,9 +102,14 @@ export class AppointmentSchedulerComponent implements OnInit {
     this.DataService.routes$.subscribe((response) => {
       if (response.message == 'Route Updated Successfully') {
         let routeData = response.data.find(
-          (r: { _id: any }) => r._id == this.appointment.route._id
+          (r: { _id: any }) => r._id == this.appointment.app.route._id
         );
-        this.appointment.route.serviceAreas = routeData.serviceAreas;
+        this.appointment.app.route.serviceAreas = routeData.serviceAreas;
+        routeData.serviceAreas.forEach(
+          (area: { name: string; increment: number }) => {
+            this.counters[area.name] = area.increment;
+          }
+        );
       }
     });
     this.DataService.currentAppointment$.subscribe((res) => {
