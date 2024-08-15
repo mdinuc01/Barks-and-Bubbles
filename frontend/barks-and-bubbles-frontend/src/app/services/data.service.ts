@@ -26,7 +26,6 @@ export class DataService {
   private petsWithLocationsSubject: BehaviorSubject<any> =
     new BehaviorSubject<any>([]);
   panelSubject = new BehaviorSubject<boolean>(false);
-  panel$ = this.panelSubject.asObservable();
 
   private routeSubject: BehaviorSubject<any> = new BehaviorSubject<any>([]);
   loader$: Observable<any> = this.loaderSubject.asObservable();

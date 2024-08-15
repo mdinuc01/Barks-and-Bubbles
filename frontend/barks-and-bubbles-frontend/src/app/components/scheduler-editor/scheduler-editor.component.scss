@@ -1,0 +1,43 @@
+.title-layout {
+  display: flex;
+  position: sticky;
+  top: 0;
+  align-items: flex-end;
+  background-color: white;
+  z-index: 100;
+}
+
+.area-layout {
+  display: grid;
+  gap: 1em;
+  grid-template-columns: 1fr 1fr;
+}
+
+mat-card {
+  margin: 1em;
+}
+
+.area-cards,
+.hours {
+  max-height: 25em !important;
+  overflow-y: scroll;
+}
+
+.increment-btns,
+.area-header {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.err-msg {
+  color: #808080;
+  background-color: #cee5ec !important;
+  border-radius: 3px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 6em !important;
+  max-width: 13.5em;
+  margin-bottom: 1em !important;
+}

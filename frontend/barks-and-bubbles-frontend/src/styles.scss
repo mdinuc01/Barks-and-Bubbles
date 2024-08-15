@@ -110,6 +110,10 @@ $my-theme: mat.define-light-theme(
   height: 100%;
 }
 
+.default-time {
+  background-color: mat.get-color-from-palette($my-accent, 100) !important;
+}
+
 a {
   color: #0496da;
   text-decoration: none;
