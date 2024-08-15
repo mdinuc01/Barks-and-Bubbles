@@ -86,7 +86,6 @@ export class AppointmentPageComponent implements OnInit {
   }
 
   async openPanel() {
-    console.log({ a: this.appointment });
     let areas = this.appointment.app.route.serviceAreas.map(
       (a: { name: any }) => a.name
     );
