@@ -103,7 +103,8 @@
                cdkDropList
                [cdkDropListData]="[filterByTime(reply[key].replies, '')]"
                (cdkDropListDropped)="drop($event, null)"
-               (mouseenter)="this.hoveredTime= null">
+               (mouseenter)="this.hoveredTime= null"
+               (touchend)="this.hoveredTime= null">
 
             <mat-card *ngFor="let message of filterByTime(reply[key].replies, '')"
                       [ngClass]="{'default-time': !message.defaultTime}"
@@ -158,7 +159,8 @@
          [cdkDropListData]="[filterByTime(this.replies, hour)]"
          cdkDropListConnectedTo="{{hour}}"
          (cdkDropListDropped)="drop($event, hour)"
-         (mouseenter)="this.hoveredTime= hour">
+         (mouseenter)="this.hoveredTime= hour"
+         (touchend)="this.hoveredTime= hour">
       <h3>{{hour}}</h3>
       <div class="scheduled">
         <mat-card *ngFor="let message of filterByTime(this.replies, hour)"
