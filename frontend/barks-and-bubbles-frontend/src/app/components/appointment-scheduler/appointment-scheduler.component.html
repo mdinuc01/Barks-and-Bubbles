@@ -62,21 +62,15 @@
 
 <div class="layout"
      (click)="panelType = ''">
-  <div (dragover)="onDragOver($event)"
-       (touchmove)="onDragOver($event)"
-       (drop)="onDrop($event, null)"
-       (touchend)="onDrop($event, null)"
-       class="replies-container scroll"
+  <div class="replies-container scroll"
        [ngClass]="{'no-scroll': !this.replies.length}">
 
-    <div (dragover)="onDragOver($event)"
-         (touchmove)="onDragOver($event)"
-         (drop)="onDrop($event, null)"
-         (touchend)="onDrop($event, null)">
+    <div>
 
       <div *ngFor="let reply of replies"
-           class="reply-container">
-        <ng-container *ngFor="let key of objectKeys(reply)">
+           class="reply-container"
+           cdkDropListGroup>
+        <ng-container *ngFor="let key of objectKeys(reply), index as i">
           <div class="location-header">
             <div style=" display: flex;
             flex-direction: row;
@@ -105,40 +99,46 @@
             </div>
           </div>
 
-          <mat-card *ngFor="let message of filterByTime(reply[key].replies, '')"
-                    draggable="true"
-                    (dragstart)="onDragStart(message)"
-                    (touchstart)="onDragStart(message)"
-                    [ngClass]="{'default-time': !message.defaultTime}">
-            <mat-card-title style="height: 0em"></mat-card-title>
-            <mat-card-content>
-              <div class="reply-layout">
-                <div>
-                  <mat-icon>pets</mat-icon>
-                  <p>{{message.petName}}</p>
+          <div cdkDropListGroup
+               cdkDropList
+               [cdkDropListData]="[filterByTime(reply[key].replies, '')]"
+               (cdkDropListDropped)="drop($event, null)"
+               (mouseenter)="this.hoveredTime= null">
 
-                  <mat-icon>face</mat-icon>
-                  <p>{{message.petParentName}}</p>
+            <mat-card *ngFor="let message of filterByTime(reply[key].replies, '')"
+                      [ngClass]="{'default-time': !message.defaultTime}"
+                      cdkDrag
+                      [cdkDragData]="[message, null]">
+              <mat-card-title style="height: 0em"></mat-card-title>
+              <mat-card-content>
+                <div class="reply-layout">
+                  <div>
+                    <mat-icon>pets</mat-icon>
+                    <p>{{message.petName}}</p>
 
+                    <mat-icon>face</mat-icon>
+                    <p>{{message.petParentName}}</p>
+
+                  </div>
+
+                  <p *ngIf="message.body.length > 2"
+                     class="longer-msg"
+                     matTooltip="{{ message.body }}">
+                    {{ message.body}}
+                  </p>
+
+                  <p *ngIf="message.body.length <= 2">
+                    {{ message.body}}
+                  </p>
                 </div>
+              </mat-card-content>
+            </mat-card>
 
-                <p *ngIf="message.body.length > 2"
-                   class="longer-msg"
-                   matTooltip="{{ message.body }}">
-                  {{ message.body}}
-                </p>
+            <p *ngIf="!filterByTime(reply[key].replies, '').length && reply[key].length">All replies scheduled</p>
 
-                <p *ngIf="message.body.length <= 2">
-                  {{ message.body}}
-                </p>
-              </div>
-            </mat-card-content>
-          </mat-card>
-
-          <p *ngIf="!filterByTime(reply[key].replies, '').length && reply[key].length">All replies scheduled</p>
-
-          <p *ngIf="filterByTime(reply[key].replies, '') && !reply[key].length"
-             style="width: 12em;">No Replies from this area</p>
+            <p *ngIf="filterByTime(reply[key].replies, '') && !reply[key].length"
+               style="width: 12em;">No Replies from this area</p>
+          </div>
         </ng-container>
       </div>
     </div>
@@ -146,26 +146,24 @@
 
 
     <p *ngIf="!this.replies.length"
-       (dragover)="onDragOver($event)"
-       (touchmove)="onDragOver($event)"
-       (drop)="onDrop($event, null)"
-       (touchend)="onDrop($event, null)"
        class="no-replies">No Replies</p>
 
   </div>
-  <div class="hours scroll">
+  <div class="hours scroll"
+       cdkDropListGroup>
+
     <div class="hour"
-         *ngFor="let hour of hours"
-         (dragover)="onDragOver($event)"
-         (touchmove)="onDragOver($event)"
-         (drop)="onDrop($event, hour)"
-         (touchend)="onDrop($event, hour)">
+         *ngFor="let hour of hours, index as i"
+         cdkDropList
+         [cdkDropListData]="[filterByTime(this.replies, hour)]"
+         cdkDropListConnectedTo="{{hour}}"
+         (cdkDropListDropped)="drop($event, hour)"
+         (mouseenter)="this.hoveredTime= hour">
       <h3>{{hour}}</h3>
       <div class="scheduled">
         <mat-card *ngFor="let message of filterByTime(this.replies, hour)"
-                  draggable="true"
-                  (dragstart)="onDragStart(message)"
-                  (touchstart)="onDragStart(message)"
+                  cdkDrag
+                  [cdkDragData]="[message, hour]"
                   [ngClass]="{'default-time': !message.defaultTime}">
           <mat-card-title align="end"
                           style="height: 0em">
