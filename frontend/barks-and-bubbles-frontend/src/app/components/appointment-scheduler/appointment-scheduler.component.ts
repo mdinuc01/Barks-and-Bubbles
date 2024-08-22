@@ -16,6 +16,13 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { ReactiveFormsModule } from '@angular/forms';
 import { MatInputModule } from '@angular/material/input';
 import { SchedulerEditorComponent } from '../scheduler-editor/scheduler-editor.component';
+import {
+  CdkDragDrop,
+  moveItemInArray,
+  transferArrayItem,
+  CdkDrag,
+  CdkDropList,
+} from '@angular/cdk/drag-drop';
 
 interface Reply {
   defaultTime: boolean;
@@ -55,6 +62,8 @@ interface Location {
     ReactiveFormsModule,
     MatInputModule,
     SchedulerEditorComponent,
+    CdkDropList,
+    CdkDrag,
   ],
   templateUrl: './appointment-scheduler.component.html',
   styleUrl: './appointment-scheduler.component.scss',
@@ -73,6 +82,9 @@ export class AppointmentSchedulerComponent implements OnInit {
   appointment: any;
   panelType = '';
   petsWithLocations: any;
+  repliesByHours: any[] = [];
+  notScheduledReplies: any[] = [];
+  hoveredTime: string | null = null;
 
   constructor(
     private ToastService: ToastService,
@@ -93,6 +105,10 @@ export class AppointmentSchedulerComponent implements OnInit {
       this.hours.push(`${i === 12 ? 12 : i - 12}:45 PM`);
     }
     this.hours.push(`9:00 PM`);
+
+    // this.hours.forEach((hour) => {
+    //   this.repliesByHours.push(this.filterByTime(this.replies, hour));
+    // });
   }
   ngOnInit(): void {
     this.DataService.petsWithLocation$.subscribe((response) => {
@@ -134,7 +150,7 @@ export class AppointmentSchedulerComponent implements OnInit {
     this.initializeCounters();
   }
 
-  filterByTime(data: Location[], time: string): any[] {
+  filterByTime(data: Location[], time: string | null): any[] {
     let matchingReplies: any[] = [];
     let repliesWithMatchingTime: any[];
 
@@ -201,6 +217,33 @@ export class AppointmentSchedulerComponent implements OnInit {
     this.currentReply = reply;
   }
 
+  drop(event: CdkDragDrop<any[]>, previousArray: any) {
+    this.replies = this.replies.map((r) => {
+      return {
+        ...r,
+        ...Object.fromEntries(
+          Object.entries(r).map(([key, rObj]: [string, any]) => {
+            return [
+              key,
+              {
+                ...rObj,
+                replies: rObj.replies.map((rArray: { sid: any }) => {
+                  if (rArray.sid === event.item.data[0].sid) {
+                    return { ...rArray, time: this.hoveredTime };
+                  } else {
+                    return rArray;
+                  }
+                }),
+              },
+            ];
+          })
+        ),
+      };
+    });
+
+    console.log({ r: this.replies });
+  }
+
   onDrop(event: any, time: any) {
     event.preventDefault();
     if (!this.currentReply) return;
@@ -252,7 +295,7 @@ export class AppointmentSchedulerComponent implements OnInit {
       let serviceArea = this.appointment.app.route.serviceAreas.find(
         (a: { name: string }) => a.name == key
       );
-      console.log({ serviceArea });
+
       Object.values(location).forEach((area: any) => {
         area.increment = serviceArea.increment || 0.5;
         area.replies = area.replies.map((reply: any) => {

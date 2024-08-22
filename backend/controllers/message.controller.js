@@ -55,11 +55,17 @@ class MessageController {
         let meta = areas;
         const data = { app: app, location, meta };
 
-        setTimeout(async () => {
-          const response = await fetchReplies(sentDate, appId);
-          const appData = response.app;
+        let appData;
+        let response;
+
+        do {
+          response = await fetchReplies(sentDate, appId);
+          appData = response.app;
+        } while (!verifyAppData(appData));
+
+        if (verifyAppData(appData)) {
           sendEmailUpdate(date, appData);
-        }, 60 * 1000)
+        }
 
         return res.status(200).json({ message: `Messages sent`, data });
       }
@@ -277,6 +283,18 @@ isValidPhoneNumber = (phoneNumber) => {
   const phoneRegex = /^\d{10}$/;
 
   return phoneRegex.test(phoneNumber);
+}
+
+verifyAppData = (appData) => {
+
+  const replies = appData.replies;
+
+  const sentTo = appData.messages.sentTo.length;
+  const successMsgs = replies.filter((r) => r.status == "delivered").length;
+  const undeliveredMsgs = replies.filter((r) => r.status == "undelivered").length;
+  const failedMsgs = replies.filter((r) => r.status == "failed").length;
+
+  return sentTo == (successMsgs + undeliveredMsgs + failedMsgs);
 }
 
 sendEmailUpdate = (date, appData) => {
