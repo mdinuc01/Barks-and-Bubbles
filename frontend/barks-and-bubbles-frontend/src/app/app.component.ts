@@ -117,6 +117,8 @@ export class AppComponent implements OnInit {
     this.isLoggedIn = await this.storageService.isLoggedIn();
 
     if (this.isLoggedIn) {
+      this.DataService.getAllRoutes();
+
       this.DataService.clients$.subscribe((res) => {
         this.hidePanels();
       });
@@ -136,7 +138,6 @@ export class AppComponent implements OnInit {
     const currentUrl = this.router.url;
     if (!currentUrl.includes('login')) this.init = true;
 
-    this.DataService.getAllRoutes();
     this.cdr.detectChanges();
   }
 
