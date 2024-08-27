@@ -70,7 +70,6 @@ export class ClientListComponent implements OnInit {
     });
 
     this.DataService.getAllPets();
-    this.DataService.getAllRoutes();
   }
 
   formatNumber(number: string): string {
