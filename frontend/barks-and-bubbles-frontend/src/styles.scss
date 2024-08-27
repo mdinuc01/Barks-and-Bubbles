@@ -110,7 +110,7 @@ $my-theme: mat.define-light-theme(
   height: 100%;
 }
 
-.default-time {
+.not-default-time {
   background-color: mat.get-color-from-palette($my-accent, 100) !important;
 }
 

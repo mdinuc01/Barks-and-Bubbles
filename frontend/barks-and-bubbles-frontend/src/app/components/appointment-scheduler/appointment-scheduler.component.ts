@@ -217,7 +217,7 @@ export class AppointmentSchedulerComponent implements OnInit {
     this.currentReply = reply;
   }
 
-  drop(event: CdkDragDrop<any[]>, previousArray: any) {
+  drop(event: CdkDragDrop<any[]>) {
     this.replies = this.replies.map((r) => {
       return {
         ...r,
@@ -227,13 +227,22 @@ export class AppointmentSchedulerComponent implements OnInit {
               key,
               {
                 ...rObj,
-                replies: rObj.replies.map((rArray: { sid: any }) => {
-                  if (rArray.sid === event.item.data[0].sid) {
-                    return { ...rArray, time: this.hoveredTime };
-                  } else {
-                    return rArray;
+                replies: rObj.replies.map(
+                  (rArray: { [x: string]: any; sid: any }) => {
+                    if (rArray.sid === event.item.data[0].sid) {
+                      let route = this.appointment.app.route.serviceAreas.find(
+                        (a: { name: any }) => a.name == rArray['serviceArea']
+                      );
+                      return {
+                        ...rArray,
+                        time: this.hoveredTime,
+                        defaultTime: this.hoveredTime == route.time,
+                      };
+                    } else {
+                      return rArray;
+                    }
                   }
-                }),
+                ),
               },
             ];
           })
@@ -244,40 +253,40 @@ export class AppointmentSchedulerComponent implements OnInit {
     console.log({ r: this.replies });
   }
 
-  onDrop(event: any, time: any) {
-    event.preventDefault();
-    if (!this.currentReply) return;
+  // onDrop(event: any, time: any) {
+  //   event.preventDefault();
+  //   if (!this.currentReply) return;
 
-    let area = this.appointment.app.route.serviceAreas.find(
-      (a: { name: any }) => a.name == this.currentReply.serviceArea
-    );
+  //   let area = this.appointment.app.route.serviceAreas.find(
+  //     (a: { name: any }) => a.name == this.currentReply.serviceArea
+  //   );
 
-    let findId = this.currentReply.id;
+  //   let findId = this.currentReply.id;
 
-    let reply = this.filterBySid(this.replies, this.currentReply.sid)[0];
-    let client: any; // Initialize client variable
+  //   let reply = this.filterBySid(this.replies, this.currentReply.sid)[0];
+  //   let client: any; // Initialize client variable
 
-    this.petsWithLocations.forEach((p: { [key: string]: any[] }) => {
-      // debugger;
-      for (const key in p) {
-        if (Array.isArray(p[key])) {
-          p[key].forEach((pet: any) => {
-            if (pet._id === findId) {
-              client = pet;
-              return client;
-            }
-          });
-        }
-      }
-    });
+  //   this.petsWithLocations.forEach((p: { [key: string]: any[] }) => {
+  //     // debugger;
+  //     for (const key in p) {
+  //       if (Array.isArray(p[key])) {
+  //         p[key].forEach((pet: any) => {
+  //           if (pet._id === findId) {
+  //             client = pet;
+  //             return client;
+  //           }
+  //         });
+  //       }
+  //     }
+  //   });
 
-    if (reply != undefined && client.petParentName) {
-      reply.time = time;
-      reply.petParentName = client.petParentName;
-      reply.defaultTime = area.time == time;
-    }
-    this.currentReply = null;
-  }
+  //   if (reply != undefined && client.petParentName) {
+  //     reply.time = time;
+  //     reply.petParentName = client.petParentName;
+  //     reply.defaultTime = area.time == time;
+  //   }
+  //   this.currentReply = null;
+  // }
 
   onDragOver(event: any) {
     event.preventDefault();
@@ -383,5 +392,9 @@ export class AppointmentSchedulerComponent implements OnInit {
     // Map over the words array and get the first letter of each word
     const initials = words.map((word) => word.charAt(0)).join('');
     return initials.substring(0, 2);
+  }
+
+  showMover() {
+    console.log('Show mover');
   }
 }

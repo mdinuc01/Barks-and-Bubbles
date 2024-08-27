@@ -206,6 +206,12 @@ mat-card {
   cursor: move;
   height: 11em;
   width: 14em;
+  overflow: hidden !important;
+  position: relative;
+}
+
+.no-time-msg {
+  margin-bottom: 1em;
 }
 
 .longer-msg {
