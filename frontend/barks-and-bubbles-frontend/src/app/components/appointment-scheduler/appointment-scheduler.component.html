@@ -110,7 +110,7 @@
                       [ngClass]="{'not-default-time': !message.defaultTime}"
                       cdkDrag
                       class="no-time-msg"
-                      [cdkDragData]="[message, null]">
+                      [cdkDragData]="message">
               <mat-card-title style="height: 0em"></mat-card-title>
               <mat-card-content>
                 <div class="reply-layout">
@@ -136,6 +136,7 @@
               </mat-card-content>
             </mat-card>
 
+
             <p *ngIf="!filterByTime(reply[key].replies, '').length && reply[key].length">All replies scheduled</p>
 
             <p *ngIf="filterByTime(reply[key].replies, '') && !reply[key].length"
@@ -153,29 +154,28 @@
   </div>
   <div class="hours scroll"
        cdkDropListGroup>
-
     <div class="hour"
-         *ngFor="let hour of hours, index as i"
+         *ngFor="let hour of hours; index as i"
          cdkDropList
-         [cdkDropListData]="[filterByTime(this.replies, hour)]"
-         cdkDropListConnectedTo="{{hour}}"
+         id="{{hour}}"
+         [cdkDropListData]="filterByTime(this.replies, hour)"
+         [cdkDropListConnectedTo]="hours"
          (cdkDropListDropped)="drop($event)"
-         (mouseenter)="this.hoveredTime= hour"
-         (touchend)="this.hoveredTime= hour">
+         (mouseenter)="this.hoveredTime = hour"
+         (touchend)="this.hoveredTime = hour">
       <h3>{{hour}}</h3>
       <div class="scheduled">
         <mat-card *ngFor="let message of filterByTime(this.replies, hour)"
                   cdkDrag
-                  [cdkDragData]="[message, hour]"
+                  [cdkDragData]="message"
                   [ngClass]="{'not-default-time': !message.defaultTime}">
+
           <mat-card-title align="end"
                           style="height: 0em">
-
             <p matBadge="{{getLocationInitials(message.serviceArea)}}"
                matBadgePosition="below"
                class="badge"
                matTooltip="{{message.serviceArea}}"></p>
-
           </mat-card-title>
           <mat-card-content>
             <div class="reply-layout"
@@ -191,18 +191,23 @@
               <p *ngIf="message.body.length > 2"
                  class="longer-msg"
                  matTooltip="{{ message.body }}">
-                {{ message.body}}
+                {{ message.body }}
               </p>
 
               <p *ngIf="message.body.length <= 2">
-                {{ message.body}}
+                {{ message.body }}
               </p>
             </div>
           </mat-card-content>
         </mat-card>
+        <div *cdkDragPlaceholder
+             class="example-custom-placeholder placeholder"></div>
+
+
       </div>
       <h3 *ngIf="!filterByTime(this.replies, hour).length"
           class="err-msg">Nothing Scheduled at {{hour}}</h3>
     </div>
   </div>
+
 </div>

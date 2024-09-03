@@ -19,9 +19,9 @@ import { SchedulerEditorComponent } from '../scheduler-editor/scheduler-editor.c
 import {
   CdkDragDrop,
   moveItemInArray,
-  transferArrayItem,
   CdkDrag,
   CdkDropList,
+  CdkDragPlaceholder,
 } from '@angular/cdk/drag-drop';
 
 interface Reply {
@@ -64,6 +64,7 @@ interface Location {
     SchedulerEditorComponent,
     CdkDropList,
     CdkDrag,
+    CdkDragPlaceholder,
   ],
   templateUrl: './appointment-scheduler.component.html',
   styleUrl: './appointment-scheduler.component.scss',
@@ -82,8 +83,6 @@ export class AppointmentSchedulerComponent implements OnInit {
   appointment: any;
   panelType = '';
   petsWithLocations: any;
-  repliesByHours: any[] = [];
-  notScheduledReplies: any[] = [];
   hoveredTime: string | null = null;
 
   constructor(
@@ -105,10 +104,6 @@ export class AppointmentSchedulerComponent implements OnInit {
       this.hours.push(`${i === 12 ? 12 : i - 12}:45 PM`);
     }
     this.hours.push(`9:00 PM`);
-
-    // this.hours.forEach((hour) => {
-    //   this.repliesByHours.push(this.filterByTime(this.replies, hour));
-    // });
   }
   ngOnInit(): void {
     this.DataService.petsWithLocation$.subscribe((response) => {
@@ -187,6 +182,44 @@ export class AppointmentSchedulerComponent implements OnInit {
     return matchingReplies;
   }
 
+  filterAndRemoveByTime(time: string | null): any[] {
+    let matchingReplies: any[] = [];
+    let repliesWithMatchingTime: any[];
+
+    if (time == '' && this.replies.length) {
+      return (repliesWithMatchingTime = this.replies.filter(
+        (reply) => reply['time'] == null
+      ));
+    }
+
+    this.replies.forEach((location) => {
+      Object.values(location).forEach((area: any) => {
+        if (area && area.replies.length) {
+          const [repliesWithMatchingTime, remainingReplies] =
+            area.replies.reduce(
+              (
+                acc: { time: string | null }[][],
+                reply: { time: string | null }
+              ) => {
+                if (reply.time === time) {
+                  acc[0].push(reply);
+                } else {
+                  acc[1].push(reply);
+                }
+                return acc;
+              },
+              [[], []] as [{ time: string | null }[], { time: string | null }[]]
+            );
+
+          area.replies = remainingReplies;
+          matchingReplies = matchingReplies.concat(repliesWithMatchingTime);
+        }
+      });
+    });
+
+    return matchingReplies;
+  }
+
   filterBySid(data: Location[], sid: string): Reply[] {
     let matchingReplies: Reply[] = [];
 
@@ -218,39 +251,60 @@ export class AppointmentSchedulerComponent implements OnInit {
   }
 
   drop(event: CdkDragDrop<any[]>) {
-    this.replies = this.replies.map((r) => {
-      return {
-        ...r,
-        ...Object.fromEntries(
-          Object.entries(r).map(([key, rObj]: [string, any]) => {
-            return [
-              key,
-              {
-                ...rObj,
-                replies: rObj.replies.map(
-                  (rArray: { [x: string]: any; sid: any }) => {
-                    if (rArray.sid === event.item.data[0].sid) {
-                      let route = this.appointment.app.route.serviceAreas.find(
-                        (a: { name: any }) => a.name == rArray['serviceArea']
-                      );
-                      return {
-                        ...rArray,
-                        time: this.hoveredTime,
-                        defaultTime: this.hoveredTime == route.time,
-                      };
-                    } else {
-                      return rArray;
-                    }
-                  }
-                ),
-              },
-            ];
-          })
-        ),
-      };
-    });
+    let orgTime = event.item.data.time;
 
-    console.log({ r: this.replies });
+    if (this.hoveredTime == orgTime) {
+      console.log({ event });
+      let data = this.filterAndRemoveByTime(this.hoveredTime);
+      moveItemInArray(data, event.previousIndex, event.currentIndex);
+
+      data.forEach((d) => {
+        // console.log({ s: d.serviceArea });
+        let reply = this.replies.find((r) => {
+          return this.objectKeys(r) == d.serviceArea;
+        });
+        // console.log({ reply });
+
+        reply[d.serviceArea].replies.push(d);
+      });
+
+      // console.log({ data, r: this.replies });
+    } else {
+      console.log({ h: this.hoveredTime });
+      this.replies = this.replies.map((r) => {
+        return {
+          ...r,
+          ...Object.fromEntries(
+            Object.entries(r).map(([key, rObj]: [string, any]) => {
+              return [
+                key,
+                {
+                  ...rObj,
+                  replies: rObj.replies.map(
+                    (rArray: { [x: string]: any; sid: any }) => {
+                      if (rArray.sid === event.item.data.sid) {
+                        let route =
+                          this.appointment.app.route.serviceAreas.find(
+                            (a: { name: any }) =>
+                              a.name == rArray['serviceArea']
+                          );
+                        return {
+                          ...rArray,
+                          time: this.hoveredTime,
+                          defaultTime: this.hoveredTime == route.time,
+                        };
+                      } else {
+                        return rArray;
+                      }
+                    }
+                  ),
+                },
+              ];
+            })
+          ),
+        };
+      });
+    }
   }
 
   // onDrop(event: any, time: any) {
