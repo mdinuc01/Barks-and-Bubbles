@@ -1,26 +1,44 @@
-.layout {
+.layout-expanded {
   display: grid;
-  grid-template-columns: 1fr 3fr;
+  grid-template-columns: 1.15fr 3fr;
+  gap: 1em;
+  height: 90dvh;
+}
+
+.layout-collapsed {
+  display: grid;
+  grid-template-columns: 5em 3fr;
+  gap: 1em;
+  height: 90dvh;
+}
+
+.app-title {
+  display: flex;
+  justify-content: center;
+}
+
+.app-title-collapsed {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-around !important;
+  height: 100%;
 }
 
 .reply-list {
-  width: 95%;
-  height: 80.5vh;
+  height: 95%;
   padding: 2em;
   margin: 1em;
 }
-.message-list {
-  width: 35em;
-  height: 80.5vh;
+.client-list {
+  width: 100%;
+  height: 95%;
   padding: 2em;
   margin: 1em;
 
   mat-card-title {
     display: flex;
-
-    button {
-      margin-left: 1em;
-    }
+    justify-content: space-between;
   }
 
   h4 {
@@ -44,7 +62,6 @@
 }
 
 .location-layout {
-  height: 70vh;
   overflow-y: scroll;
 }
 
@@ -56,7 +73,7 @@
 }
 
 .rotate-image {
-  animation: rotate 1s linear infinite; /* Adjust the duration (5s) as needed */
+  animation: rotate 1s linear infinite;
 }
 
 @keyframes rotate {
@@ -70,7 +87,7 @@
 
 .messages-layout {
   overflow-y: scroll;
-  height: 60vh;
+  height: 60dvh;
 }
 
 .client-name {
@@ -103,14 +120,16 @@
 
 .sent {
   background-color: #dcf8c6;
+  left: 15vw;
 }
 
 .unsent {
   background-color: #f8c6c6;
+  left: 15vw;
 }
 .received {
   background-color: #e0e0e0;
-  left: 22vw;
+  left: 35vw;
 }
 
 .panel-container {
@@ -160,57 +179,58 @@
   padding: 1em 0 0.5em 0;
 }
 
-@media only screen and (min-width: 1366px) and (min-height: 1024px) {
-  .client-cards-container {
-    display: grid;
-    grid-template-columns: repeat(1, 1fr) !important;
-    justify-items: center;
-  }
+// @media only screen and (min-width: 1366px) and (min-height: 1024px) {
+//   .client-cards-container {
+//     display: grid;
+//     grid-template-columns: repeat(1, 1fr) !important;
+//     justify-items: center;
+//   }
 
-  .message-list {
-    width: 22em;
-    height: 66em;
-  }
+//   .client-list {
+//     height: 94%;
+//     max-height: 50em;
+//   }
 
-  .location-layout {
-    height: 58em;
-  }
+//   .reply-list {
+//     // height: 94%;
+//     max-height: 50em;
+//   }
 
-  .reply-list {
-    height: 66em;
-  }
+//   .messages-layout {
+//     height: 55em;
+//   }
+// }
 
-  .messages-layout {
-    height: 55em;
-  }
-}
+// @media only screen and (min-width: 1024px) and (min-height: 1366px) {
+//   .client-cards-container {
+//     display: grid;
+//     grid-template-columns: repeat(1, 1fr) !important;
+//     justify-items: center;
+//   }
 
-@media only screen and (min-width: 1024px) and (min-height: 1366px) {
-  .client-cards-container {
-    display: grid;
-    grid-template-columns: repeat(1, 1fr) !important;
-    justify-items: center;
-  }
+//   .client-list {
+//     width: 22em;
+//     height: 90em;
+//   }
 
-  .message-list {
-    width: 22em;
-    height: 90em;
-  }
+//   .location-layout {
+//     height: 83em;
+//   }
 
-  .location-layout {
-    height: 83em;
-  }
+//   .reply-list {
+//     height: 90em;
+//   }
 
-  .reply-list {
-    height: 90em;
-  }
-
-  .messages-layout {
-    height: 80em;
-  }
-}
+//   .messages-layout {
+//     height: 80em;
+//   }
+// }
 
 .err-list {
   font-weight: 400;
   font-size: smaller;
+}
+
+.mat-mdc-card-content:last-child {
+  padding-bottom: 0 !important;
 }

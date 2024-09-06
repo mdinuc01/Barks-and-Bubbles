@@ -1,9 +1,9 @@
 .hours {
   display: flex;
   flex-direction: column;
-  height: 59vh;
   overflow-y: scroll;
   margin: 1em;
+  min-width: 15em;
 }
 
 .hour {
@@ -32,12 +32,12 @@
   display: grid;
   grid-template-columns: 1fr 3fr;
   background-color: #f0f0f0;
-  height: 62vh;
+  height: 60dvh;
 }
 
 .replies-container {
-  height: 59vh;
-  width: 17em;
+  width: 75%;
+  min-width: 20em;
   overflow-y: scroll;
   border-radius: 3px;
   display: flex;
@@ -88,35 +88,39 @@ h2 {
   display: flex;
   align-items: center;
   justify-content: center;
-}
 
-@media only screen and (min-width: 1366px) and (min-height: 1024px) {
-  .layout {
-    height: 55em;
-  }
-
-  .replies-container {
-    height: 53em !important;
-  }
-
-  .hours {
-    height: 53em !important;
+  h3 {
+    margin-right: auto;
   }
 }
 
-@media only screen and (min-width: 1024px) and (min-height: 1366px) {
-  .layout {
-    height: 79em;
-  }
+// @media only screen and (min-width: 1366px) and (min-height: 1024px) {
+//   .layout {
+//     height: 55em;
+//   }
 
-  .replies-container {
-    height: 77em !important;
-  }
+//   .replies-container {
+//     height: 53em !important;
+//   }
 
-  .hours {
-    height: 77em !important;
-  }
-}
+//   .hours {
+//     height: 53em !important;
+//   }
+// }
+
+// @media only screen and (min-width: 1024px) and (min-height: 1366px) {
+//   .layout {
+//     height: 79em;
+//   }
+
+//   .replies-container {
+//     height: 77em !important;
+//   }
+
+//   .hours {
+//     height: 77em !important;
+//   }
+// }
 
 .location-circle {
   height: 1em;
@@ -177,7 +181,7 @@ h2 {
   display: flex;
   align-items: center;
   justify-content: space-around;
-  width: 10em;
+  width: 12em;
   padding-top: 1.5em;
 
   div {
@@ -197,17 +201,9 @@ h2 {
 
 .scheduled {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   gap: 0.75em;
   margin-bottom: 0.5em;
-}
-
-mat-card {
-  cursor: move;
-  height: 11em;
-  width: 14em;
-  overflow: hidden !important;
-  position: relative;
 }
 
 .no-time-msg {
@@ -226,7 +222,7 @@ mat-card {
   border-radius: 1em;
   border: 1px solid #ededed;
   position: absolute;
-  left: 24em;
+  right: 4dvw;
   z-index: 201;
   box-shadow: 3px 3px 3px #afafaf;
   height: 30em;
@@ -235,28 +231,49 @@ mat-card {
   padding: 0 0.5em 0.5em 0.5em;
 }
 
-.cdk-drag-preview {
-  box-sizing: border-box;
-  border-radius: 4px;
-  box-shadow: 0 5px 5px -3px rgba(0, 0, 0, 0.2),
-    0 8px 10px 1px rgba(0, 0, 0, 0.14), 0 3px 14px 2px rgba(0, 0, 0, 0.12);
+.mat-card {
+  position: relative; /* Ensure the mat-card is relative to contain the arrows */
+  transition: box-shadow 0.3s ease;
+  padding: 10px;
+  cursor: pointer;
+  max-width: 17em;
 }
 
-.cdk-drag-animating {
-  transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
+/* Active card styling */
+.mat-card.activeOne {
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.3); /* Example shadow for active card */
+  background-color: #c2fcd2 !important;
 }
 
-.example-box:last-child {
-  border: none;
+.mat-card.activeTwo {
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.3); /* Example shadow for active card */
+  background-color: #c2ecfc !important;
 }
 
-.hour.cdk-drop-list-dragging .example-box:not(.cdk-drag-placeholder) {
-  transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
+.active-badge-one {
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.3); /* Example shadow for active card */
+  background-color: #c2fcd2 !important;
+
+  .mat-badge-content {
+    background: #73f999;
+  }
 }
 
-.example-custom-placeholder {
-  background: #ccc;
-  border: dotted 3px #999;
-  min-height: 60px;
-  transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
+.active-badge-two {
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.3); /* Example shadow for active card */
+  background-color: #c2ecfc !important;
+
+  .mat-badge-content {
+    background: #68cbf3;
+  }
+}
+
+.format-layout {
+  display: flex;
+  margin-right: auto;
+  width: 10%;
+  min-width: 8em;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
 }

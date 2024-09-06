@@ -84,6 +84,9 @@ export class AppointmentSchedulerComponent implements OnInit {
   panelType = '';
   petsWithLocations: any;
   hoveredTime: string | null = null;
+  firstActiveCard: number | null = null;
+  secondActiveCard: number | null = null;
+  hourToSwitch: string | null = null;
 
   constructor(
     private ToastService: ToastService,
@@ -448,7 +451,64 @@ export class AppointmentSchedulerComponent implements OnInit {
     return initials.substring(0, 2);
   }
 
-  showMover() {
-    console.log('Show mover');
+  toggleActiveCard(index: number, hour: string): void {
+    if (this.hourToSwitch !== hour) {
+      this.firstActiveCard = index;
+      this.secondActiveCard = null;
+      this.hourToSwitch = hour;
+      return;
+    }
+
+    if (this.firstActiveCard === index) {
+      this.firstActiveCard = null;
+      return;
+    }
+    if (this.secondActiveCard === index) {
+      this.secondActiveCard = null;
+      return;
+    }
+
+    if (this.firstActiveCard == null) {
+      this.firstActiveCard = index;
+    } else {
+      this.secondActiveCard = index;
+    }
+  }
+
+  switchReplies(): void {
+    // Ensure both indexes are defined
+    if (this.firstActiveCard == null || this.secondActiveCard == null) {
+      console.error('Active card indexes must be defined');
+      return;
+    }
+
+    // Get the array using filterByTime
+    const arrayToModify = this.filterByTime(this.replies, this.hourToSwitch);
+
+    // Ensure the indices are within bounds
+    if (
+      this.firstActiveCard < 0 ||
+      this.secondActiveCard < 0 ||
+      this.firstActiveCard >= arrayToModify.length ||
+      this.secondActiveCard >= arrayToModify.length
+    ) {
+      console.error('Invalid indices for swap operation');
+      return;
+    }
+
+    let data = this.filterAndRemoveByTime(this.hourToSwitch);
+    console.log({ data });
+    moveItemInArray(data, this.firstActiveCard, this.secondActiveCard);
+    data.forEach((d) => {
+      let reply = this.replies.find((r) => {
+        return this.objectKeys(r) == d.serviceArea;
+      });
+
+      reply[d.serviceArea].replies.push(d);
+    });
+
+    this.hourToSwitch = null;
+    this.firstActiveCard = null;
+    this.secondActiveCard = null;
   }
 }

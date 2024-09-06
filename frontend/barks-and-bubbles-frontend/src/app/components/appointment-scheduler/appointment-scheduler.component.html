@@ -1,4 +1,29 @@
 <div class="title-layout">
+
+  <h3 class="mat-primary-title">Selected Time: {{hoveredTime ? hoveredTime: "Unscheduled"}}</h3>
+
+  <div *ngIf="firstActiveCard != null && secondActiveCard != null"
+       class="format-layout">
+    <p matBadge="1"
+       class="active-badge-one"></p>
+
+    <mat-icon>arrow_right_alt</mat-icon>
+    <p matBadge="2"
+       class="active-badge-two"
+       color="green"></p>
+
+  </div>
+
+  <button *ngIf="firstActiveCard != null && secondActiveCard != null"
+          mat-icon-button
+          matTooltip="Switch Selected Replies"
+          [color]="'accent'"
+          (click)="switchReplies()">
+    <mat-icon class="mat-accent-icon-btn">
+      move_up
+    </mat-icon>
+  </button>
+
   <button mat-icon-button
           (click)="saveReplies(true)"
           color="primary"
@@ -164,28 +189,31 @@
          (mouseenter)="this.hoveredTime = hour"
          (touchend)="this.hoveredTime = hour">
       <h3>{{hour}}</h3>
-      <div class="scheduled">
-        <mat-card *ngFor="let message of filterByTime(this.replies, hour)"
+      <div class="scheduled card-wrapper">
+        <mat-card *ngFor="let message of filterByTime(this.replies, hour); index as j"
                   cdkDrag
+                  class="mat-card"
                   [cdkDragData]="message"
-                  [ngClass]="{'not-default-time': !message.defaultTime}">
+                  [ngClass]="{'activeOne': firstActiveCard === j && hourToSwitch == hour, 'activeTwo': secondActiveCard === j && hourToSwitch == hour,'not-default-time': !message.defaultTime}"
+                  (click)="toggleActiveCard(j, hour)">
 
           <mat-card-title align="end"
                           style="height: 0em">
-            <p matBadge="{{getLocationInitials(message.serviceArea)}}"
+            <p matBadge="{{ getLocationInitials(message.serviceArea) }}"
                matBadgePosition="below"
                class="badge"
-               matTooltip="{{message.serviceArea}}"></p>
+               matTooltip="{{ message.serviceArea }}"></p>
           </mat-card-title>
+
           <mat-card-content>
             <div class="reply-layout"
                  style="margin-bottom: 1em;">
               <div>
                 <mat-icon>pets</mat-icon>
-                <p>{{message.petName}}</p>
+                <p>{{ message.petName }}</p>
 
                 <mat-icon>face</mat-icon>
-                <p>{{message.petParentName}}</p>
+                <p>{{ message.petParentName }}</p>
               </div>
 
               <p *ngIf="message.body.length > 2"
@@ -200,11 +228,8 @@
             </div>
           </mat-card-content>
         </mat-card>
-        <div *cdkDragPlaceholder
-             class="example-custom-placeholder placeholder"></div>
-
-
       </div>
+
       <h3 *ngIf="!filterByTime(this.replies, hour).length"
           class="err-msg">Nothing Scheduled at {{hour}}</h3>
     </div>
