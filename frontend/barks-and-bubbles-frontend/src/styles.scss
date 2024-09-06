@@ -1,6 +1,10 @@
 /* You can add global styles to this file, and also import other style files */
 @use "@angular/material" as mat;
 
+* {
+  box-sizing: border-box;
+}
+
 $my-primary: mat.define-palette(mat.$light-blue-palette, 500);
 $my-accent: mat.define-palette(mat.$orange-palette, A200, A100, A400);
 $my-warn: mat.define-palette(mat.$red-palette);
@@ -101,7 +105,8 @@ $my-theme: mat.define-light-theme(
   color: white !important;
 }
 
-.mat-primary-icon {
+.mat-primary-icon,
+.mat-primary-title {
   color: mat.get-color-from-palette($my-primary, 500) !important;
 }
 
@@ -110,7 +115,7 @@ $my-theme: mat.define-light-theme(
   height: 100%;
 }
 
-.default-time {
+.not-default-time {
   background-color: mat.get-color-from-palette($my-accent, 100) !important;
 }
 

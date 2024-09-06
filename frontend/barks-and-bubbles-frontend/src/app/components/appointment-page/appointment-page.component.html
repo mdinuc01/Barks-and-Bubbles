@@ -1,10 +1,51 @@
-<div class="layout"
+<div [ngClass]="{'layout-collapsed': !showClients, 'layout-expanded': showClients}"
      (click)="this.togglePanel($event, true)">
-  <mat-card class="message-list">
+  <mat-card class="client-list">
     <mat-card-title
-                    *ngIf="this.appointment && this.appointment.app && this.appointment.app.date && this.appointment.app.route">
-      <h2>{{this.appointment.app.route.name}}&nbsp;</h2>
-      <h2 [innerHTML]="this.DataService.formatDate(this.appointment.app.date ,false, false)">TITLE PLACEHOLDER</h2>
+                    *ngIf="this.appointment && showClients && this.appointment.app && this.appointment.app.date && this.appointment.app.route">
+      <div>
+        <button mat-icon-button
+                color="primary"
+                matTooltip="Send Appointment Texts"
+                (click)="openPanel()"
+                [disabled]="this.appointment.app.messages && this.appointment.app.messages.sentDate">
+          <mat-icon>
+            <span class="material-symbols-outlined">
+              outgoing_mail
+            </span>
+          </mat-icon>
+        </button>
+
+        <button mat-icon-button
+                matTooltip="Edit Messages"
+                (click)="openMsgPanel()">
+          <mat-icon class="mat-accent-icon-btn">chat</mat-icon>
+        </button>
+      </div>
+
+      <div>
+        <button mat-icon-button
+                color="primary"
+                matTooltip='{{showClients ? "Collapse Client Panel" : "Expand Client Panel"}}'
+                (click)="showClients = !showClients">
+          <mat-icon>
+            {{ showClients ? "arrow_back_ios": "arrow_forward_ios" }}
+          </mat-icon>
+        </button>
+      </div>
+    </mat-card-title>
+
+    <mat-card-title class="app-title-collapsed"
+                    *ngIf="this.appointment && !showClients && this.appointment.app && this.appointment.app.date && this.appointment.app.route">
+      <button mat-icon-button
+              color="primary"
+              matTooltip='{{showClients ? "Collapse Client Panel" : "Expand Client Panel"}}'
+              (click)="showClients = !showClients">
+        <mat-icon>
+          {{ showClients ? "arrow_back_ios": "arrow_forward_ios" }}
+        </mat-icon>
+      </button>
+
       <button mat-icon-button
               color="primary"
               matTooltip="Send Appointment Texts"
@@ -24,11 +65,18 @@
       </button>
     </mat-card-title>
 
-    <app-appointment-client-list [appointment]="this.appointment"
+    <app-appointment-client-list *ngIf="showClients"
+                                 [appointment]="this.appointment"
                                  [addToList]='false'></app-appointment-client-list>
   </mat-card>
 
   <mat-card class="reply-list">
+    <mat-card-title class="app-title"
+                    *ngIf="this.appointment && this.appointment.app && this.appointment.app.date && this.appointment.app.route">
+      <h2 class="mat-primary-title">{{this.appointment.app.route.name}} -&nbsp;</h2>
+      <h2 class="mat-primary-title"
+          [innerHTML]="this.DataService.formatDate(this.appointment.app.date ,false, false)">TITLE PLACEHOLDER</h2>
+    </mat-card-title>
     <mat-tab-group mat-align-tabs="start"
                    mat-stretch-tabs="true">
       <mat-tab label="SMS Messages">
