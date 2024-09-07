@@ -397,8 +397,9 @@ export class AppointmentSchedulerComponent implements OnInit {
 
   getLocationInitials(input: string): string {
     // Split the string by spaces to get the words
-    const words = input.split(' ');
+    const words = input.replaceAll('(', '').split(' ');
 
+    words;
     // Map over the words array and get the first letter of each word
     const initials = words.map((word) => word.charAt(0)).join('');
     return initials.substring(0, 2);
