@@ -170,17 +170,17 @@ export class AppointmentSchedulerComponent implements OnInit {
         });
       });
 
-    matchingReplies = matchingReplies.sort((a, b) => {
-      const propA = a.petName.toLowerCase();
-      const propB = b.petName.toLowerCase();
-      if (propA < propB) {
-        return -1;
-      }
-      if (propA > propB) {
-        return 1;
-      }
-      return 0;
-    });
+    // matchingReplies = matchingReplies.sort((a, b) => {
+    //   const propA = a.petName.toLowerCase();
+    //   const propB = b.petName.toLowerCase();
+    //   if (propA < propB) {
+    //     return -1;
+    //   }
+    //   if (propA > propB) {
+    //     return 1;
+    //   }
+    //   return 0;
+    // });
 
     return matchingReplies;
   }
@@ -309,41 +309,6 @@ export class AppointmentSchedulerComponent implements OnInit {
       });
     }
   }
-
-  // onDrop(event: any, time: any) {
-  //   event.preventDefault();
-  //   if (!this.currentReply) return;
-
-  //   let area = this.appointment.app.route.serviceAreas.find(
-  //     (a: { name: any }) => a.name == this.currentReply.serviceArea
-  //   );
-
-  //   let findId = this.currentReply.id;
-
-  //   let reply = this.filterBySid(this.replies, this.currentReply.sid)[0];
-  //   let client: any; // Initialize client variable
-
-  //   this.petsWithLocations.forEach((p: { [key: string]: any[] }) => {
-  //     // debugger;
-  //     for (const key in p) {
-  //       if (Array.isArray(p[key])) {
-  //         p[key].forEach((pet: any) => {
-  //           if (pet._id === findId) {
-  //             client = pet;
-  //             return client;
-  //           }
-  //         });
-  //       }
-  //     }
-  //   });
-
-  //   if (reply != undefined && client.petParentName) {
-  //     reply.time = time;
-  //     reply.petParentName = client.petParentName;
-  //     reply.defaultTime = area.time == time;
-  //   }
-  //   this.currentReply = null;
-  // }
 
   onDragOver(event: any) {
     event.preventDefault();
