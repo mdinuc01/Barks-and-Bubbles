@@ -51,14 +51,12 @@
      class="card-container scroll">
   <mat-card *ngFor="let client of clientsQry | sort: 'petName' : isAscending">
     <mat-card-header>
-      <mat-card-title style="display: inline-flex;
-      justify-content: space-between;
-      width: 10em; cursor: pointer;">
-        <h2>{{client.petName}}</h2>
+      <mat-card-title>
         <mat-icon matTooltip="{{client.active ? 'Deactivate Client' : 'Activate Client'}}"
                   [ngClass]="{'mat-success-btn': client.active, 'mat-danger-btn': !client.active}"
                   (click)="updateStatus(client._id, !client.active)">{{client.active ?
           "mark_email_read" : "unsubscribe"}}</mat-icon>
+        <h2>{{client.petName}}</h2>
       </mat-card-title>
     </mat-card-header>
 

@@ -1,13 +1,12 @@
-div {
+.layout {
   display: grid;
-  grid-template-columns: 3fr 1fr;
+  grid-template-columns: 4fr 1fr;
 }
 
 app-client-list,
 app-appointment-list {
   margin-top: 3em;
-  margin-right: 1em;
-  width: 100%;
+  margin-right: 2em;
 }
 
 .btn-layout {
@@ -21,31 +20,17 @@ button {
   margin-top: 1em;
 }
 
-// @media (max-width: 1240px) {
-//   div {
-//     display: grid;
-//     grid-template-columns: repeat(1, 1fr);
-//     grid-template-rows: repeat(2, 45em);
-//   }
-// }
+@media (max-width: 1000px) {
+  .layout {
+    display: grid;
+    grid-template-columns: 1fr;
+    grid-template-rows: repeat(2, 1fr) !important;
+  }
 
-// @media (max-width: 1240px) {
-//   div {
-//     display: grid;
-//     grid-template-columns: repeat(1, 1fr);
-//     grid-template-rows: repeat(2, 45em);
-//   }
-// }
-
-// @media only screen and (min-width: 1366px) and (min-height: 1024px) {
-//   div {
-//     display: grid;
-//     grid-template-columns: repeat(2, 1fr);
-//   }
-
-app-client-list {
-  height: 60em;
-  width: 70em;
-  margin-top: 1.5em;
-  margin-right: 1em;
+  app-client-list,
+  app-appointment-list {
+    margin-top: 3em;
+    margin-right: 2em;
+    padding: 1em;
+  }
 }
