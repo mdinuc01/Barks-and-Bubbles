@@ -170,18 +170,6 @@ export class AppointmentSchedulerComponent implements OnInit {
         });
       });
 
-    // matchingReplies = matchingReplies.sort((a, b) => {
-    //   const propA = a.petName.toLowerCase();
-    //   const propB = b.petName.toLowerCase();
-    //   if (propA < propB) {
-    //     return -1;
-    //   }
-    //   if (propA > propB) {
-    //     return 1;
-    //   }
-    //   return 0;
-    // });
-
     return matchingReplies;
   }
 
