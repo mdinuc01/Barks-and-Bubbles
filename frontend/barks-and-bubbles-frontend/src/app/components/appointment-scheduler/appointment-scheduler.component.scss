@@ -176,6 +176,10 @@ h2 {
   flex-direction: column;
   gap: 1em;
 }
+replies-layout {
+  top: 0;
+  position: sticky;
+}
 
 .reply-layout {
   display: flex;
