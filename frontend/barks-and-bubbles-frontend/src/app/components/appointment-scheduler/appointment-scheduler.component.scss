@@ -177,6 +177,11 @@ h2 {
   gap: 1em;
 }
 
+.replies-layout {
+  top: 0;
+  position: sticky;
+}
+
 .reply-layout {
   display: flex;
   align-items: center;

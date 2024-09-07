@@ -1,12 +1,11 @@
 .appointments-layout {
   display: grid;
-  grid-template-columns: repeat(1, 1fr);
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   overflow-y: scroll;
   margin-top: 0.25em;
+  margin-right: 1em;
   justify-items: end;
-  padding-right: 1em;
-  height: 71vh;
-  width: 30vw;
+  height: 78dvh;
 }
 
 mat-card {
@@ -14,7 +13,7 @@ mat-card {
   padding: 1em;
   height: 11.5em;
   cursor: pointer;
-  width: 13vw;
+  width: 90%;
 
   p {
     overflow: hidden;
@@ -24,9 +23,10 @@ mat-card {
 .appointment-title {
   display: inline-flex;
   justify-content: flex-end;
-  width: 30vw;
+  width: 21dvw;
   flex-wrap: nowrap;
   align-items: center;
+  margin-top: 2.25em;
 
   button {
     bottom: 0.25em;
@@ -37,56 +37,30 @@ mat-card {
   background-color: #c4c4c4;
   color: black;
   border-radius: 1em;
-  height: 75vh;
+  height: 75dvh;
   padding: 4em;
   float: right;
   margin-right: 1em;
   display: flex;
-  width: 16vw;
+  width: 20dvw;
   align-items: center;
   justify-content: space-evenly;
+
+  h2 {
+    text-align: center;
+  }
 }
 
-// @media (max-width: 1460px) {
-//   .appointments-layout {
-//     // grid-template-columns: repeat(1, 1fr);
-//     padding: 1em;
-//     width: 18vw;
-//   }
-// }
+@media (max-width: 1000px) {
+  .appointment-title {
+    width: 75dvw;
+    display: flex;
+    justify-content: flex-end;
+  }
 
-// @media (max-width: 1440px) {
-//   .appointments-layout {
-//     // grid-template-columns: repeat(2, 1fr);
-//     padding: 1em;
-//     width: 30em;
-//   }
-//   .appointment-title {
-//     margin-left: 2em;
-//   }
-
-//   .error-msg {
-//     width: 90vw;
-//   }
-// }
-
-// @media (max-width: 570px) {
-//   .appointments-layout {
-//     // grid-template-columns: repeat(1, 1fr);
-//     padding: 1em;
-//     width: 94vw;
-//   }
-
-//   .appointment-title {
-//     margin-left: 1em;
-//   }
-// }
-
-// @media only screen and (min-width: 1366px) and (min-height: 1024px) {
-//   .appointments-layout {
-//     // grid-template-columns: repeat(2, 1fr);
-//     padding: 1em;
-//     height: 60em;
-//     width: 25em;
-//   }
-// }
+  .error-layout {
+    height: 63dvh;
+    width: 75dvw;
+    margin-right: 15dvw;
+  }
+}

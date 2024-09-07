@@ -1,22 +1,19 @@
 mat-card {
-  width: 20em;
   background-color: white;
   margin-left: 1em;
   padding: 1em;
-  height: 18em;
 }
 
 .card-container {
-  margin-top: 1.5em;
+  padding: 1.5em;
   overflow-y: scroll;
-  height: 70vh;
-  width: 82vw;
+  height: 78dvh;
 }
 
 div {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 0.75em;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1em;
 }
 
 .error-msg {
@@ -33,19 +30,14 @@ div {
   margin-top: 1em;
 }
 
-@media (min-width: 1400px) {
-  mat-card {
-    width: 18em;
-  }
-}
-
 .title-layout {
   display: flex;
   width: 100%;
   height: 2em;
   justify-content: space-around;
-  margin-top: 2em;
-  align-items: center;
+  margin-top: 1em;
+  margin-bottom: 3em;
+  align-items: flex-start;
 }
 
 form {
@@ -54,4 +46,10 @@ form {
   align-items: center;
   justify-content: space-between;
   width: 35vw;
+}
+
+@media (max-width: 1000px) {
+  .card-container {
+    margin-right: 1em;
+  }
 }
