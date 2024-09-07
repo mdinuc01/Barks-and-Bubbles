@@ -170,18 +170,6 @@ export class AppointmentSchedulerComponent implements OnInit {
         });
       });
 
-    // matchingReplies = matchingReplies.sort((a, b) => {
-    //   const propA = a.petName.toLowerCase();
-    //   const propB = b.petName.toLowerCase();
-    //   if (propA < propB) {
-    //     return -1;
-    //   }
-    //   if (propA > propB) {
-    //     return 1;
-    //   }
-    //   return 0;
-    // });
-
     return matchingReplies;
   }
 
@@ -409,8 +397,9 @@ export class AppointmentSchedulerComponent implements OnInit {
 
   getLocationInitials(input: string): string {
     // Split the string by spaces to get the words
-    const words = input.split(' ');
+    const words = input.replaceAll('(', '').split(' ');
 
+    words;
     // Map over the words array and get the first letter of each word
     const initials = words.map((word) => word.charAt(0)).join('');
     return initials.substring(0, 2);
