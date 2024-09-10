@@ -95,11 +95,12 @@ export class ClientListComponent implements OnInit {
     // Initialize filtered clients array with the full list of clients
     this.clientsQry = this.clients;
 
+    if (!this.queryForm.get('clientQuery')) return;
+
     // Retrieve the values from the form controls
     const clientQuery =
-      this.queryForm.get('clientQuery')?.value?.toLowerCase() || '';
+      this.queryForm.get('clientQuery')?.value.toLowerCase() || '';
     const locationQuery = this.queryForm.get('locationQuery')?.value || [];
-
     // Filter by client query if it exists
     if (clientQuery) {
       this.clientsQry = this.clientsQry.filter(
