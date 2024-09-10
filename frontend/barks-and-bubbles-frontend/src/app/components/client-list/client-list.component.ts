@@ -92,7 +92,6 @@ export class ClientListComponent implements OnInit {
   }
 
   filterList() {
-    debugger;
     if (!this.queryForm.get('clientQuery') || !this.clients) return;
     // Initialize filtered clients array with the full list of clients
     this.clientsQry = this.clients;
@@ -105,7 +104,7 @@ export class ClientListComponent implements OnInit {
     if (clientQuery) {
       this.clientsQry = this.clientsQry.filter(
         (c) =>
-          c.petName.toLowerCase().includes(clientQuery) ||
+          (c && c.petName.toLowerCase().includes(clientQuery)) ||
           c.petParentName.toLowerCase().includes(clientQuery) ||
           c.contactMethod.toLowerCase().includes(clientQuery) ||
           c.animalType.toLowerCase().includes(clientQuery) ||
