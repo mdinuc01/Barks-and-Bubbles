@@ -99,7 +99,7 @@ export class ClientListComponent implements OnInit {
     const clientQuery =
       this.queryForm.get('clientQuery')?.value?.toLowerCase() || '';
     const locationQuery = this.queryForm.get('locationQuery')?.value || [];
-
+    console.log({ c: this.clientsQry });
     // Filter by client query if it exists
     if (clientQuery) {
       this.clientsQry = this.clientsQry.filter(
@@ -108,7 +108,6 @@ export class ClientListComponent implements OnInit {
           c.petParentName.toLowerCase().includes(clientQuery) ||
           c.contactMethod.toLowerCase().includes(clientQuery) ||
           c.animalType.toLowerCase().includes(clientQuery) ||
-          c.breed.toLowerCase().includes(clientQuery) ||
           c.address.toLowerCase().includes(clientQuery)
       );
     }
