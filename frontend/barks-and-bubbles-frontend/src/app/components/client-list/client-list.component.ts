@@ -108,8 +108,7 @@ export class ClientListComponent implements OnInit {
           (c && c.petName.toLowerCase().includes(clientQuery)) ||
           c.petParentName.toLowerCase().includes(clientQuery) ||
           c.contactMethod.toLowerCase().includes(clientQuery) ||
-          c.animalType.toLowerCase().includes(clientQuery) ||
-          c.address.toLowerCase().includes(clientQuery)
+          c.animalType.toLowerCase().includes(clientQuery)
       );
     }
 
