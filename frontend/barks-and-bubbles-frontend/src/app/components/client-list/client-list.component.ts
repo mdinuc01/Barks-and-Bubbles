@@ -138,7 +138,8 @@ export class ClientListComponent implements OnInit {
     this.clientsQry = this.clients;
   }
 
-  updateStatus(id: any, status: any) {
+  updateStatus(event: Event, id: any, status: any) {
+    event.stopPropagation();
     this.DataService.updatePetStatus(id, status);
   }
 
