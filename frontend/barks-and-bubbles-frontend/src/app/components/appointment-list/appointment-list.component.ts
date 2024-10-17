@@ -29,10 +29,10 @@ export class AppointmentListComponent implements OnInit {
   archivedDisplayed = false;
 
   constructor(
-    private DataService: DataService,
+    private readonly DataService: DataService,
     public router: Router,
-    private AppointmentFilterPipe: AppointmentFilterPipe,
-    private ToastService: ToastService
+    private readonly AppointmentFilterPipe: AppointmentFilterPipe,
+    private readonly ToastService: ToastService
   ) {
     this.DataService.appointments$.subscribe((res) => {
       if (res.data && res.data.length) {
