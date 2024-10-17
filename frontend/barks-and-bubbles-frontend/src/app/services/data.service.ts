@@ -13,6 +13,9 @@ export class DataService {
     new BehaviorSubject<any>([]);
   private readonly clientsSubject: BehaviorSubject<any> =
     new BehaviorSubject<any>([]);
+  private readonly petSubject: BehaviorSubject<any> = new BehaviorSubject<any>(
+    []
+  );
   private readonly serviceAreaSubject: BehaviorSubject<any> =
     new BehaviorSubject<any>([]);
   private readonly appointmentsSubject: BehaviorSubject<any> =
@@ -29,6 +32,7 @@ export class DataService {
     new BehaviorSubject<any>([]);
   loader$: Observable<any> = this.loaderSubject.asObservable();
   clients$: Observable<any> = this.clientsSubject.asObservable();
+  pet$: Observable<any> = this.petSubject.asObservable();
   serviceAreas$: Observable<any> = this.serviceAreaSubject.asObservable();
   appointments$: Observable<any> = this.appointmentsSubject.asObservable();
   currentAppointment$: Observable<any> = this.appointmentSubject.asObservable();
@@ -229,6 +233,16 @@ export class DataService {
       )
       .subscribe((response) => {
         this.appointmentsSubject.next(response);
+      });
+  }
+
+  getPetById(id: string) {
+    this.http
+      .get(`${this.apiEndPoint}/pet/${id}`, {
+        headers: this.headers,
+      })
+      .subscribe((response) => {
+        this.petSubject.next(response);
       });
   }
 

@@ -14,6 +14,24 @@ class ClientController {
     }
   }
 
+  async getPetById(req, res, next) {
+    try {
+
+      const id = req.params.id;
+      let data = await Pet.findOne({ _id: id, created_by: req.userId });
+
+      if (data)
+        return res.status(200).json({ message: `Client found`, data });
+
+      else
+        return res.status(404).json({ message: `Client not found` });
+
+    } catch (error) {
+      return res.status(500).json({ message: "Internal Server Error", error });
+    }
+
+  }
+
   async createPet(req, res, next) {
     try {
       const { petParentName,
