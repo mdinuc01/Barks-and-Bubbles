@@ -1,6 +1,7 @@
+import { ToastService } from './../../services/toast.service';
 import { subscribe } from 'diagnostics_channel';
 import { DataService } from './../../services/data.service';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import {
   FormControl,
@@ -40,7 +41,8 @@ import { MatSelectModule } from '@angular/material/select';
   templateUrl: './client-page.component.html',
   styleUrl: './client-page.component.scss',
 })
-export class ClientPageComponent implements OnInit {
+export class ClientPageComponent implements OnInit, OnDestroy {
+  id = '';
   client: any;
   clientForm = new FormGroup({
     petParentName: new FormControl(null),
@@ -55,16 +57,21 @@ export class ClientPageComponent implements OnInit {
   breeds: string[] = [];
   filteredBreeds: string[] = [];
   private apiUrl = 'https://dog.ceo/api/breeds/list/all';
-
+  firstLoad = true;
   constructor(
     private readonly DataService: DataService,
     private readonly activatedRoute: ActivatedRoute,
-    private http: HttpClient
+    private http: HttpClient,
+    private readonly ToastService: ToastService
   ) {}
+
   ngOnInit(): void {
     this.DataService.showLoader();
     this.DataService.pet$.subscribe((res) => {
       if (!res.data) return;
+
+      if (res.message === 'Client updated' && !this.firstLoad)
+        this.ToastService.showSuccess('Client Updated Successfully');
 
       this.client = res.data;
       this.clientForm = new FormGroup({
@@ -87,8 +94,8 @@ export class ClientPageComponent implements OnInit {
     });
 
     this.activatedRoute.paramMap.subscribe((paraMap) => {
-      let id = paraMap.get('id')!;
-      this.DataService.getPetById(id);
+      this.id = paraMap.get('id')!;
+      this.DataService.getPetById(this.id);
     });
     this.getBreeds().subscribe((data) => {
       this.breeds = this.flattenBreeds(data.message)
@@ -96,6 +103,12 @@ export class ClientPageComponent implements OnInit {
         .sort();
       this.filteredBreeds = this.breeds;
     });
+
+    this.firstLoad = false;
+  }
+
+  ngOnDestroy(): void {
+    this.firstLoad = true;
   }
 
   getBreeds(): Observable<any> {
@@ -129,5 +142,10 @@ export class ClientPageComponent implements OnInit {
     this.filteredBreeds = this.breeds.filter((breed) =>
       breed.toLowerCase().includes(searchValue)
     );
+  }
+
+  updatePet() {
+    // console.log({ id: this.id, values: this.clientForm.value });
+    this.DataService.updatePet(this.id, this.clientForm.value);
   }
 }

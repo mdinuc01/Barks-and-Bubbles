@@ -11,6 +11,7 @@ router.get('/petsWithLocations/:id', petController.getAllPetsWithLocations);
 
 router.post('/add', petController.createPet);
 router.put('/status', petController.setActivate);
+router.put('/update/:id', petController.updatePet);
 
 
 module.exports = router;

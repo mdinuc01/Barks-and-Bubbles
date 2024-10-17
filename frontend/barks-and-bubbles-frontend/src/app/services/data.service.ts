@@ -246,6 +246,18 @@ export class DataService {
       });
   }
 
+  updatePet(id: string, data: any) {
+    this.http
+      .put<{ data: any }>(
+        `${this.apiEndPoint}/pet/update/${id}`,
+        { data },
+        { headers: this.headers }
+      )
+      .subscribe((response) => {
+        this.petSubject.next(response);
+      });
+  }
+
   updatePetStatus(id: any, status: any) {
     this.http
       .put<{ data: any[] }>(
