@@ -1,0 +1,28 @@
+.layout {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1em;
+  margin: 1em;
+  height: 90dvh;
+}
+
+form {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+}
+
+mat-card {
+  padding: 1em;
+
+  mat-card-title {
+    margin-bottom: 2em;
+  }
+
+  form {
+    gap: 2em;
+  }
+
+  button {
+    grid-column: 1/3;
+  }
+}
