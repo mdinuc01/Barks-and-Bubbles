@@ -1,7 +1,7 @@
 import { ToastService } from './../../services/toast.service';
 import { MatCardModule } from '@angular/material/card';
 import { DataService } from './../../services/data.service';
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { MatTooltipModule } from '@angular/material/tooltip';
