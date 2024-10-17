@@ -1,7 +1,7 @@
 import { ToastService } from './../../services/toast.service';
 import { MatCardModule } from '@angular/material/card';
 import { DataService } from './../../services/data.service';
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { MatTooltipModule } from '@angular/material/tooltip';
@@ -29,10 +29,10 @@ export class AppointmentListComponent implements OnInit {
   archivedDisplayed = false;
 
   constructor(
-    private DataService: DataService,
+    private readonly DataService: DataService,
     public router: Router,
-    private AppointmentFilterPipe: AppointmentFilterPipe,
-    private ToastService: ToastService
+    private readonly AppointmentFilterPipe: AppointmentFilterPipe,
+    private readonly ToastService: ToastService
   ) {
     this.DataService.appointments$.subscribe((res) => {
       if (res.data && res.data.length) {

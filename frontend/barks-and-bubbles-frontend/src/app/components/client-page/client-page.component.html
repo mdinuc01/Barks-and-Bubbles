@@ -1,0 +1,87 @@
+<div class="layout">
+  <mat-card>
+    <mat-card-title>Edit Client</mat-card-title>
+    <mat-card-content>
+      <form [formGroup]="clientForm">
+        <mat-form-field appearance="outline">
+          <mat-label>Pet Name</mat-label>
+          <input matInput
+                 type="text"
+                 formControlName="petName" />
+          <mat-hint>Luna</mat-hint>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Pet Parent</mat-label>
+          <input matInput
+                 type="text"
+                 formControlName="petParentName" />
+          <mat-hint>Jane Doe</mat-hint>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Animal Type</mat-label>
+          <input matInput
+                 type="text"
+                 formControlName="animalType" />
+          <mat-hint>Dog</mat-hint>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Breed</mat-label>
+          <input type="text"
+                 matInput
+                 [matAutocomplete]="auto"
+                 (input)="onSearchChange($event)"
+                 formControlName="breed"
+                 placeholder="Search for a breed">
+          <mat-autocomplete #auto="matAutocomplete"
+                            class="scroll">
+            <mat-option *ngFor="let breed of filteredBreeds"
+                        [value]="breed">
+              {{ breed }}
+            </mat-option>
+          </mat-autocomplete>
+        </mat-form-field>
+
+
+        <mat-form-field appearance="outline">
+          <mat-label>Address</mat-label>
+          <input matInput
+                 type="text"
+                 formControlName="address" />
+          <mat-hint>123 Main Street</mat-hint>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Service Area</mat-label>
+          <input matInput
+                 type="text"
+                 formControlName="serviceArea" />
+          <mat-hint>Holland Center</mat-hint>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Contact Method</mat-label>
+          <input matInput
+                 type="text"
+                 formControlName="contactMethod" />
+          <mat-hint>6472345678</mat-hint>
+        </mat-form-field>
+
+        <span></span>
+
+        <button mat-raised-button
+                color="primary"
+                [disabled]="clientForm.invalid"
+                (click)="updatePet()">Update Pet</button>
+
+      </form>
+    </mat-card-content>
+  </mat-card>
+
+  <mat-card style="padding: 20em">
+    <mat-card-title>WIP....</mat-card-title>
+    <mat-card-content>This space will contain the other functionality for clients eventually</mat-card-content>
+  </mat-card>
+</div>

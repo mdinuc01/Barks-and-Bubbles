@@ -14,6 +14,58 @@ class ClientController {
     }
   }
 
+  async getPetById(req, res, next) {
+    try {
+
+      const id = req.params.id;
+      let data = await Pet.findOne({ _id: id, created_by: req.userId });
+
+      if (data)
+        return res.status(200).json({ message: `Client found`, data });
+
+      else
+        return res.status(404).json({ message: `Client not found` });
+
+    } catch (error) {
+      return res.status(500).json({ message: "Internal Server Error", error });
+    }
+
+  }
+
+  async updatePet(req, res, next) {
+    try {
+
+      const id = req.params.id;
+      const updatedData = req.body.data;
+
+
+
+      let data = await Pet.findOneAndUpdate({ _id: id, created_by: req.userId }, {
+        $set: {
+          'petParentName': updatedData.petParentName,
+          'contactMethod': updatedData.contactMethod,
+          'animalType': updatedData.animalType,
+          'breed': updatedData.breed,
+          'petName': updatedData.petName,
+          'serviceArea': updatedData.serviceArea,
+          'address': updatedData.address,
+          'active': updatedData.active
+        }
+      },
+        { new: true });
+
+      if (data)
+        return res.status(200).json({ message: `Client updated`, data });
+
+      else
+        return res.status(404).json({ message: `Client not found` });
+
+    } catch (error) {
+      return res.status(500).json({ message: "Internal Server Error", error });
+    }
+
+  }
+
   async createPet(req, res, next) {
     try {
       const { petParentName,
