@@ -5,29 +5,28 @@ import { Observable, BehaviorSubject } from 'rxjs';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { environment } from '../../environments/environment';
 import { Router } from '@angular/router';
-import { subscribe } from 'diagnostics_channel';
 import { FormControl, FormGroup } from '@angular/forms';
 
 @Injectable({ providedIn: 'root' })
 export class DataService {
-  private loaderSubject: BehaviorSubject<any> = new BehaviorSubject<any>([]);
-  private clientsSubject: BehaviorSubject<any> = new BehaviorSubject<any>([]);
-  private serviceAreaSubject: BehaviorSubject<any> = new BehaviorSubject<any>(
-    []
-  );
-  private appointmentsSubject: BehaviorSubject<any> = new BehaviorSubject<any>(
-    []
-  );
-  private appointmentSubject: BehaviorSubject<any> = new BehaviorSubject<any>(
-    []
-  );
-  private messageBuilderSubject: BehaviorSubject<any> =
+  private readonly loaderSubject: BehaviorSubject<any> =
     new BehaviorSubject<any>([]);
-  private petsWithLocationsSubject: BehaviorSubject<any> =
+  private readonly clientsSubject: BehaviorSubject<any> =
+    new BehaviorSubject<any>([]);
+  private readonly serviceAreaSubject: BehaviorSubject<any> =
+    new BehaviorSubject<any>([]);
+  private readonly appointmentsSubject: BehaviorSubject<any> =
+    new BehaviorSubject<any>([]);
+  private readonly appointmentSubject: BehaviorSubject<any> =
+    new BehaviorSubject<any>([]);
+  private readonly messageBuilderSubject: BehaviorSubject<any> =
+    new BehaviorSubject<any>([]);
+  private readonly petsWithLocationsSubject: BehaviorSubject<any> =
     new BehaviorSubject<any>([]);
   panelSubject = new BehaviorSubject<boolean>(false);
 
-  private routeSubject: BehaviorSubject<any> = new BehaviorSubject<any>([]);
+  private readonly routeSubject: BehaviorSubject<any> =
+    new BehaviorSubject<any>([]);
   loader$: Observable<any> = this.loaderSubject.asObservable();
   clients$: Observable<any> = this.clientsSubject.asObservable();
   serviceAreas$: Observable<any> = this.serviceAreaSubject.asObservable();
@@ -47,10 +46,10 @@ export class DataService {
   };
 
   constructor(
-    private http: HttpClient,
-    private router: Router,
-    private StorageService: StorageService,
-    private ToastService: ToastService
+    private readonly http: HttpClient,
+    private readonly router: Router,
+    private readonly StorageService: StorageService,
+    private readonly ToastService: ToastService
   ) {
     this.token = this.StorageService.getCookie('aj') ?? '';
     this.headers = new HttpHeaders().set('x-access-token', this.token);
