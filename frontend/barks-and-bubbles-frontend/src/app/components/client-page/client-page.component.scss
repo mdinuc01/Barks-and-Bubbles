@@ -27,10 +27,31 @@ mat-card {
   }
 }
 
+.wip-msg {
+  padding: 20em;
+  background-color: gray;
+  color: white;
+}
+
 @media (max-width: 1000px) {
   .layout {
     display: grid;
     grid-template-columns: 1fr;
     grid-template-rows: repeat(2, 1fr) !important;
+
+    form {
+      display: grid;
+      grid-template-columns: 1fr;
+    }
+
+    mat-card {
+      button {
+        grid-column: 1;
+      }
+    }
+  }
+
+  .wip-msg {
+    padding: 2em;
   }
 }
