@@ -14,6 +14,7 @@ import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { PanelService } from '../../services/panel service/panel-service';
 import { MatDialog } from '@angular/material/dialog';
 import { lastValueFrom } from 'rxjs';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-client-list',
@@ -45,9 +46,10 @@ export class ClientListComponent implements OnInit {
   });
 
   constructor(
-    private DataService: DataService,
-    private ToastService: ToastService,
-    private dialog: MatDialog
+    private readonly DataService: DataService,
+    private readonly ToastService: ToastService,
+    private readonly dialog: MatDialog,
+    private readonly router: Router
   ) {}
 
   ngOnInit(): void {
@@ -95,13 +97,13 @@ export class ClientListComponent implements OnInit {
     if (!this.queryForm.get('clientQuery') || !this.clients) return;
     // Initialize filtered clients array with the full list of clients
     this.clientsQry = this.clients;
-    console.log({ r: this.queryForm.get('clientQuery')?.value?.toLowerCase() });
     // Retrieve the values from the form controls
     const clientQuery =
       this.queryForm.get('clientQuery')?.value?.toLowerCase() || '';
     const locationQuery = this.queryForm.get('locationQuery')?.value || [];
 
     // Filter by client query if it exists
+    //removed breed and address as these values can be null an causes issues
     if (clientQuery) {
       this.clientsQry = this.clientsQry.filter(
         (c) =>
@@ -161,5 +163,9 @@ export class ClientListComponent implements OnInit {
       this.DataService.getAllAppointments();
       this.resetFilter();
     }
+  }
+
+  goToClient(clientId: string) {
+    this.router.navigate(['client/', clientId]);
   }
 }
