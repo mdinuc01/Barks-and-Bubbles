@@ -64,8 +64,9 @@
       <mat-label>Contact Method</mat-label>
       <input matInput
              type="text"
-             formControlName="contactMethod" />
-      <mat-hint>6472345678</mat-hint>
+             formControlName="contactMethod"
+             (input)="this.DataService.formatPhoneNumber(this.petForm)" />
+      <mat-hint>(647) 234-5678</mat-hint>
     </mat-form-field>
 
     <span></span>
