@@ -40,7 +40,7 @@ export class PetFormComponent implements OnInit {
 
   petForm = new FormGroup({
     petParentName: new FormControl(null, [Validators.required]),
-    contactMethod: new FormControl(null, [Validators.required]),
+    contactMethod: new FormControl('', [Validators.required]),
     animalType: new FormControl(null, [Validators.required]),
     breed: new FormControl(null, [Validators.required]),
     petName: new FormControl(null, [Validators.required]),
@@ -52,7 +52,7 @@ export class PetFormComponent implements OnInit {
   breeds: string[] = [];
   filteredBreeds: string[] = [];
 
-  constructor(private DataService: DataService, private http: HttpClient) {}
+  constructor(public DataService: DataService, private http: HttpClient) {}
 
   ngOnInit(): void {
     this.getBreeds().subscribe((data) => {
@@ -64,7 +64,18 @@ export class PetFormComponent implements OnInit {
   }
 
   createClient() {
-    this.DataService.addPet(this.petForm.value);
+    let petValues = this.petForm.value;
+
+    let contactMethod = this.DataService.removeNumberFormat(
+      petValues.contactMethod!
+    );
+
+    petValues = {
+      ...petValues,
+      contactMethod,
+    };
+
+    this.DataService.addPet(petValues);
   }
 
   onCancel(event: Event) {
