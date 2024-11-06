@@ -58,7 +58,7 @@ export class ClientPageComponent implements OnInit, OnDestroy {
   private readonly apiUrl = 'https://dog.ceo/api/breeds/list/all';
   firstLoad = true;
   constructor(
-    private readonly DataService: DataService,
+    public readonly DataService: DataService,
     private readonly activatedRoute: ActivatedRoute,
     private http: HttpClient,
     private readonly ToastService: ToastService
@@ -90,7 +90,7 @@ export class ClientPageComponent implements OnInit, OnDestroy {
         active: new FormControl(res.data.active, Validators.required),
       });
       if (res.data.contactMethod.toLowerCase() !== 'messenger')
-        this.formatPhoneNumber();
+        this.DataService.formatPhoneNumber(this.clientForm);
       this.DataService.hideLoader();
     });
 
@@ -148,65 +148,13 @@ export class ClientPageComponent implements OnInit, OnDestroy {
   updatePet() {
     let updatedValues = this.clientForm.value;
 
-    let contactMethod = this.removeNumberFormat(updatedValues.contactMethod!);
+    let contactMethod = this.DataService.removeNumberFormat(
+      updatedValues.contactMethod!
+    );
     updatedValues = {
       ...updatedValues,
       contactMethod,
     };
     this.DataService.updatePet(this.id, updatedValues);
-  }
-
-  formatPhoneNumber(event?: KeyboardEvent) {
-    const input = this.clientForm.get('contactMethod');
-
-    // Check if `input` exists and has a value
-    if (input && input.value !== null) {
-      const value = input.value as string;
-
-      // If the input contains any letters, do not format
-      if (/[a-zA-Z]/.test(value)) {
-        return; // Exit the function without formatting
-      }
-
-      // Otherwise, remove all non-digit characters
-      let cleaned = value.replace(/\D/g, '');
-
-      // Handle backspace: remove the last digit if Backspace is pressed
-      if (event && event.key === 'Backspace') {
-        cleaned = cleaned.slice(0, -1);
-      }
-
-      // Limit to max of 10 digits
-      if (cleaned.length > 10) {
-        cleaned = cleaned.substring(0, 10);
-      }
-
-      // Format to (###) ###-####
-      let formatted = cleaned;
-      if (cleaned.length > 0) {
-        formatted = `(${cleaned.substring(0, 3)}`;
-        if (cleaned.length >= 4) {
-          formatted += `) ${cleaned.substring(3, 6)}`;
-        }
-        if (cleaned.length >= 7) {
-          formatted += `-${cleaned.substring(6, 10)}`;
-        }
-      }
-
-      // Update the form control value with the formatted phone number
-      input.setValue(formatted, { emitEvent: false });
-    }
-  }
-
-  removeNumberFormat(phoneNumber: string): string {
-    console.log({ phoneNumber });
-
-    // Check if there are no letters in the phone number
-    if (!/[a-zA-Z]/.test(phoneNumber)) {
-      // Assign the result of replace to phoneNumber
-      phoneNumber = phoneNumber.replace(/[^\d]/g, '');
-    }
-
-    return phoneNumber;
   }
 }
