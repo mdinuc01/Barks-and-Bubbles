@@ -175,12 +175,12 @@ export class DataService {
         { headers: this.headers }
       )
       .subscribe((response) => {
-        this.appointmentSubject.next(response);
+        // this.appointmentSubject.next(response);
         this.loaderSubject.next(false);
-        this.getPetsWithLocations(appId);
-        setTimeout(() => {
-          this.loadReplies(appId, response.data.app.messages.sentDate);
-        }, 5 * 1000);
+        // this.getPetsWithLocations(appId);
+        // setTimeout(() => {
+        //   this.loadReplies(appId, response.data.app.messages.sentDate);
+        // }, 5 * 1000);
       });
   }
 
