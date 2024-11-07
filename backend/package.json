@@ -26,6 +26,7 @@
     "node-json-db": "^2.3.0",
     "nodemailer": "^6.9.14",
     "nodemon": "^3.1.0",
+    "osascript": "^1.2.0",
     "twilio": "^4.19.0"
   }
 }
