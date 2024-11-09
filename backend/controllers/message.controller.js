@@ -4,7 +4,8 @@ const Appointment = require('../models/Appointment.js');
 const SMSUtils = require('../utils/SMSUtils.js');
 const nodemailer = require("nodemailer");
 const Builder = require('../models/MessageBuilder.js');
-const osascript = require('osascript').eval;
+const osascript = require('osascript').file;
+const os = require('os');
 
 class MessageController {
 
@@ -20,97 +21,63 @@ class MessageController {
       let messageObj = await Builder.findOne({ "name": "First Message" });
       let generatedMessages = [];
 
-      //sending messages and populating message array for response retrieval
+      // Populate generatedMessages with the appropriate data
       if (pets.length) {
         pets.forEach(async (pet) => {
           if (!pet.active || !pet.contactMethod || !isValidPhoneNumber(pet.contactMethod)) return;
 
           if (app && areas.includes(pet.serviceArea)) {
-
-            //*Console logs for testing users to send message to
             let messageText = new Message(pet, date, 0, messageObj.message).createMessage();
-            generatedMessages.push({ message: messageText, phoneNumber: pet.contactMethod })
-            // console.log(messageText + "\n");
-            // SMSUtils.sendText(pet, date, messageObj.message);
-            // clientSentTo.push({ id: pet.id, contactMethod: pet.contactMethod, petName: pet.petName, petParentName: pet.petParentName, serviceArea: pet.serviceArea });
-
+            generatedMessages.push({ message: messageText, phoneNumber: pet.contactMethod });
           }
         });
-        // app = await Appointment.findOneAndUpdate(
-        //   { _id: appId },
-        //   {
-        //     $set: {
-        //       'messages.sentTo': clientSentTo,
-        //       'messages.sentDate': sentDate
-        //     }
-        //   },
-        //   { new: true }
-        // ).populate('route', 'serviceAreas');
 
-        // areas = app.route.serviceAreas.map((a) => a.name);
-
-        // const location = areas.map(locationVal => {
-        //   const clientsInLocation = pets.filter(client => client.serviceArea === locationVal);
-        //   return { [locationVal]: clientsInLocation };
-        // });
-
-        // let meta = areas;
-        // const data = { app: app, location, meta };
-
-        // let appData;
-        // let response;
-
-        // do {
-        //   response = await fetchReplies(sentDate, appId);
-        //   appData = response.app;
-        // } while (!verifyAppData(appData));
-
-        // if (verifyAppData(appData)) {
-        //   sendEmailUpdate(date, appData);
-        // }
-        let data = { messages: generatedMessages }
-
-        const appleScript = `
-        set messageData to "${generatedMessages}"
-        set messagesList to (do shell script "echo " & quoted form of messageData)
-        set failedMessages to {}
-    
-        tell application "Messages"
-          activate
-          repeat with messageInfo in messagesList
-            try
-              set phoneNumber to item 1 of messageInfo
-              set messageText to item 2 of messageInfo
-              set targetService to 1st service whose service type = iMessage
-              set targetBuddy to buddy phoneNumber of targetService
-              send messageText to targetBuddy
-            on error
-              set end of failedMessages to {phoneNumber:phoneNumber, message:messageText}
-            end try
-          end repeat
-        end tell
-    
-        return failedMessages
-      `;
+        let data = { messages: generatedMessages };
         let message = '';
 
-        osascript(appleScript, (err, result) => {
-          if (err) {
-            message = "Failed to send messages:" + err;
-            console.error("Failed to send messages:", err);
+        // Run only on macOS
+        if (os.platform() === 'darwin') {
+          const appleScript = `
+            set messageData to "${generatedMessages}"
+            set messagesList to (do shell script "echo " & quoted form of messageData)
+            set failedMessages to {}
 
-          } else if (result && result.length > 0) {
-            message = "Some messages failed to send:" + result;
-            console.log("Some messages failed to send:", result);
-          } else {
-            message = "All messages sent successfully!";
-            console.log("All messages sent successfully!");
-          }
-        });
+            tell application "Messages"
+              activate
+              repeat with messageInfo in messagesList
+                try
+                  set phoneNumber to item 1 of messageInfo
+                  set messageText to item 2 of messageInfo
+                  set targetService to 1st service whose service type = iMessage
+                  set targetBuddy to buddy phoneNumber of targetService
+                  send messageText to targetBuddy
+                on error
+                  set end of failedMessages to {phoneNumber:phoneNumber, message:messageText}
+                end try
+              end repeat
+            end tell
+
+            return failedMessages
+          `;
+
+          await osascript(appleScript, function (err, result) {
+            if (err) {
+              message = "Failed to send messages:" + err;
+            } else if (result && result.length > 0) {
+              message = "Some messages failed to send:" + result;
+            } else {
+              message = "All messages sent successfully!";
+            }
+          });
+        } else {
+          message = "Messaging functionality is only supported on macOS.";
+          // console.warn("Messaging functionality is only supported on macOS.");
+        }
 
         return res.status(200).json({ message, data });
       }
     } catch (error) {
+      console.log({ error });
       return res.status(500).json({ message: "Internal Server Error", error });
     }
   }
