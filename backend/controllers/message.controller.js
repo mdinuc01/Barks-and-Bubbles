@@ -44,10 +44,11 @@ class MessageController {
       } else {
         return res.status(404).json({ message: "No pets or appointment data found." });
       }
+      console.log({os})
   
-      if (os.platform() !== 'darwin') {
-        return res.status(500).json({ message: "Messaging is only supported on macOS." });
-      }
+      // if (os.platform() !== 'darwin') {
+      //   return res.status(500).json({ message: "Messaging is only supported on macOS." });
+      // }
   
       
       // Create an array of promises for all script executions
