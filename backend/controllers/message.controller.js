@@ -4,83 +4,86 @@ const Appointment = require('../models/Appointment.js');
 const SMSUtils = require('../utils/SMSUtils.js');
 const nodemailer = require("nodemailer");
 const Builder = require('../models/MessageBuilder.js');
-const osascript = require('osascript').file;
+const fs = require('fs');
+const path = require('path');
 const os = require('os');
+const osascript = require('osascript');
 
 class MessageController {
 
   async sendMessage(req, res, next) {
-    try {
-      let date = req.body.date;
-      let appId = req.body.appId;
-      let pets = await Pet.find({ created_by: req.userId });
-      let clientSentTo = [];
-      let sentDate = new Date();
-      let app = await Appointment.findOne({ _id: appId }).populate('route', 'serviceAreas');
-      let areas = app.route.serviceAreas.map((a) => a.name);
-      let messageObj = await Builder.findOne({ "name": "First Message" });
-      let generatedMessages = [];
-
-      // Populate generatedMessages with the appropriate data
-      if (pets.length) {
-        pets.forEach(async (pet) => {
-          if (!pet.active || !pet.contactMethod || !isValidPhoneNumber(pet.contactMethod)) return;
-
-          if (app && areas.includes(pet.serviceArea)) {
-            let messageText = new Message(pet, date, 0, messageObj.message).createMessage();
-            generatedMessages.push({ message: messageText, phoneNumber: pet.contactMethod });
+    try {    
+      const templatePath = path.join(__dirname, '..', 'scripts', 'sendMessageTemplate.scpt');
+      let message = "All messages sent successfully!";
+    
+      // If AppleScript Template Cannot be retrieved
+      if (!fs.existsSync(templatePath)) {
+        return res.status(500).json({ message: "AppleScript template file not found." });
+      }
+  
+      const { date, appId } = req.body;
+      const pets = await Pet.find({ created_by: req.userId });
+      const app = await Appointment.findOne({ _id: appId }).populate('route', 'serviceAreas');
+      const areas = app?.route?.serviceAreas.map(a => a.name) || [];
+      const messageObj = await Builder.findOne({ name: "First Message" });
+      const generatedMessages = [];
+  
+      if (pets.length && app) {
+        pets.forEach(pet => {
+          if (pet.active && pet.contactMethod && isValidPhoneNumber(pet.contactMethod) && areas.includes(pet.serviceArea)) {
+            const messageText = new Message(pet, date, 0, messageObj.message).createMessage();
+            if (messageText?.trim()) {
+              generatedMessages.push({ message: messageText, phoneNumber: pet.contactMethod });
+            }
           }
         });
-
-        let data = { messages: generatedMessages };
-        let message = '';
-
-        // Run only on macOS
-        if (os.platform() === 'darwin') {
-          const appleScript = `
-            set messageData to "${generatedMessages}"
-            set messagesList to (do shell script "echo " & quoted form of messageData)
-            set failedMessages to {}
-
-            tell application "Messages"
-              activate
-              repeat with messageInfo in messagesList
-                try
-                  set phoneNumber to item 1 of messageInfo
-                  set messageText to item 2 of messageInfo
-                  set targetService to 1st service whose service type = iMessage
-                  set targetBuddy to buddy phoneNumber of targetService
-                  send messageText to targetBuddy
-                on error
-                  set end of failedMessages to {phoneNumber:phoneNumber, message:messageText}
-                end try
-              end repeat
-            end tell
-
-            return failedMessages
-          `;
-
-          await osascript(appleScript, function (err, result) {
-            if (err) {
-              message = "Failed to send messages:" + err;
-            } else if (result && result.length > 0) {
-              message = "Some messages failed to send:" + result;
-            } else {
-              message = "All messages sent successfully!";
-            }
-          });
-        } else {
-          message = "Messaging functionality is only supported on macOS.";
-          // console.warn("Messaging functionality is only supported on macOS.");
+  
+        if (generatedMessages.length === 0) {
+          return res.status(400).json({ message: "No valid messages to send." });
         }
-
-        return res.status(200).json({ message, data });
+      } else {
+        return res.status(404).json({ message: "No pets or appointment data found." });
       }
+  
+      if (os.platform() !== 'darwin') {
+        return res.status(500).json({ message: "Messaging is only supported on macOS." });
+      }
+  
+      
+      // Create an array of promises for all script executions
+      const scriptPromises = generatedMessages.map(async ({ message: messageText, phoneNumber }) => {
+        const templateScript = fs.readFileSync(templatePath, 'utf8');
+        const scriptContent = templateScript
+          .replace("{PHONE_NUMBER}", phoneNumber)
+          .replace("{MESSAGE_TEXT}", messageText.replace(/"/g, '\\"')); // Escape double quotes properly
+  
+        try {
+          // Use osascript.eval to execute the AppleScript directly as a string
+          await new Promise((resolve, reject) => {
+            osascript.eval(scriptContent, { type: 'AppleScript' }, (err, result) => {
+              if (err) {
+                reject(err);
+              } else {
+                resolve(result);
+              }
+            });
+          });
+        } catch (err) {
+          console.log("Error sending message:", err);
+          message = "Some messages failed to send.";
+        }
+      });
+  
+      // Wait for all scripts to execute
+      await Promise.all(scriptPromises);
+  
+      return res.status(200).json({ message, data: { messages: generatedMessages } });
     } catch (error) {
-      console.log({ error });
+      console.error({ error });
       return res.status(500).json({ message: "Internal Server Error", error });
     }
   }
+  
 
   async sendReplies(req, res, next) {
     try {
