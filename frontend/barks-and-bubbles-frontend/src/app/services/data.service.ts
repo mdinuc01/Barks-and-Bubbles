@@ -175,6 +175,7 @@ export class DataService {
         { headers: this.headers }
       )
       .subscribe((response) => {
+        console.log({response})
         this.appointmentSubject.next(response);
         this.loaderSubject.next(false);
         this.getPetsWithLocations(appId);
