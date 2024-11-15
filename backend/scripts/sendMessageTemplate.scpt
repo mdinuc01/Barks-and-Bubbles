@@ -14,7 +14,7 @@ tell application "Messages"
   end try
 
   -- Delay to ensure iMessage sends or fails
-  delay 5
+  delay 10
 
   -- Attempt to send via SMS regardless of iMessage outcome
   try
