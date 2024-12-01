@@ -101,7 +101,6 @@ export class ClientListComponent implements OnInit {
     const clientQuery =
       this.queryForm.get('clientQuery')?.value?.toLowerCase() || '';
     const locationQuery = this.queryForm.get('locationQuery')?.value || [];
-
     // Filter by client query if it exists
     //removed breed and address as these values can be null an causes issues
     if (clientQuery) {
@@ -110,7 +109,8 @@ export class ClientListComponent implements OnInit {
           (c && c.petName.toLowerCase().includes(clientQuery)) ||
           c.petParentName.toLowerCase().includes(clientQuery) ||
           c.contactMethod.toLowerCase().includes(clientQuery) ||
-          c.animalType.toLowerCase().includes(clientQuery)
+          c.animalType.toLowerCase().includes(clientQuery) ||
+          c.active.toString().toLowerCase().includes(clientQuery)
       );
     }
 

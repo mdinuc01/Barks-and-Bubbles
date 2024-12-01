@@ -15,18 +15,25 @@
   "license": "ISC",
   "dependencies": {
     "bcryptjs": "^2.4.3",
+    "bplist-parser": "^0.3.2",
     "cookie-session": "^2.1.0",
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
     "ejs": "^3.1.10",
-    "express": "^4.19.2",
+    "express": "^4.21.1",
     "express-rate-limit": "^7.3.1",
+    "iconv-lite": "^0.6.3",
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.4.3",
     "node-json-db": "^2.3.0",
     "nodemailer": "^6.9.14",
-    "nodemon": "^3.1.0",
+    "nodemon": "^3.1.7",
+    "nvm": "^0.0.4",
     "osascript": "^1.2.0",
+    "plist": "^3.1.0",
+    "sqlite3": "^5.1.7",
+    "tmp": "^0.2.3",
+    "tmp-promise": "^3.0.3",
     "twilio": "^4.19.0"
   }
 }

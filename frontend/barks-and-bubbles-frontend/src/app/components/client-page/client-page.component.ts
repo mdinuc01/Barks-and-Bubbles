@@ -1,5 +1,4 @@
 import { ToastService } from './../../services/toast.service';
-import { subscribe } from 'diagnostics_channel';
 import { DataService } from './../../services/data.service';
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';

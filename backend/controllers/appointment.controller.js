@@ -147,7 +147,7 @@ class AppointmentController {
           sid: generateUniqueId(),
           body: '@Client Manually Added',
           from: `+1${pet.contactMethod}`,
-          to: process.env.TWILIO_PHONE_NUMBER,
+          to: process.env.PHONE_NUMBER,
           time: null,
           status: 'received',
           id: petId,
