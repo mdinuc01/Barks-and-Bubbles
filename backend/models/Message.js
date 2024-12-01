@@ -2,7 +2,7 @@ class Message {
   constructor(client, date, increment, message) {
     //client values
     this.petParentName = this.getName(client.petParentName);
-    this.petName = client.petName;
+    this.petName = client.petName == "" ? "the pack" : client.petName;
     this.contactMethod = client.contactMethod;
     this.animalType = client.animalType;
     this.breed = client.breed;
