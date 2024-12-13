@@ -1,5 +1,6 @@
 const Appointment = require('../models/Appointment.js');
 const Pet = require('../models/Pet.js');
+const Route = require('../models/Route.js');
 
 class ClientController {
 
@@ -115,22 +116,26 @@ class ClientController {
     try {
       const { id } = req.params;
       const app = await Appointment.findOne({ _id: id }).populate('route', 'serviceAreas');
-      let locations = app.route.serviceAreas.map((a) => a.name);
-      let pets = await Pet.find({ serviceArea: { $in: locations }, created_by: req.userId });
+      let locations = await Route.find({ createdBy: req.userId });
+      let pets = await Pet.find({ created_by: req.userId });
 
-      const allClients = locations.map(locationVal => {
-        let clientsInLocation = pets.filter(client => client.serviceArea === locationVal);
-        return { [locationVal]: clientsInLocation };
+      const allAreas = await Pet.find({ created_by: req.userId }).distinct('serviceArea');
+
+      const allClients = allAreas.map(area => {
+        let clientsInLocation = pets.filter(client => client.serviceArea == area);
+        return { [area]: clientsInLocation };
       });
 
       let sentClients = [];
 
-      if (!!app.messages.sentTo) {
+      if (app.messages.sentTo) {
         pets = pets.filter((pet) => {
           return app.messages.sentTo.some((c) => {
             return c.id == pet._id;
           });
         });
+
+        locations = app.route.serviceAreas.map((a) => a.name);
 
         sentClients = locations.map(locationVal => {
           let clientsInLocation = pets.filter(client => client.serviceArea === locationVal);

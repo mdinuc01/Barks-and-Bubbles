@@ -67,7 +67,7 @@
 
     <app-appointment-client-list *ngIf="showClients"
                                  [appointment]="this.appointment"
-                                 [addToList]='false'></app-appointment-client-list>
+                                 [addToList]=false></app-appointment-client-list>
   </mat-card>
 
   <mat-card class="reply-list">
@@ -168,7 +168,9 @@
                                 class="message sent"
                                 [ngClass]="{'sent': this.message.status == 'delivered', 'unsent': this.message.status == 'failed', 'received': this.message.direction == 'inbound'}">
                         <mat-card-content>
-                          <p [innerText]="message.body.length > 500 && message.direction == 'outbound-api'? 'Appointment Message Sent' : message.body"></p>
+                          <p
+                             [innerText]="message.body.length > 500 && message.direction == 'outbound-api'? 'Appointment Message Sent' : message.body">
+                          </p>
                         </mat-card-content>
                         <mat-card-footer align="end">
                           <sub>{{formatStatus(message.status)}} -

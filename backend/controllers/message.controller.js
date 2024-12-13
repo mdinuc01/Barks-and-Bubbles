@@ -122,14 +122,14 @@ class MessageController {
       let message = "All messages sent successfully!";
 
       // If AppleScript Template Cannot be retrieved
-      if (!fs.existsSync(templatePath)) {
-        return res.status(500).json({ message: "AppleScript template file not found." });
-      }
+      // if (!fs.existsSync(templatePath)) {
+      //   return res.status(500).json({ message: "AppleScript template file not found." });
+      // }
 
       let appId = req.params.id;
 
       const app = await Appointment.findOne({ _id: appId }).populate('route', 'serviceAreas');
-      let areas = app.route.serviceAreas.map((a) => a.name);
+      // let areas = app.route.serviceAreas.map((a) => a.name);
       let messageObj = await Builder.findOne({ "name": "Second Message" });
       let generatedMessages = [];
 

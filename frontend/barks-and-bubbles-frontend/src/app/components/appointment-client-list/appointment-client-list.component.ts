@@ -12,6 +12,7 @@ interface Appointment {
   route: any;
   location: any;
   app: {
+    messages: any;
     route: any;
     _id: string;
     location: [];
@@ -52,8 +53,20 @@ export class AppointmentClientListComponent implements OnInit {
         this.petsWithLocations = response.data.allClients;
         this.filteredList = response.data.allClients;
       }
-      if (response.data && response.data.sentClients.length)
+      if (response.data && response.data.sentClients.length && !this.addToList)
         this.petsWithLocations = response.data.sentClients;
+
+      if (this.appointment.app && !this.appointment.app.messages)
+        this.petsWithLocations = response.data.allClients.filter((c: any) => {
+          let result = false;
+          this.appointment.app.route.serviceAreas.forEach(
+            (a: { name: string }) => {
+              if (a.name == Object.keys(c)[0]) result = true;
+            }
+          );
+
+          if (result) return c;
+        });
     });
   }
 

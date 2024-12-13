@@ -250,18 +250,13 @@ export class AppointmentSchedulerComponent implements OnInit {
       moveItemInArray(data, event.previousIndex, event.currentIndex);
 
       data.forEach((d) => {
-        // console.log({ s: d.serviceArea });
         let reply = this.replies.find((r) => {
           return this.objectKeys(r) == d.serviceArea;
         });
-        // console.log({ reply });
 
         reply[d.serviceArea].replies.push(d);
       });
-
-      // console.log({ data, r: this.replies });
     } else {
-      console.log({ h: this.hoveredTime });
       this.replies = this.replies.map((r) => {
         return {
           ...r,
@@ -279,10 +274,13 @@ export class AppointmentSchedulerComponent implements OnInit {
                             (a: { name: any }) =>
                               a.name == rArray['serviceArea']
                           );
+
                         return {
                           ...rArray,
                           time: this.hoveredTime,
-                          defaultTime: this.hoveredTime == route.time,
+                          defaultTime: !route
+                            ? false
+                            : this.hoveredTime == route.time,
                         };
                       } else {
                         return rArray;
@@ -308,7 +306,6 @@ export class AppointmentSchedulerComponent implements OnInit {
   }
 
   resetAppTimes() {
-    // console.log({ a: this.appointment.app.route.serviceAreas });
     this.replies = this.replies.map((location) => {
       let key = Object.keys(location)[0];
       let serviceArea = this.appointment.app.route.serviceAreas.find(
@@ -316,12 +313,14 @@ export class AppointmentSchedulerComponent implements OnInit {
       );
 
       Object.values(location).forEach((area: any) => {
-        area.increment = serviceArea.increment || 0.5;
+        console.log({ serviceArea });
+        area.increment =
+          serviceArea && serviceArea.increment ? serviceArea.increment : 0.5;
         area.replies = area.replies.map((reply: any) => {
           return {
             ...reply,
-            time: serviceArea.time,
-            defaultTime: true,
+            time: serviceArea && serviceArea.time ? serviceArea.time : null,
+            defaultTime: serviceArea && serviceArea.time ? true : false,
           };
         });
       });

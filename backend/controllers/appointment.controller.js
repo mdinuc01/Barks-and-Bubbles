@@ -173,10 +173,45 @@ class AppointmentController {
             }
           }
         );
-        const data = await Appointment.findOne({ _id: appId });
-        return res.status(200).json({ message: `Pet added to replies successfully!`, data });
+      } else {
+        let newReply = {
+          replies: [
+            {
+              sid: generateUniqueId(),
+              body: '@Client Manually Added',
+              from: `+1${pet.contactMethod}`,
+              to: process.env.PHONE_NUMBER,
+              time: null,
+              status: 'received',
+              id: petId,
+              petName: pet.petName,
+              petParentName: pet.petParentName,
+              serviceArea: pet.serviceArea
+            }
+          ],
+          length: 1,
+          increment: 0.5
+        }
 
+        // Find the index of the object in the scheduler array that has the key matching the service area
+        const index = app.scheduler.length;
+
+        // if (index !== -1) {
+        // If the service area exists, update the specific array element
+        const updateField = `scheduler.${index}.${pet.serviceArea}`;
+
+        await Appointment.findOneAndUpdate(
+          { _id: appId },
+          {
+            $set: {
+              [updateField]: newReply
+            }
+          }
+        );
       }
+      const data = await Appointment.findOne({ _id: appId });
+      return res.status(200).json({ message: `Pet added to replies successfully!`, data });
+
     } catch (error) {
       return res.status(500).json({ message: "Internal Server Error", error });
 
