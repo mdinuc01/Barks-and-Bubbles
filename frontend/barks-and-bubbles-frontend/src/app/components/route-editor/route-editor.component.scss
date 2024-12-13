@@ -40,9 +40,31 @@ form {
 .edit-route-enabled {
   border: solid black 1px !important;
   padding: 0 1em;
+  width: 75%;
 }
 
 .btn-layout {
   display: flex;
   justify-content: flex-end;
+}
+
+.locations-form {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  align-items: center;
+
+  mat-form-field {
+    margin-top: 1em;
+    width: 70%;
+  }
+}
+
+.mat-expansion-panel-body {
+  padding: 0 0 0 1em;
+}
+
+.btn-layout {
+  display: flex;
+  justify-content: space-evenly;
 }

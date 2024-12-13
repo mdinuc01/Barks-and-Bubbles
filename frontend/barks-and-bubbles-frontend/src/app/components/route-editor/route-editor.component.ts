@@ -20,7 +20,6 @@ import {
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
 import { MatInputModule } from '@angular/material/input';
-import e from 'express';
 
 @Component({
   selector: 'app-route-editor',
@@ -46,9 +45,15 @@ export class RouteEditorComponent {
   @Input() serviceAreas!: any[] | undefined;
 
   step = signal(-1);
+  editMode = false;
+  orgRoute: any;
+
   routeForm: FormGroup = new FormGroup({
     name: new FormControl(null, Validators.required),
     serviceAreas: new FormControl([], Validators.required),
+  });
+  locationForm: FormGroup = new FormGroup({
+    locations: new FormControl(null, Validators.required),
   });
   msg = '';
 
@@ -93,16 +98,22 @@ export class RouteEditorComponent {
   updateRoute(route: any) {
     const idForm = `${route.name}-editor`;
     let routeData = this.routes?.find((r) => r._id == route._id);
-    console.log({ routeData });
+
     const newName = document.getElementById(idForm)?.innerText;
 
     routeData = { ...routeData, name: newName };
 
     this.DataService.updateRoute(route._id, routeData);
+    this.editMode = false;
   }
 
   toggleRouteNameEdit(event: Event, route: any, index: any) {
     this.setStep(index);
+    this.editMode = !this.editMode;
+
+    if (!this.editMode) {
+      return this.DataService.getAllRoutes();
+    }
     const edit = route.edit == undefined ? true : !route.edit;
 
     event.stopPropagation();
@@ -113,6 +124,7 @@ export class RouteEditorComponent {
       ?.setAttribute('contentEditable', edit.toString());
 
     if (edit) {
+      this.orgRoute = route;
       setTimeout(() => {
         document.getElementById(idForm)?.focus();
 
@@ -134,5 +146,29 @@ export class RouteEditorComponent {
       else if (r.name == route.name) r.edit = true;
       return r;
     });
+  }
+
+  addServiceAreas(route: any) {
+    let areas = this.locationForm.get('locations')!.value;
+
+    areas.forEach((addArea: any, index: any) => {
+      route.serviceAreas.forEach((area: { name: any }) => {
+        if (area.name == addArea) {
+          areas.splice(index, 1);
+        }
+      });
+    });
+
+    areas.forEach((a: string) => {
+      route.serviceAreas.push({ increment: 0.5, name: a, time: null });
+    });
+    this.locationForm.reset();
+    this.locationForm.get('locations')!.setErrors(null);
+  }
+
+  removeArea(area: any, route: any) {
+    route.serviceAreas = route.serviceAreas.filter(
+      (r: { name: any }) => r.name != area
+    );
   }
 }

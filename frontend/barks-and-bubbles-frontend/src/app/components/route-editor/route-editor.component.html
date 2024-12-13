@@ -43,6 +43,7 @@
       </form>
     </mat-card-content>
   </mat-card>
+
   <div>
     <h3>Routes:</h3>
     <ng-container *ngFor="let route of routes; index as i">
@@ -73,25 +74,54 @@
                  cdkDrag
                  class="location-layout">
               {{ area }}
+              <mat-icon class="mat-danger-icon"
+                        style="cursor: pointer;"
+                        *ngIf="this.editMode"
+                        (click)="removeArea(area, route)">delete</mat-icon>
               <mat-icon style="color: grey;">drag_handle</mat-icon>
             </div>
           </div>
         </ng-container>
 
-        <button mat-icon-button
-                matTooltip="{{route.edit ? 'Hide the route name editor' : 'Edit the route name'}}"
-                (click)="toggleRouteNameEdit($event, route, i)">
-          <mat-icon [ngClass]="{'mat-danger-icon': route.edit, 'mat-accent-icon-btn': !route.edit}">{{route.edit ?
-            'cancel' : 'edit'}}</mat-icon>
-        </button>
+        <form class="locations-form"
+              [formGroup]="locationForm">
+          <mat-form-field appearance="outline"
+                          *ngIf="route.edit">
+            <mat-label>Locations for Route</mat-label>
+            <mat-select formControlName="locations"
+                        placeholder="Select locations"
+                        multiple>
 
-        <button mat-icon-button
-                color="primary"
-                matTooltip="Update Route"
-                style="float: right;"
-                (click)="updateRoute(route)">
-          <mat-icon>save</mat-icon>
-        </button>
+              <mat-option *ngFor="let area of serviceAreas"
+                          [value]="area">{{ area }}</mat-option>
+            </mat-select>
+          </mat-form-field>
+
+          <button mat-icon-button
+                  color="primary"
+                  matTooltip="Add Service Areas"
+                  *ngIf="this.editMode"
+                  (click)="addServiceAreas(route)"
+                  ngDis>
+            <mat-icon class="mat-primary-icon">add</mat-icon>
+          </button>
+        </form>
+
+        <div class="btn-layout">
+          <button mat-icon-button
+                  matTooltip="{{route.edit ? 'Hide the route name editor' : 'Edit this route'}}"
+                  (click)="toggleRouteNameEdit($event, route, i)">
+            <mat-icon [ngClass]="{'mat-danger-icon': route.edit, 'mat-accent-icon-btn': !route.edit}">{{route.edit ?
+              'cancel' : 'edit'}}</mat-icon>
+          </button>
+
+          <button mat-icon-button
+                  color="primary"
+                  matTooltip="Update Route"
+                  (click)="updateRoute(route)">
+            <mat-icon>save</mat-icon>
+          </button>
+        </div>
       </mat-expansion-panel>
     </ng-container>
 
