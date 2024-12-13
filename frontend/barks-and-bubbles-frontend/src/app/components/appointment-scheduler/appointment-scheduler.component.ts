@@ -313,14 +313,14 @@ export class AppointmentSchedulerComponent implements OnInit {
       );
 
       Object.values(location).forEach((area: any) => {
-        console.log({ serviceArea });
+        console.log({ area });
         area.increment =
           serviceArea && serviceArea.increment ? serviceArea.increment : 0.5;
         area.replies = area.replies.map((reply: any) => {
           return {
             ...reply,
             time: serviceArea && serviceArea.time ? serviceArea.time : null,
-            defaultTime: serviceArea && serviceArea.time ? true : false,
+            defaultTime: !serviceArea ? false : true,
           };
         });
       });
