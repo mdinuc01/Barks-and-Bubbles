@@ -45,6 +45,7 @@ export class AppointmentPageComponent implements OnInit {
   unsentContactMsg: errorContact[] = [];
   messageEditor: [] = [];
   showClients = false;
+  message: any;
 
   constructor(
     public DataService: DataService,
