@@ -196,6 +196,10 @@ class MessageController {
 
   async getReplies(req, res, next) {
     try {
+
+      if (os.platform() !== 'darwin') {
+        return res.status(500).json({ message: "Messaging is only supported on macOS." });
+      }
       const { sentDate, appId } = req.body;
       const app = await Appointment.findOne({ _id: appId }).populate('route', 'name serviceAreas');
       let messagesData = app.messages.sentTo;

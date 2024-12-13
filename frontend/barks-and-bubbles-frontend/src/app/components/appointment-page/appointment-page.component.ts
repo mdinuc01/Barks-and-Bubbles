@@ -85,6 +85,10 @@ export class AppointmentPageComponent implements OnInit {
       this.DataService.getAppointmentById(id);
       this.DataService.getPetsWithLocations(id);
     });
+
+    this.DataService.replyLoader$.subscribe((res) => {
+      this.loadingReplies = res;
+    });
   }
 
   async openPanel() {

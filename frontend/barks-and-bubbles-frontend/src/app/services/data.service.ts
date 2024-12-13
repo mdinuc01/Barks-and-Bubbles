@@ -27,9 +27,12 @@ export class DataService {
   private readonly petsWithLocationsSubject: BehaviorSubject<any> =
     new BehaviorSubject<any>([]);
   panelSubject = new BehaviorSubject<boolean>(false);
-
   private readonly routeSubject: BehaviorSubject<any> =
     new BehaviorSubject<any>([]);
+  private readonly replyLoader: BehaviorSubject<any> = new BehaviorSubject<any>(
+    []
+  );
+
   loader$: Observable<any> = this.loaderSubject.asObservable();
   clients$: Observable<any> = this.clientsSubject.asObservable();
   pet$: Observable<any> = this.petSubject.asObservable();
@@ -40,6 +43,7 @@ export class DataService {
   petsWithLocation$: Observable<any> =
     this.petsWithLocationsSubject.asObservable();
   routes$: Observable<any> = this.routeSubject.asObservable();
+  replyLoader$: Observable<any> = this.replyLoader.asObservable();
 
   apiEndPoint = environment.domain;
   token = '';
@@ -174,14 +178,19 @@ export class DataService {
         { date, appId },
         { headers: this.headers }
       )
-      .subscribe((response) => {
-        console.log({response})
-        this.appointmentSubject.next(response);
-        this.loaderSubject.next(false);
-        this.getPetsWithLocations(appId);
-        setTimeout(() => {
-          this.loadReplies(appId, response.data.app.messages.sentDate);
-        }, 5 * 1000);
+      .subscribe({
+        next: (response) => {
+          this.appointmentSubject.next(response);
+          this.loaderSubject.next(false);
+          this.getPetsWithLocations(appId);
+          setTimeout(() => {
+            this.loadReplies(appId, response.data.app.messages.sentDate);
+          }, 5 * 1000);
+        },
+        error: (err) => {
+          this.ToastService.showSuccess(err.error.message);
+          this.loaderSubject.next(false);
+        },
       });
   }
 
@@ -192,9 +201,16 @@ export class DataService {
         { appId, sentDate },
         { headers: this.headers }
       )
-      .subscribe((response) => {
-        this.appointmentSubject.next(response);
-        this.ToastService.showSuccess('Replies Loaded Successfully!');
+      .subscribe({
+        next: (response) => {
+          this.appointmentSubject.next(response);
+          this.ToastService.showSuccess('Replies Loaded Successfully!');
+        },
+        error: (err) => {
+          this.ToastService.showSuccess(err.error.message);
+          this.loaderSubject.next(false);
+          this.replyLoader.next(false);
+        },
       });
   }
 
@@ -219,9 +235,15 @@ export class DataService {
         {},
         { headers: this.headers }
       )
-      .subscribe((response) => {
-        this.appointmentSubject.next(response);
-        this.loaderSubject.next(false);
+      .subscribe({
+        next: (response) => {
+          this.appointmentSubject.next(response);
+          this.loaderSubject.next(false);
+        },
+        error: (err) => {
+          this.ToastService.showSuccess(err.error.message);
+          this.loaderSubject.next(false); // Ensure loader is turned off
+        },
       });
   }
 
