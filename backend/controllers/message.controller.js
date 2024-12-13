@@ -122,40 +122,30 @@ class MessageController {
       let message = "All messages sent successfully!";
 
       // If AppleScript Template Cannot be retrieved
-      // if (!fs.existsSync(templatePath)) {
-      //   return res.status(500).json({ message: "AppleScript template file not found." });
-      // }
+      if (!fs.existsSync(templatePath)) {
+        return res.status(500).json({ message: "AppleScript template file not found." });
+      }
 
       let appId = req.params.id;
 
       const app = await Appointment.findOne({ _id: appId }).populate('route', 'serviceAreas');
-      // let areas = app.route.serviceAreas.map((a) => a.name);
       let messageObj = await Builder.findOne({ "name": "Second Message" });
       let generatedMessages = [];
 
-      if (app.scheduler && app.scheduler.length && areas.length) {
-        // Collect all promises in an array
-        const messagePromises = areas.map(async (l) => {
-          const scheduler = app.scheduler.find(obj => obj.hasOwnProperty(l));
-          if (scheduler[l].replies && scheduler[l].replies.length && scheduler[l].increment) {
-            // Map over each reply to create and push generated messages
-            const repliesPromises = scheduler[l].replies.map(async (reply) => {
+      if (app.scheduler && app.scheduler.length) {
+        const messagePromises = app.scheduler.map(async (area) => {
+          if (Object.values(area)[0].replies && Object.values(area)[0].replies.length && Object.values(area)[0].increment) {
+            const repliesPromises = Object.values(area)[0].replies.map(async (reply) => {
               if (reply.id && reply.time && reply.time !== null && reply.petParentName && reply.from) {
                 const pet = await Pet.findOne({ _id: reply.id });
-                const messageText = await new Message(pet, reply.time, scheduler[l].increment, messageObj.message).createMessage();
+                const messageText = await new Message(pet, reply.time, Object.values(area)[0].increment, messageObj.message).createMessage();
                 generatedMessages.push({ message: messageText, phoneNumber: pet.contactMethod });
               }
             });
-            // Wait for all replies to be processed for the current area
             await Promise.all(repliesPromises);
           }
-        });
-
-        // Wait for all areas to be processed
+        })
         await Promise.all(messagePromises);
-
-        // Log generated messages after all async operations are complete
-        console.log({ generatedMessages });
 
         if (generatedMessages.length === 0) {
           return res.status(400).json({ message: "No valid messages to send." });
