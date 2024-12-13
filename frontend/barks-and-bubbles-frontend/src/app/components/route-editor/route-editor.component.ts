@@ -93,6 +93,7 @@ export class RouteEditorComponent {
   updateRoute(route: any) {
     const idForm = `${route.name}-editor`;
     let routeData = this.routes?.find((r) => r._id == route._id);
+    console.log({ routeData });
     const newName = document.getElementById(idForm)?.innerText;
 
     routeData = { ...routeData, name: newName };

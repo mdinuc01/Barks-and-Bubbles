@@ -49,22 +49,14 @@
       <mat-expansion-panel hideToggle
                            [expanded]="step() === i"
                            (opened)="setStep(i)">
-        <mat-expansion-panel-header>
+        <mat-expansion-panel-header *ngIf="!route.edit">
           <mat-panel-title>
-            <p>{{route.name}}</p>
+            <p>{{route.edit ? '':route.name}}</p>
           </mat-panel-title>
         </mat-expansion-panel-header>
 
-        <div class="btn-layout">
-          <button mat-icon-button
-                  color="accent"
-                  matTooltip="{{route.edit ? 'Hide the route name editor' : 'Edit the route name'}}"
-                  (click)="toggleRouteNameEdit($event, route, i)">
-            <mat-icon class="mat-accent-icon-btn">edit</mat-icon>
-          </button>
-        </div>
-
-        <p *ngIf="route.edit">Edit the name of this route:</p>
+        <p *ngIf="route.edit"
+           style="margin-top: 1em;">Edit the name of this route:</p>
         <p *ngIf="route.edit"
            [attr.id]="route.name + '-editor'"
            class="edit-route-enabled"
@@ -85,6 +77,13 @@
             </div>
           </div>
         </ng-container>
+
+        <button mat-icon-button
+                matTooltip="{{route.edit ? 'Hide the route name editor' : 'Edit the route name'}}"
+                (click)="toggleRouteNameEdit($event, route, i)">
+          <mat-icon [ngClass]="{'mat-danger-icon': route.edit, 'mat-accent-icon-btn': !route.edit}">{{route.edit ?
+            'cancel' : 'edit'}}</mat-icon>
+        </button>
 
         <button mat-icon-button
                 color="primary"
