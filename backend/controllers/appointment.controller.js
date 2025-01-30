@@ -51,24 +51,8 @@ class AppointmentController {
       //mapping locations clients to app
       let pets = await Pet.find({ serviceArea: { $in: locations }, created_by: req.userId });
 
-      if (app.messages.sentTo) {
-
-        location = app.route.serviceAreas.map(locationVal => {
-          let clientsInLocation = pets.filter(client => {
-            // let result = false;
-
-            for (const obj of app.messages.sentTo) {
-              if (obj.id === client.id && client.serviceArea == locationVal) {
-                return client;
-              }
-            }
-          });
-          return { [locationVal]: clientsInLocation };
-        });
-      }
-
       let meta = app.route.serviceAreas;
-      const data = { app, location, meta }
+      const data = { app, meta }
 
       if (app) {
         return res.status(200).json({ message: `Appointment found`, data });
