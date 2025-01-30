@@ -117,7 +117,7 @@ class AppointmentController {
         }
       );
 
-      const data = await Appointment.find({ created_by: req.userId, created_by: req.userId }).select('_id date location active route')
+      const data = await Appointment.find({ created_by: req.userId }).select('_id date location active route')
         .populate('route', 'name');
 
       return res.status(200).json({ message: `Appointment Archived Successfully`, data });
