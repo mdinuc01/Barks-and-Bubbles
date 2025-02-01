@@ -123,76 +123,95 @@ class AppointmentController {
         return;
       }
 
-      let updatedScheduler = findLocationByAreaName(app.scheduler, pet.serviceArea);
-
-      if (updatedScheduler) {
-        // Update the existing scheduler entry
-        updatedScheduler.replies.push({
-          sid: generateUniqueId(),
-          body: '@Client Manually Added',
-          from: `+1${pet.contactMethod}`,
-          to: process.env.PHONE_NUMBER,
-          time: null,
-          status: 'received',
-          id: petId,
-          petName: pet.petName,
-          petParentName: pet.petParentName,
-          serviceArea: pet.serviceArea
-        });
-        updatedScheduler.replies.sort((a, b) => a.petName.localeCompare(b.petName));
-
-        updatedScheduler.length += 1;
-
-        // Find the index of the object in the scheduler array that has the key matching the service area
-        const index = app.scheduler.findIndex(obj => Object.keys(obj)[0] === pet.serviceArea);
-
-        // if (index !== -1) {
-        // If the service area exists, update the specific array element
-        const updateField = `scheduler.${index}.${pet.serviceArea}`;
-        await Appointment.findOneAndUpdate(
-          { _id: appId },
-          {
-            $set: {
-              [updateField]: updatedScheduler
-            }
-          }
-        );
-      } else {
-        let newReply = {
-          replies: [
-            {
-              sid: generateUniqueId(),
-              body: '@Client Manually Added',
-              from: `+1${pet.contactMethod}`,
-              to: process.env.PHONE_NUMBER,
-              time: null,
-              status: 'received',
-              id: petId,
-              petName: pet.petName,
-              petParentName: pet.petParentName,
-              serviceArea: pet.serviceArea
-            }
-          ],
-          length: 1,
-          increment: 0.5
+      let newScheduler = app.scheduler.map((s) => {
+        if (s.name == pet.serviceArea) {
+          s.replies.push({
+            "time": null,
+            "status": 'received',
+            "defaultTime": true,
+            "clientReplies": [],
+            "addedClient": true,
+            "petParentName": pet.petParentName,
+            "contactMethod": `+1${pet.contactMethod}`,
+            "petName": pet.petName,
+            "serviceArea": pet.serviceArea,
+            "id": petId
+          })
         }
+        s.length = s.length++;
+        return s;
+      })
+      // let updatedScheduler = findLocationByAreaName(app.scheduler, pet.serviceArea);
 
-        // Find the index of the object in the scheduler array that has the key matching the service area
-        const index = app.scheduler.length;
+      // if (updatedScheduler) {
+      //   // Update the existing scheduler entry
+      //   updatedScheduler.replies.push({
+      //     sid: generateUniqueId(),
+      //     body: '@Client Manually Added',
+      //     from: `+1${pet.contactMethod}`,
+      //     to: process.env.PHONE_NUMBER,
+      //     time: null,
+      //     status: 'received',
+      //     id: petId,
+      //     petName: pet.petName,
+      //     petParentName: pet.petParentName,
+      //     serviceArea: pet.serviceArea
+      //    addedClient: true
+      //   });
+      //   updatedScheduler.replies.sort((a, b) => a.petName.localeCompare(b.petName));
 
-        // if (index !== -1) {
-        // If the service area exists, update the specific array element
-        const updateField = `scheduler.${index}.${pet.serviceArea}`;
+      //   updatedScheduler.length += 1;
 
-        await Appointment.findOneAndUpdate(
-          { _id: appId },
-          {
-            $set: {
-              [updateField]: newReply
-            }
+      //   // Find the index of the object in the scheduler array that has the key matching the service area
+      //   const index = app.scheduler.findIndex(obj => Object.keys(obj)[0] === pet.serviceArea);
+
+      //   // if (index !== -1) {
+      //   // If the service area exists, update the specific array element
+      //   const updateField = `scheduler.${index}.${pet.serviceArea}`;
+      //   await Appointment.findOneAndUpdate(
+      //     { _id: appId },
+      //     {
+      //       $set: {
+      //         [updateField]: updatedScheduler
+      //       }
+      //     }
+      //   );
+      // } else {
+      //   let newReply = {
+      //     replies: [
+      //       {
+      //         sid: generateUniqueId(),
+      //         body: '@Client Manually Added',
+      //         from: `+1${pet.contactMethod}`,
+      //         to: process.env.PHONE_NUMBER,
+      //         time: null,
+      //         status: 'received',
+      //         id: petId,
+      //         petName: pet.petName,
+      //         petParentName: pet.petParentName,
+      //         serviceArea: pet.serviceArea
+      //       }
+      //     ],
+      //     length: 1,
+      //     increment: 0.5
+      //   }
+
+      //   // Find the index of the object in the scheduler array that has the key matching the service area
+      //   const index = app.scheduler.length;
+
+      //   // if (index !== -1) {
+      //   // If the service area exists, update the specific array element
+      //   const updateField = `scheduler.${index}.${pet.serviceArea}`;
+
+      await Appointment.findOneAndUpdate(
+        { _id: appId },
+        {
+          $set: {
+            scheduler: newScheduler
           }
-        );
-      }
+        }
+      );
+
       const data = await Appointment.findOne({ _id: appId });
       return res.status(200).json({ message: `Pet added to replies successfully!`, data });
 

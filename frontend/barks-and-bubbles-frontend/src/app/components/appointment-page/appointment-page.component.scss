@@ -120,7 +120,7 @@
 
 .sent {
   background-color: #dcf8c6;
-  left: 15vw;
+  left: 10vw;
 }
 
 .unsent {
@@ -178,53 +178,6 @@
   z-index: 20;
   padding: 1em 0 0.5em 0;
 }
-
-// @media only screen and (min-width: 1366px) and (min-height: 1024px) {
-//   .client-cards-container {
-//     display: grid;
-//     grid-template-columns: repeat(1, 1fr) !important;
-//     justify-items: center;
-//   }
-
-//   .client-list {
-//     height: 94%;
-//     max-height: 50em;
-//   }
-
-//   .reply-list {
-//     // height: 94%;
-//     max-height: 50em;
-//   }
-
-//   .messages-layout {
-//     height: 55em;
-//   }
-// }
-
-// @media only screen and (min-width: 1024px) and (min-height: 1366px) {
-//   .client-cards-container {
-//     display: grid;
-//     grid-template-columns: repeat(1, 1fr) !important;
-//     justify-items: center;
-//   }
-
-//   .client-list {
-//     width: 22em;
-//     height: 90em;
-//   }
-
-//   .location-layout {
-//     height: 83em;
-//   }
-
-//   .reply-list {
-//     height: 90em;
-//   }
-
-//   .messages-layout {
-//     height: 80em;
-//   }
-// }
 
 .err-list {
   font-weight: 400;

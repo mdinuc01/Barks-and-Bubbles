@@ -25,6 +25,18 @@
   </button>
 
   <button mat-icon-button
+          color="accent"
+          class="mat-accent"
+          matTooltip="Load Responses"
+          (click)="
+                loadReplies()"
+          [ngClass]="{'rotate-image': this.loadingReplies == true}">
+    <mat-icon class="mat-accent-icon-btn">
+      sync
+    </mat-icon>
+  </button>
+
+  <button mat-icon-button
           (click)="saveReplies(true)"
           color="primary"
           matTooltip="Save Appointments">
@@ -95,79 +107,102 @@
       <div *ngFor="let reply of replies"
            class="reply-container"
            cdkDropListGroup>
-        <ng-container *ngFor="let key of objectKeys(reply), index as i">
-          <div class="location-header">
-            <div style=" display: flex;
+        <div class="location-header">
+          <div style=" display: flex;
             flex-direction: row;
             align-items: center;
             justify-content: center;">
-              <p matBadge="{{getLocationInitials(key)}}"
-                 style="z-index: 21; margin-top: 1.5px;"></p>
-              <p class="location-title"><b>{{ key }} ({{reply[key].length}})</b></p>
-            </div>
-            <div class="increment-btns"
-                 *ngIf="reply[key].length">
+            <p matBadge="{{getLocationInitials(reply.name)}}"
+               style="z-index: 21; margin-top: 1.5px;"></p>
+            <p class="location-title"><b>{{ reply.name }} ({{reply.length}})</b></p>
+          </div>
+          <div class="increment-btns"
+               *ngIf="reply.length">
+            <button mat-icon-button
+                    (click)="decrementCounter(reply.name)"
+                    color="accent">
+              <mat-icon class="mat-accent-icon-btn">
+                do_not_disturb_on
+              </mat-icon>
+            </button>
+            <span class="counter">{{ reply.increment }} hrs</span>
+            <button mat-icon-button
+                    (click)="incrementCounter(reply.name)"
+                    color="primary">
+              <mat-icon>
+                add_circle
+              </mat-icon></button>
+          </div>
+        </div>
+
+        <div cdkDropListGroup
+             cdkDropList
+             [cdkDropListData]="[filterByTime(reply.replies, '')]"
+             (cdkDropListDropped)="drop($event)"
+             (mouseenter)="this.hoveredTime= null"
+             (touchend)="this.hoveredTime= null">
+
+          <mat-card *ngFor="let client of filterByTime(reply.replies, '')"
+                    [ngClass]="{'not-default-time': !client.defaultTime}"
+                    cdkDrag
+                    (cdkDragStarted)="onDragStart(client)"
+                    class="no-time-msg"
+                    [cdkDragData]="client">
+            <mat-card-title style="height: 0em"></mat-card-title>
+            <mat-card-actions class="msg-btn-container">
               <button mat-icon-button
-                      (click)="decrementCounter(key)"
-                      color="accent">
-                <mat-icon class="mat-accent-icon-btn">
-                  do_not_disturb_on
-                </mat-icon>
+                      [color]="'primary'"
+                      (click)="viewClientReplies($event, client.clientReplies)"
+                      [matMenuTriggerFor]="replyMenu">
+                <mat-icon>chat</mat-icon>
               </button>
-              <span class="counter">{{ counters[key] }} hrs</span>
-              <button mat-icon-button
-                      (click)="incrementCounter(key)"
-                      color="primary">
-                <mat-icon>
-                  add_circle
-                </mat-icon></button>
-            </div>
-          </div>
+            </mat-card-actions>
+            <mat-card-content>
 
-          <div cdkDropListGroup
-               cdkDropList
-               [cdkDropListData]="[filterByTime(reply[key].replies, '')]"
-               (cdkDropListDropped)="drop($event)"
-               (mouseenter)="this.hoveredTime= null"
-               (touchend)="this.hoveredTime= null">
+              <div class="reply-layout">
 
-            <mat-card *ngFor="let message of filterByTime(reply[key].replies, '')"
-                      [ngClass]="{'not-default-time': !message.defaultTime}"
-                      cdkDrag
-                      class="no-time-msg"
-                      [cdkDragData]="message">
-              <mat-card-title style="height: 0em"></mat-card-title>
-              <mat-card-content>
-                <div class="reply-layout">
-                  <div>
-                    <mat-icon>pets</mat-icon>
-                    <p>{{message.petName}}</p>
+                <div>
+                  <mat-icon>pets</mat-icon>
+                  <p>{{client.petName}}</p>
 
-                    <mat-icon>face</mat-icon>
-                    <p>{{message.petParentName}}</p>
+                  <mat-icon>face</mat-icon>
+                  <p>{{client.petParentName}}</p>
 
-                  </div>
-
-                  <p *ngIf="message.body.length > 2"
-                     class="longer-msg"
-                     matTooltip="{{ message.body }}">
-                    {{ message.body}}
-                  </p>
-
-                  <p *ngIf="message.body.length <= 2">
-                    {{ message.body}}
-                  </p>
                 </div>
-              </mat-card-content>
-            </mat-card>
+              </div>
+            </mat-card-content>
 
+          </mat-card>
 
-            <p *ngIf="!filterByTime(reply[key].replies, '').length && reply[key].length">All replies scheduled</p>
+          <mat-menu #replyMenu="matMenu"
+                    class="scroll messages-menu">
+            <div class="messages-layout"
+                 *ngIf="this.repliesToView.length">
+              <mat-card class="message sent"
+                        *ngFor="let reply of this.repliesToView"
+                        [ngClass]="{'sent': reply.status == 'delivered', 'unsent': reply.status == 'failed', 'received': reply.direction == 'inbound'}">
+                <mat-card-content>
+                  <p> {{ reply.body.length > 500 && reply.direction == 'outbound-api'? 'Appointment Message Sent' :
+                    reply.body }}
+                  </p>
+                </mat-card-content>
+                <mat-card-footer align="end">
+                  <sub>{{formatStatus(reply.status)}} -
+                    {{this.DataService.messageDateFormat(reply.dateUpdated)}}</sub>
+                </mat-card-footer>
+              </mat-card>
+            </div>
+            <div *ngIf="!this.repliesToView.length">
+              <button mat-menu-item
+                      disabled>No replies</button>
+            </div>
+          </mat-menu>
 
-            <p *ngIf="filterByTime(reply[key].replies, '') && !reply[key].length"
-               style="width: 12em;">No Replies from this area</p>
-          </div>
-        </ng-container>
+          <p *ngIf="!filterByTime(reply.replies, '').length && reply.length">All replies scheduled</p>
+
+          <p *ngIf="filterByTime(reply.replies, '') && !reply.length"
+             style="width: 12em;">No Replies from this area</p>
+        </div>
       </div>
     </div>
 
@@ -190,44 +225,76 @@
          (touchend)="this.hoveredTime = hour">
       <h3>{{hour}}</h3>
       <div class="scheduled card-wrapper">
-        <mat-card *ngFor="let message of filterByTime(this.replies, hour); index as j"
+        <mat-card *ngFor="let client of filterByTime(this.replies, hour); index as j"
                   cdkDrag
                   class="mat-card"
-                  [cdkDragData]="message"
-                  [ngClass]="{'activeOne': firstActiveCard === j && hourToSwitch == hour, 'activeTwo': secondActiveCard === j && hourToSwitch == hour,'not-default-time': !message.defaultTime}"
+                  [cdkDragData]="client"
+                  (cdkDragStarted)="onDragStart(client)"
+                  [ngClass]="{'activeOne': firstActiveCard === j && hourToSwitch == hour, 'activeTwo': secondActiveCard === j && hourToSwitch == hour,'not-default-time': !client.defaultTime}"
                   (click)="toggleActiveCard(j, hour)">
 
           <mat-card-title align="end"
                           style="height: 0em">
-            <p matBadge="{{ getLocationInitials(message.serviceArea) }}"
+            <p matBadge="{{ getLocationInitials(client.serviceArea) }}"
                matBadgePosition="below"
                class="badge"
-               matTooltip="{{ message.serviceArea }}"></p>
+               matTooltip="{{ client.serviceArea }}"></p>
           </mat-card-title>
-
+          <mat-card-actions class="msg-btn-container">
+            <button mat-icon-button
+                    [color]="'primary'"
+                    (click)="viewClientReplies($event, client.clientReplies)"
+                    [matMenuTriggerFor]="replyMenu">
+              <mat-icon>chat</mat-icon>
+            </button>
+          </mat-card-actions>
           <mat-card-content>
             <div class="reply-layout"
                  style="margin-bottom: 1em;">
               <div>
                 <mat-icon>pets</mat-icon>
-                <p>{{ message.petName }}</p>
+                <p>{{ client.petName }}</p>
 
                 <mat-icon>face</mat-icon>
-                <p>{{ message.petParentName }}</p>
+                <p>{{ client.petParentName }}</p>
               </div>
 
-              <p *ngIf="message.body.length > 2"
+              <!-- <p *ngIf="client.body.length > 2"
                  class="longer-msg"
-                 matTooltip="{{ message.body }}">
-                {{ message.body }}
+                 matTooltip="{{ client.body }}">
+                {{ client.body }}
               </p>
 
-              <p *ngIf="message.body.length <= 2">
-                {{ message.body }}
-              </p>
+              <p *ngIf="client.body.length <= 2">
+                {{ client.body }}
+              </p> -->
             </div>
           </mat-card-content>
         </mat-card>
+
+        <mat-menu #replyMenu="matMenu"
+                  class="scroll messages-menu">
+          <div class="messages-layout"
+               *ngIf="this.repliesToView.length">
+            <mat-card class="message sent"
+                      *ngFor="let reply of this.repliesToView"
+                      [ngClass]="{'sent': reply.status == 'delivered', 'unsent': reply.status == 'failed', 'received': reply.direction == 'inbound'}">
+              <mat-card-content>
+                <p> {{ reply.body.length > 500 && reply.direction == 'outbound-api'? 'Appointment Message Sent' :
+                  reply.body }}
+                </p>
+              </mat-card-content>
+              <mat-card-footer align="end">
+                <sub>{{formatStatus(reply.status)}} -
+                  {{this.DataService.messageDateFormat(reply.dateUpdated)}}</sub>
+              </mat-card-footer>
+            </mat-card>
+          </div>
+          <div *ngIf="!this.repliesToView.length">
+            <button mat-menu-item
+                    disabled>No replies</button>
+          </div>
+        </mat-menu>
       </div>
 
       <h3 *ngIf="!filterByTime(this.replies, hour).length"

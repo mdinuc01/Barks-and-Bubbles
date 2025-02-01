@@ -205,3 +205,11 @@ app-loader {
   z-index: 10;
   box-shadow: 3px 3px 3px #afafaf;
 }
+
+.messages-menu,
+.mat-mdc-menu-panel {
+  max-width: none !important;
+  width: 35em !important;
+  height: 35em !important;
+  padding: 1em !important;
+}

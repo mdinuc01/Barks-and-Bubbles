@@ -204,6 +204,7 @@ export class DataService {
       .subscribe({
         next: (response) => {
           this.appointmentSubject.next(response);
+          this.replyLoader.next(false);
           this.ToastService.showSuccess('Replies Loaded Successfully!');
         },
         error: (err) => {

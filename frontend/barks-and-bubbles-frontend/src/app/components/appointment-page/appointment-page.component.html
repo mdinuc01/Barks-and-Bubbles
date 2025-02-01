@@ -77,9 +77,9 @@
       <h2 class="mat-primary-title"
           [innerHTML]="this.DataService.formatDate(this.appointment.app.date ,false, false)">TITLE PLACEHOLDER</h2>
     </mat-card-title>
-    <mat-tab-group mat-align-tabs="start"
-                   mat-stretch-tabs="true">
-      <mat-tab label="SMS Messages">
+    <!-- <mat-tab-group mat-align-tabs="start"
+                   mat-stretch-tabs="true"> -->
+    <!-- <mat-tab label="SMS Messages">
         <mat-card-title style="display: flex; justify-content: center;">
           <button mat-icon-button
                   color="accent"
@@ -201,16 +201,22 @@
           </div>
         </mat-card-content>
 
-      </mat-tab>
-      <mat-tab label="Route Scheduler"
+      </mat-tab> -->
+    <!-- <mat-tab label="Route Scheduler"
                [disabled]="!hasMessageSent()"
-               *ngIf="this.appointment && this.appointment.app && this.appointment.app.messages && this.appointment.app.replies.length">
-        <app-appointment-scheduler [clients]="this.appointment.app.messages.sentTo"
-                                   [replies]="this.appointment.app.scheduler"
-                                   [appId]="this.appointment.app._id"></app-appointment-scheduler>
-      </mat-tab>
+               > -->
+    <app-appointment-scheduler *ngIf="this.appointment && this.appointment.app && this.appointment.app.messages && this.appointment.app.replies.length"
+                               [clients]="this.appointment.app.messages.sentTo"
+                               [replies]="this.appointment.app.scheduler"
+                               [appId]="this.appointment.app._id"></app-appointment-scheduler>
 
-    </mat-tab-group>
+    <div *ngIf="!hasMessageSent()">
+      <h2 class="error-msg"
+          style="width: 100%; height: 70vh">Appointment Messages not sent</h2>
+    </div>
+    <!-- </mat-tab> -->
+
+    <!-- </mat-tab-group> -->
 
 
   </mat-card>

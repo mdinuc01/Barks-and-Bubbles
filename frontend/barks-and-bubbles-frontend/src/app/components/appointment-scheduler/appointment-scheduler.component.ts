@@ -7,6 +7,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatMenuModule } from '@angular/material/menu';
 import { lastValueFrom } from 'rxjs';
 import { MatDialog } from '@angular/material/dialog';
 import { MatExpansionModule } from '@angular/material/expansion';
@@ -21,21 +22,18 @@ import {
   moveItemInArray,
   CdkDrag,
   CdkDropList,
-  CdkDragPlaceholder,
 } from '@angular/cdk/drag-drop';
 
 interface Reply {
   defaultTime: boolean;
-  sid: string;
-  body: string;
-  from: string;
-  to: string;
   time: string | null;
-  status: string;
   id: string;
   petName: string;
   petParentName: string;
   serviceArea: string;
+  contactMethod: string;
+  clientReplies: [];
+  addedClient: boolean;
 }
 
 interface Location {
@@ -44,6 +42,11 @@ interface Location {
     location: String;
     increment: String;
   };
+}
+
+interface ServiceAreaCounter {
+  name: string;
+  increment: number;
 }
 
 @Component({
@@ -64,7 +67,7 @@ interface Location {
     SchedulerEditorComponent,
     CdkDropList,
     CdkDrag,
-    CdkDragPlaceholder,
+    MatMenuModule,
   ],
   templateUrl: './appointment-scheduler.component.html',
   styleUrl: './appointment-scheduler.component.scss',
@@ -74,7 +77,7 @@ export class AppointmentSchedulerComponent implements OnInit {
   @Input() clients!: any[];
   @Input() replies!: any[];
   @Input() appId!: string;
-  counters: { [key: string]: number } = {};
+  counters: ServiceAreaCounter[] = [];
 
   currentReply: any;
   resetTime = false;
@@ -87,11 +90,13 @@ export class AppointmentSchedulerComponent implements OnInit {
   firstActiveCard: number | null = null;
   secondActiveCard: number | null = null;
   hourToSwitch: string | null = null;
+  loadingReplies = false;
+  repliesToView: any[] = [];
 
   constructor(
-    private ToastService: ToastService,
-    private DataService: DataService,
-    private dialog: MatDialog
+    private readonly ToastService: ToastService,
+    protected readonly DataService: DataService,
+    private readonly dialog: MatDialog
   ) {
     // Generate hours from 12:00 AM to 11:00 PM
     for (let i = 8; i < 12; i++) {
@@ -109,6 +114,10 @@ export class AppointmentSchedulerComponent implements OnInit {
     this.hours.push(`9:00 PM`);
   }
   ngOnInit(): void {
+    this.DataService.replyLoader$.subscribe((res) => {
+      this.loadingReplies = res;
+    });
+
     this.DataService.petsWithLocation$.subscribe((response) => {
       if (response.data && response.data.allClients)
         this.petsWithLocations = response.data.allClients;
@@ -121,7 +130,8 @@ export class AppointmentSchedulerComponent implements OnInit {
         this.appointment.app.route.serviceAreas = routeData.serviceAreas;
         routeData.serviceAreas.forEach(
           (area: { name: string; increment: number }) => {
-            this.counters[area.name] = area.increment;
+            let index = this.counters.findIndex((a) => area.name == a.name);
+            this.counters[index].increment = area.increment;
           }
         );
       }
@@ -145,29 +155,36 @@ export class AppointmentSchedulerComponent implements OnInit {
     });
 
     this.locations = this.getDistinctServiceAreas(this.clients);
-    this.initializeCounters();
   }
 
-  filterByTime(data: Location[], time: string | null): any[] {
+  filterByTime(data: any[], time: string | null): any[] {
     let matchingReplies: any[] = [];
     let repliesWithMatchingTime: any[];
 
-    if (time == '' && data.length) {
-      return (repliesWithMatchingTime = data.filter(
-        (reply) => reply['time'] == null
-      ));
+    if (time == '' && data && data.length) {
+      repliesWithMatchingTime = data.filter((reply) => reply['time'] == null);
+      return repliesWithMatchingTime;
     }
+
     if (data)
       data.forEach((location) => {
-        Object.values(location).forEach((area) => {
-          if (area && area.replies.length) {
-            repliesWithMatchingTime = area.replies.filter(
-              (reply) => reply.time === time
-            );
+        if (location && location.replies && location.replies.length) {
+          repliesWithMatchingTime = location.replies.filter(
+            (reply: { time: string | null }) => reply.time === time
+          );
 
-            matchingReplies = matchingReplies.concat(repliesWithMatchingTime);
-          }
-        });
+          matchingReplies = matchingReplies.concat(repliesWithMatchingTime);
+        }
+
+        // Object.values(location).forEach((area) => {
+        //   if (area && area.replies.length) {
+        //     repliesWithMatchingTime = area.replies.filter(
+        //       (reply) => reply.time === time
+        //     );
+
+        //     matchingReplies = matchingReplies.concat(repliesWithMatchingTime);
+        //   }
+        // });
       });
 
     return matchingReplies;
@@ -178,9 +195,10 @@ export class AppointmentSchedulerComponent implements OnInit {
     let repliesWithMatchingTime: any[];
 
     if (time == '' && this.replies.length) {
-      return (repliesWithMatchingTime = this.replies.filter(
+      repliesWithMatchingTime = this.replies.filter(
         (reply) => reply['time'] == null
-      ));
+      );
+      return repliesWithMatchingTime;
     }
 
     this.replies.forEach((location) => {
@@ -211,14 +229,14 @@ export class AppointmentSchedulerComponent implements OnInit {
     return matchingReplies;
   }
 
-  filterBySid(data: Location[], sid: string): Reply[] {
+  filterById(data: Location[], id: string): Reply[] {
     let matchingReplies: Reply[] = [];
 
     data.forEach((location) => {
       Object.values(location).forEach((area) => {
         if (area.replies) {
           const repliesWithMatchingTime = area.replies.filter(
-            (reply: { sid: string }) => reply.sid === sid
+            (reply: { id: string }) => reply.id === id
           );
           matchingReplies = matchingReplies.concat(repliesWithMatchingTime);
         }
@@ -242,58 +260,18 @@ export class AppointmentSchedulerComponent implements OnInit {
   }
 
   drop(event: CdkDragDrop<any[]>) {
-    let orgTime = event.item.data.time;
+    this.replies = this.replies.map((location) => {
+      if (location.name == this.currentReply.serviceArea)
+        location.replies = location.replies.map(
+          (a: { id: any; time: string | null }) => {
+            if (a.id == this.currentReply.id) a.time = this.hoveredTime;
 
-    if (this.hoveredTime == orgTime) {
-      console.log({ event });
-      let data = this.filterAndRemoveByTime(this.hoveredTime);
-      moveItemInArray(data, event.previousIndex, event.currentIndex);
+            return a;
+          }
+        );
 
-      data.forEach((d) => {
-        let reply = this.replies.find((r) => {
-          return this.objectKeys(r) == d.serviceArea;
-        });
-
-        reply[d.serviceArea].replies.push(d);
-      });
-    } else {
-      this.replies = this.replies.map((r) => {
-        return {
-          ...r,
-          ...Object.fromEntries(
-            Object.entries(r).map(([key, rObj]: [string, any]) => {
-              return [
-                key,
-                {
-                  ...rObj,
-                  replies: rObj.replies.map(
-                    (rArray: { [x: string]: any; sid: any }) => {
-                      if (rArray.sid === event.item.data.sid) {
-                        let route =
-                          this.appointment.app.route.serviceAreas.find(
-                            (a: { name: any }) =>
-                              a.name == rArray['serviceArea']
-                          );
-
-                        return {
-                          ...rArray,
-                          time: this.hoveredTime,
-                          defaultTime: !route
-                            ? false
-                            : this.hoveredTime == route.time,
-                        };
-                      } else {
-                        return rArray;
-                      }
-                    }
-                  ),
-                },
-              ];
-            })
-          ),
-        };
-      });
-    }
+      return location;
+    });
   }
 
   onDragOver(event: any) {
@@ -306,27 +284,25 @@ export class AppointmentSchedulerComponent implements OnInit {
   }
 
   resetAppTimes() {
-    this.replies = this.replies.map((location) => {
-      let key = Object.keys(location)[0];
+    this.replies = this.replies.map((reply) => {
       let serviceArea = this.appointment.app.route.serviceAreas.find(
-        (a: { name: string }) => a.name == key
+        (a: { name: string }) => a.name == reply.name
       );
 
-      Object.values(location).forEach((area: any) => {
-        console.log({ area });
-        area.increment =
-          serviceArea && serviceArea.increment ? serviceArea.increment : 0.5;
-        area.replies = area.replies.map((reply: any) => {
-          return {
-            ...reply,
-            time: serviceArea && serviceArea.time ? serviceArea.time : null,
-            defaultTime: !serviceArea ? false : true,
-          };
-        });
+      const newReplies = reply.replies.map((r: any) => {
+        return {
+          ...r,
+          time: serviceArea && serviceArea.time ? serviceArea.time : null,
+          defaultTime: !!serviceArea,
+        };
       });
-      return location;
+      return {
+        ...reply,
+        replies: newReplies,
+        increment: serviceArea.increment,
+      };
     });
-    this.initializeCounters();
+
     this.resetTime = true;
     this.saveReplies(false);
   }
@@ -363,42 +339,32 @@ export class AppointmentSchedulerComponent implements OnInit {
     return Array.from(serviceAreaSet);
   }
 
-  initializeCounters() {
-    this.replies.forEach((reply) => {
-      this.objectKeys(reply).forEach((key) => {
-        const incrementValue = parseFloat(reply[key].increment);
-        this.counters[key] = isNaN(incrementValue) ? 0.5 : incrementValue;
-      });
-    });
-  }
+  incrementCounter(serviceArea: string): void {
+    const index = this.replies.findIndex((sa) => sa.name === serviceArea);
+    const replyObj = this.replies[index];
+    let increment = replyObj.increment;
 
-  incrementCounter(key: string) {
-    if (this.counters[key] !== undefined) {
-      this.counters[key] += 0.5;
-      this.updateIncrementInLocations(key);
+    if (index >= 0 && increment <= 9.5) {
+      this.replies[index].increment = increment + 0.5;
     }
   }
 
-  decrementCounter(key: string) {
-    if (this.counters[key] !== undefined && this.counters[key] > 0.5) {
-      this.counters[key] -= 0.5;
-      this.updateIncrementInLocations(key);
-    }
-  }
+  decrementCounter(serviceArea: string): void {
+    const index = this.replies.findIndex((sa) => sa.name === serviceArea);
 
-  updateIncrementInLocations(key: string) {
-    this.replies.forEach((reply) => {
-      if (reply[key]) {
-        reply[key].increment = this.counters[key].toString();
-      }
-    });
+    const replyObj = this.replies[index];
+    let increment = replyObj.increment;
+
+    if (index >= 0 && increment >= 1) {
+      this.replies[index].increment = increment - 0.5;
+    }
   }
 
   getLocationInitials(input: string): string {
+    if (!input) return '';
     // Split the string by spaces to get the words
     const words = input.replaceAll('(', '').split(' ');
 
-    words;
     // Map over the words array and get the first letter of each word
     const initials = words.map((word) => word.charAt(0)).join('');
     return initials.substring(0, 2);
@@ -463,5 +429,27 @@ export class AppointmentSchedulerComponent implements OnInit {
     this.hourToSwitch = null;
     this.firstActiveCard = null;
     this.secondActiveCard = null;
+  }
+
+  loadReplies() {
+    this.loadingReplies = true;
+
+    this.DataService.loadReplies(
+      this.appointment.app._id,
+      this.appointment.app.messages.sentDate
+    );
+  }
+
+  viewClientReplies(event: Event, replies: any) {
+    event.stopPropagation();
+    this.repliesToView = replies;
+  }
+
+  formatStatus(status: string): string {
+    if (status.length === 0) {
+      return status; // Return the word unchanged if it's empty
+    }
+
+    return status.charAt(0).toUpperCase() + status.slice(1);
   }
 }
