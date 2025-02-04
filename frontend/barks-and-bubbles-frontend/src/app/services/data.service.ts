@@ -386,13 +386,16 @@ export class DataService {
 
   addToReply(appId: string, petId: string) {
     this.http
-      .put<{ data: any }>(
+      .put<{
+        message: string; data: any 
+}>(
         `${this.apiEndPoint}/appointment/addPetToReplies`,
         { appId, petId },
         { headers: this.headers }
       )
       .subscribe((response) => {
         this.getAppointmentById(appId);
+        this.ToastService.showSuccess(response.message);
       });
   }
 
