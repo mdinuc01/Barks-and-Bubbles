@@ -137,7 +137,7 @@ class MessageController {
         for (const area of app.scheduler) {
           if (area.replies && area.replies.length) {
             for (const reply of area.replies) {
-              if (reply.id && reply.time && reply.petParentName) {
+              if (reply.id && reply.time && reply.petParentName && !reply.delete) {
                 try {
                   const pet = await Pet.findOne({ _id: reply.id }).lean();
                   const messageText = await new Message(pet, reply.time, area.increment, messageObj.message).createMessage();
@@ -357,7 +357,7 @@ class MessageController {
           }
         }
         
-        serviceAreaObj.length = serviceAreaObj.replies.length;
+        serviceAreaObj.length = serviceAreaObj.replies.filter((r) => !r.delete).length;
 
         const index = scheduler.findIndex((area) => area.name == l.name);
 
