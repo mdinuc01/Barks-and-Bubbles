@@ -82,7 +82,7 @@
                   color="accent"
                   class="mat-accent"
                   matTooltip="Load Responses"
-                  [disabled]="!hasMessageSent()"
+                  *ngIf="hasMessageSent() && this.appointment && this.appointment.app && this.appointment.app.messages && !this.appointment.app.scheduler.length"
                   (click)="
                 loadReplies()"
                   [ngClass]="{'rotate-image': this.loadingReplies}">
@@ -92,9 +92,9 @@
           </button>
          </mat-card-title>
 
-    <app-appointment-scheduler *ngIf="this.appointment && this.appointment.app && this.appointment.app.messages && this.appointment.app.replies.length"
+    <app-appointment-scheduler *ngIf="this.appointment && this.appointment.app && this.appointment.app.messages && this.appointment.app.scheduler.length"
                                [clients]="this.appointment.app.messages.sentTo"
-                               [replies]="this.appointment.app.scheduler"
+                               [scheduler]="this.appointment.app.scheduler"
                                [appId]="this.appointment.app._id"></app-appointment-scheduler>
 
     <div *ngIf="!hasMessageSent()">
@@ -102,7 +102,7 @@
           style="width: 100%; height: 70vh">Appointment Messages not sent</h2>
     </div>
 
-    <div *ngIf="hasMessageSent() && this.appointment && this.appointment.app && this.appointment.app.messages && !this.appointment.app.replies.length">
+    <div *ngIf="hasMessageSent() && this.appointment && this.appointment.app && this.appointment.app.messages && !this.appointment.app.scheduler.length">
       <h2 class="error-msg"
           style="width: 100%; height: 70vh">No Replies received, please reload</h2>
     </div>
