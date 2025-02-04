@@ -113,11 +113,11 @@ class AppointmentController {
       const { appId, petId } = req.body;
 
       const app = await Appointment.findOne({ _id: appId }).select('route scheduler name serviceAreas')
-      .populate('route').lean();
+        .populate('route').lean();
 
       let petIncluded = app.scheduler.some((a) => {
         return a.replies.some((r) => {
-            return r.id == petId && !r.delete;
+          return r.id == petId && !r.delete;
         })
       });
 
@@ -140,74 +140,74 @@ class AppointmentController {
 
       if (serviceAreaObj) {
 
-      newScheduler = app.scheduler.map((s) => {
-        if (s.name == pet.serviceArea) {
-          s.replies.push({
-            "time": serviceAreaObj.time && serviceAreaObj.time != null ? serviceAreaObj.time : null,
-            "status": 'received',
-            "defaultTime": true,
-            "clientReplies": [],
-            "addedClient": true,
-            "petParentName": pet.petParentName,
-            "contactMethod": `+1${pet.contactMethod}`,
-            "petName": pet.petName,
-            "serviceArea": pet.serviceArea,
-            "id": petId, 
-            "delete": false
+        newScheduler = app.scheduler.map((s) => {
+          if (s.name == pet.serviceArea) {
+            s.replies.push({
+              "time": serviceAreaObj.time && serviceAreaObj.time != null ? serviceAreaObj.time : null,
+              "status": 'received',
+              "defaultTime": true,
+              "clientReplies": [],
+              "addedClient": true,
+              "petParentName": pet.petParentName,
+              "contactMethod": `+1${pet.contactMethod}`,
+              "petName": pet.petName,
+              "serviceArea": pet.serviceArea,
+              "id": petId,
+              "delete": false
+            })
+          }
+          s.length = s.replies.filter((r) => !r.delete).length;
+          return s;
+        });
+      } else {
+        let serviceAreaFound = await Routes.findOne({ "serviceAreas.name": pet.serviceArea }).lean();
+
+        newScheduler = app.scheduler;
+
+        if (serviceAreaFound) {
+          newScheduler.push({
+            name: pet.serviceArea,
+            replies: [
+              {
+                "time": serviceAreaFound.time,
+                "status": 'received',
+                "defaultTime": true,
+                "clientReplies": [],
+                "addedClient": true,
+                "petParentName": pet.petParentName,
+                "contactMethod": `+1${pet.contactMethod}`,
+                "petName": pet.petName,
+                "serviceArea": pet.serviceArea,
+                "id": petId,
+                delete: false
+              }
+            ],
+            length: 1,
+            increment: serviceAreaFound.increment
+          })
+        } else {
+          newScheduler.push({
+            name: pet.serviceArea,
+            replies: [
+              {
+                "time": null,
+                "status": 'received',
+                "defaultTime": true,
+                "clientReplies": [],
+                "addedClient": true,
+                "petParentName": pet.petParentName,
+                "contactMethod": `+1${pet.contactMethod}`,
+                "petName": pet.petName,
+                "serviceArea": pet.serviceArea,
+                "id": petId,
+                delete: false
+              }
+            ],
+            length: 1,
+            increment: 0.5
           })
         }
-        s.length = s.replies.filter((r) => !r.delete).length;
-        return s;
-      });
-    } else {
-      let serviceAreaFound = await Routes.findOne({"serviceAreas.name": pet.serviceArea}).lean();
-
-      newScheduler = app.scheduler;
-      
-      if (serviceAreaFound) {
-        newScheduler.push({
-          name: pet.serviceArea,
-          replies: [
-            {
-              "time": serviceAreaFound.time,
-              "status": 'received',
-              "defaultTime": true,
-              "clientReplies": [],
-              "addedClient": true,
-              "petParentName": pet.petParentName,
-              "contactMethod": `+1${pet.contactMethod}`,
-              "petName": pet.petName,
-              "serviceArea": pet.serviceArea,
-              "id": petId,
-              delete: false
-            }
-          ], 
-          length: 1, 
-          increment: serviceAreaFound.increment
-        })
-      } else {
-        newScheduler.push({
-          name: pet.serviceArea,
-          replies: [
-            {
-              "time": null,
-              "status": 'received',
-              "defaultTime": true,
-              "clientReplies": [],
-              "addedClient": true,
-              "petParentName": pet.petParentName,
-              "contactMethod": `+1${pet.contactMethod}`,
-              "petName": pet.petName,
-              "serviceArea": pet.serviceArea,
-              "id": petId,
-              delete: false
-            }
-          ], 
-          length: 1, 
-          increment: 0.5
-        })
       }
-    }
 
       await Appointment.findOneAndUpdate(
         { _id: appId },
@@ -222,6 +222,49 @@ class AppointmentController {
       return res.status(200).json({ message: `Client reply added successfully!`, data });
 
     } catch (error) {
+      return res.status(500).json({ message: "Internal Server Error", error });
+
+    }
+  }
+
+  async deleteReply(req, res) {
+    try {
+      const { appId, petId } = req.body;
+
+      const app = await Appointment.findOne({ _id: appId }).select('route scheduler name serviceAreas')
+        .populate('route').lean();
+
+      const pet = await Pet.findOne({ _id: petId, created_by: req.userId }).lean();
+
+      if (!app) {
+        return res.status(404).json({ message: `Appointment not found` });
+      }
+
+      let scheduler = app.scheduler;
+      let areaIndex = scheduler.findIndex((area) => area.name == pet.serviceArea);
+
+      scheduler[areaIndex].replies = scheduler[areaIndex].replies.map((reply) => {
+        if (reply.id == petId) {
+          reply.delete = true;
+        } 
+        return reply;
+      });
+      scheduler[areaIndex].length = scheduler[areaIndex].replies.filter((r) => !r.delete).length;
+
+      await Appointment.findOneAndUpdate(
+        { _id: appId },
+        {
+          $set: {
+            scheduler: scheduler
+          }
+        }
+      );
+
+      const data = await Appointment.findOne({ _id: appId });
+      return res.status(200).json({ message: `Client reply deleted successfully!`, data });
+
+    } catch (error) {
+      console.log({error})
       return res.status(500).json({ message: "Internal Server Error", error });
 
     }
