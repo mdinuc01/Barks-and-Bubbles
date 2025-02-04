@@ -77,15 +77,12 @@
       <h2 class="mat-primary-title"
           [innerHTML]="this.DataService.formatDate(this.appointment.app.date ,false, false)">TITLE PLACEHOLDER</h2>
     </mat-card-title>
-    <mat-tab-group mat-align-tabs="start"
-                   mat-stretch-tabs="true">
-      <mat-tab label="SMS Messages">
         <mat-card-title style="display: flex; justify-content: center;">
           <button mat-icon-button
                   color="accent"
                   class="mat-accent"
                   matTooltip="Load Responses"
-                  [disabled]="!hasMessageSent()"
+                  *ngIf="hasMessageSent() && this.appointment && this.appointment.app && this.appointment.app.messages && !this.appointment.app.scheduler.length"
                   (click)="
                 loadReplies()"
                   [ngClass]="{'rotate-image': this.loadingReplies}">
@@ -93,125 +90,21 @@
               sync
             </mat-icon>
           </button>
+         </mat-card-title>
 
-          <button mat-icon-button
-                  color="warn"
-                  (click)="showErrorPanel = true"
-                  *ngIf="this.appointment && this.appointment.app && this.appointment.app.replies && (getFailedMessages().length || showErrorBtn)">
-            <mat-icon color="warn"
-                      matBadgeColor="primary"
-                      aria-hidden="false"
-                      matBadge="{{getFailedMessages().length + this.unsentContactMsg.length}}">error</mat-icon>
-          </button>
+    <app-appointment-scheduler *ngIf="this.appointment && this.appointment.app && this.appointment.app.messages && this.appointment.app.scheduler.length"
+                               [clients]="this.appointment.app.messages.sentTo"
+                               [scheduler]="this.appointment.app.scheduler"
+                               [appId]="this.appointment.app._id"></app-appointment-scheduler>
 
-          <div class="err-panel-layout scroll scroll-margin"
-               *ngIf="showErrorPanel">
-            <ol>
-              <ng-container
-                            *ngIf="this.appointment && this.appointment.app && this.appointment.app.replies && (getFailedMessages().length || showErrorBtn)">
-                <h2 class="error-title">Contacts that messages couldn't be sent to:</h2>
-                <hr>
-                <ng-container *ngFor="let message of this.unsentContactMsg; index as i">
-                  <ng-container>
-                    <p class="err-list"><b>{{i+1}}.</b> Message could not be sent to <b>{{message.petParentName}}</b>
-                      for
-                      <b>{{message.petName}}'s</b>
-                      appointment,
-                      please check current contact method for this client.
-                    </p>
-                    <p class="err-list">Current contact method: <b>"{{message.contactMethod}}"</b></p>
-                    <hr>
-                  </ng-container>
-                </ng-container>
-              </ng-container>
-              <ng-container
-                            *ngIf="this.appointment && this.appointment.app && this.appointment.app.replies && getFailedMessages().length">
-                <h2 class="error-title">Messages with
-                  Errors:</h2>
-                <ng-container *ngFor="let message  of getFailedMessages(); index as i"
-                              style="width: 10em;">
-                  <h3><b>{{i+1}}.</b> Tried sending to: {{formatNumber(message.to)}}</h3>
+    <div *ngIf="!hasMessageSent()">
+      <h2 class="error-msg"
+          style="width: 100%; height: 70vh">Appointment Messages not sent</h2>
+    </div>
 
-                  <mat-card class="message error-message unsent">
-                    <mat-card-content>
-                      <p>{{message.body}}</p>
-                    </mat-card-content>
-                    <mat-card-footer align="end">
-                      <sub>{{formatStatus(message.status)}} -
-                        {{this.DataService.messageDateFormat(message.dateUpdated)}}</sub>
-                    </mat-card-footer>
-                  </mat-card>
-                </ng-container>
-              </ng-container>
-            </ol>
-          </div>
-        </mat-card-title>
-
-        <mat-card-content (click)="showErrorPanel ? showErrorPanel = false: true">
-
-          <div *ngIf="hasMessageSent()">
-            <h2 class="error-msg"
-                style="width: 100%;"
-                *ngIf="this.appointment &&this.appointment.app && this.appointment.app.replies && this.appointment.app.replies.length == 0">
-              Please load responses to see who replied</h2>
-
-            <div *ngIf="this.appointment &&this.appointment.app && this.appointment.app.replies && this.appointment.app.replies.length != 0"
-                 class="messages-layout scroll">
-              <div *ngFor="let client of this.appointment.app.messages.sentTo">
-                <h2 class="client-name">{{client.petName}}
-                </h2>
-
-                <div>
-                  <div>
-                    <ng-container *ngFor="let message of this.appointment.app.replies">
-                      <mat-card *ngIf="this.showCard(message, client)"
-                                class="message sent"
-                                [ngClass]="{'sent': this.message.status == 'delivered', 'unsent': this.message.status == 'failed', 'received': this.message.direction == 'inbound'}">
-                        <mat-card-content>
-                          <p
-                             [innerText]="message.body.length > 500 && message.direction == 'outbound-api'? 'Appointment Message Sent' : message.body">
-                          </p>
-                        </mat-card-content>
-                        <mat-card-footer align="end">
-                          <sub>{{formatStatus(message.status)}} -
-                            {{this.DataService.messageDateFormat(message.dateUpdated)}}</sub>
-                        </mat-card-footer>
-                      </mat-card>
-                    </ng-container>
-                  </div>
-
-                  <div *ngIf="getErrCount(client)"
-                       class="error-msg"
-                       style="height: 10em; width: 95%; margin: 1em 0;">
-                    <p>
-                      <b>
-                        ERROR: Message could not sent
-                      </b>
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-            </div>
-          </div>
-
-          <div *ngIf="!hasMessageSent()">
-            <h2 class="error-msg"
-                style="width: 100%; height: 60vh">Appointment Messages not sent</h2>
-          </div>
-        </mat-card-content>
-
-      </mat-tab>
-      <mat-tab label="Route Scheduler"
-               [disabled]="!hasMessageSent()"
-               *ngIf="this.appointment && this.appointment.app && this.appointment.app.messages && this.appointment.app.replies.length">
-        <app-appointment-scheduler [clients]="this.appointment.app.messages.sentTo"
-                                   [replies]="this.appointment.app.scheduler"
-                                   [appId]="this.appointment.app._id"></app-appointment-scheduler>
-      </mat-tab>
-
-    </mat-tab-group>
-
-
+    <div *ngIf="hasMessageSent() && this.appointment && this.appointment.app && this.appointment.app.messages && !this.appointment.app.scheduler.length">
+      <h2 class="error-msg"
+          style="width: 100%; height: 70vh">No Replies received, please reload</h2>
+    </div>
   </mat-card>
 </div>

@@ -11,6 +11,7 @@ const osascript = require('osascript');
 const sqlite3 = require('sqlite3').verbose();
 const bplist = require("bplist-parser");
 const iconv = require("iconv-lite");
+const { scheduler } = require('timers/promises');
 
 class MessageController {
 
@@ -128,26 +129,29 @@ class MessageController {
 
       let appId = req.params.id;
 
-      const app = await Appointment.findOne({ _id: appId }).populate('route', 'serviceAreas');
+      const app = await Appointment.findOne({ _id: appId }).populate('route', 'serviceAreas').lean();
       let messageObj = await Builder.findOne({ "name": "Second Message" });
       let generatedMessages = [];
 
       if (app.scheduler && app.scheduler.length) {
-        const messagePromises = app.scheduler.map(async (area) => {
-          if (Object.values(area)[0].replies && Object.values(area)[0].replies.length && Object.values(area)[0].increment) {
-            const repliesPromises = Object.values(area)[0].replies.map(async (reply) => {
-              if (reply.id && reply.time && reply.time !== null && reply.petParentName && reply.from) {
-                const pet = await Pet.findOne({ _id: reply.id });
-                const messageText = await new Message(pet, reply.time, Object.values(area)[0].increment, messageObj.message).createMessage();
-                generatedMessages.push({ message: messageText, phoneNumber: pet.contactMethod });
+        for (const area of app.scheduler) {
+          if (area.replies && area.replies.length) {
+            for (const reply of area.replies) {
+              if (reply.id && reply.time && reply.petParentName && !reply.delete) {
+                try {
+                  const pet = await Pet.findOne({ _id: reply.id }).lean();
+                  const messageText = await new Message(pet, reply.time, area.increment, messageObj.message).createMessage();
+                  generatedMessages.push({ message: messageText, phoneNumber: pet.contactMethod });
+                } catch (error) {
+                  console.error('Error creating message:', error);
+                }
               }
-            });
-            await Promise.all(repliesPromises);
+            }
           }
-        })
-        await Promise.all(messagePromises);
+        }
+      
 
-        if (generatedMessages.length === 0) {
+        if (!generatedMessages.length) {
           return res.status(400).json({ message: "No valid messages to send." });
         }
       } else {
@@ -194,254 +198,187 @@ class MessageController {
     }
   }
 
+  
   async getReplies(req, res, next) {
     try {
 
       if (os.platform() !== 'darwin') {
-        return res.status(500).json({ message: "Messaging is only supported on macOS." });
-      }
-      const { sentDate, appId } = req.body;
-      const app = await Appointment.findOne({ _id: appId }).populate('route', 'name serviceAreas');
-      let messagesData = app.messages.sentTo;
-      let areas = app.route.serviceAreas.map((a) => a);
-
-      const contactMethods = messagesData.map((contact) =>
-        contact.contactMethod.startsWith('+1') ? contact.contactMethod : `+1${contact.contactMethod}`
-      );
-
-      const sentDateTimestamp = (new Date(sentDate).getTime() - 978307200000) * 1000000;
-      const dbPath = '/Users/larissadinuccio/Library/Messages/chat.db';
-      const plistpath = '/Users/larissadinuccio/Library/Messages/com.apple.messages.geometrycache_v15.plist';
-
-      const queryMessages = async () => {
-        let allResults = [];
-        let offset = 0;
-        const limit = 20; // Number of rows to fetch per batch
-
-        while (true) {
-          const results = await new Promise((resolve, reject) => {
-            const db = new sqlite3.Database(dbPath, (err) => {
-              if (err) {
-                console.error('Could not connect to the database:', err.message);
-                return reject(err);
-              }
-            });
-
-            const placeholders = contactMethods.map(() => '?').join(', ');
-
-            const sql = `SELECT
-                      m.rowid,
-                      COALESCE(m.cache_roomnames, h.id) AS ThreadId,
-                      m.is_from_me AS IsFromMe,
-                      CASE 
-                          WHEN m.is_from_me = 1 THEN m.account 
-                          ELSE h.id 
-                      END AS FromPhoneNumber,
-                      CASE 
-                          WHEN m.is_from_me = 0 THEN m.account 
-                          ELSE COALESCE(h2.id, h.id) 
-                      END AS ToPhoneNumber,
-                      m.service AS Service,
-                      datetime((m.date / 1000000000) + 978307200, 'unixepoch', 'localtime') AS TextDate, 
-                      m.attributedBody as MessageText,
-                      c.display_name AS RoomName
-                  FROM
-                      message AS m
-                  LEFT JOIN 
-                      handle AS h ON m.handle_id = h.rowid
-                  LEFT JOIN 
-                      chat AS c ON m.cache_roomnames = c.room_name
-                  LEFT JOIN 
-                      chat_handle_join AS ch ON c.rowid = ch.chat_id
-                  LEFT JOIN 
-                      handle AS h2 ON ch.handle_id = h2.rowid
-                  WHERE
-                      (h2.service IS NULL OR m.service = h2.service)
-                      AND (FromPhoneNumber IN (${placeholders}) OR ToPhoneNumber IN (${placeholders}))
-                      AND m.date > ? 
-                  ORDER BY 
-                      m.date DESC LIMIT ${limit} OFFSET ${offset};`;
-
-            const queryParams = [...contactMethods, ...contactMethods, sentDateTimestamp];
-
-            db.all(sql, queryParams, (err, rows) => {
-              if (err) {
-                console.error('Error executing query:', err.message);
-                db.close();
-                return reject(err);
-              }
-
-              db.close((closeErr) => {
-                if (closeErr) {
-                  console.error('Error closing the database connection:', closeErr.message);
-                  return reject(closeErr);
-                }
-              });
-
-              resolve(rows);
-            });
-          });
-
-          if (results.length === 0) break; // Stop if no more results are returned
-
-          allResults = allResults.concat(results);
-          offset += limit;
+          return res.status(500).json({ message: "Messaging is only supported on macOS." });
         }
 
-        return allResults.map(async row => {
-          if (!row.MessageText) return;
-          let messageText = await parseAndExtractText(plistpath, Buffer.from(row.MessageText));
-          let to = formatPhoneNumber(row.ToPhoneNumber);
-          let from = formatPhoneNumber(row.FromPhoneNumber);
-          let direction = row.ToPhoneNumber !== 'P:+16477676216' && row.ToPhoneNumber !== "E:larissadinuccio@gmail.com" ? "outbound-api" : "inbound";
+      const { sentDate, appId } = req.body;
+      const app = await Appointment.findOne({ _id: appId }).populate('route', 'name serviceAreas').lean();
+      let messagesData = app.messages.sentTo;
+      let areas = app.route.serviceAreas;
+      let scheduler = app.scheduler;
 
-          return {
-            sid: row.ROWID,
-            body: messageText,
-            dateUpdated: formatDate(row.TextDate),
-            to: to,
-            from: from,
-            status: direction == 'inbound' ? 'received' : 'delivered',
-            direction: direction
-          };
-        });
-      };
+      const contactMethods = messagesData.map((contact) =>
+                contact.contactMethod.startsWith('+1') ? contact.contactMethod : `+1${contact.contactMethod}`
+              );
+      
+              const sentDateTimestamp = (new Date(sentDate).getTime() - 978307200000) * 1000000;
+              const dbPath = '/Users/larissadinuccio/Library/Messages/chat.db';
+              const plistpath = '/Users/larissadinuccio/Library/Messages/com.apple.messages.geometrycache_v15.plist';
+      
+              const queryMessages = async () => {
+                let allResults = [];
+                let offset = 0;
+                const limit = 20; // Number of rows to fetch per batch
+      
+                while (true) {
+                  const results = await new Promise((resolve, reject) => {
+                    const db = new sqlite3.Database(dbPath, (err) => {
+                      if (err) {
+                        console.error('Could not connect to the database:', err.message);
+                        return reject(err);
+                      }
+                    });
+      
+                    const placeholders = contactMethods.map(() => '?').join(', ');
+      
+                    const sql = `SELECT
+                              m.rowid,
+                              COALESCE(m.cache_roomnames, h.id) AS ThreadId,
+                              m.is_from_me AS IsFromMe,
+                              CASE 
+                                  WHEN m.is_from_me = 1 THEN m.account 
+                                  ELSE h.id 
+                              END AS FromPhoneNumber,
+                              CASE 
+                                  WHEN m.is_from_me = 0 THEN m.account 
+                                  ELSE COALESCE(h2.id, h.id) 
+                              END AS ToPhoneNumber,
+                              m.service AS Service,
+                              datetime((m.date / 1000000000) + 978307200, 'unixepoch', 'localtime') AS TextDate, 
+                              m.attributedBody as MessageText,
+                              c.display_name AS RoomName
+                          FROM
+                              message AS m
+                          LEFT JOIN 
+                              handle AS h ON m.handle_id = h.rowid
+                          LEFT JOIN 
+                              chat AS c ON m.cache_roomnames = c.room_name
+                          LEFT JOIN 
+                              chat_handle_join AS ch ON c.rowid = ch.chat_id
+                          LEFT JOIN 
+                              handle AS h2 ON ch.handle_id = h2.rowid
+                          WHERE
+                              (h2.service IS NULL OR m.service = h2.service)
+                              AND (FromPhoneNumber IN (${placeholders}) OR ToPhoneNumber IN (${placeholders}))
+                              AND m.date > ? 
+                          ORDER BY 
+                              m.date DESC LIMIT ${limit} OFFSET ${offset};`;
+      
+                    const queryParams = [...contactMethods, ...contactMethods, sentDateTimestamp];
+      
+                    db.all(sql, queryParams, (err, rows) => {
+                      if (err) {
+                        console.error('Error executing query:', err.message);
+                        db.close();
+                        return reject(err);
+                      }
+      
+                      db.close((closeErr) => {
+                        if (closeErr) {
+                          console.error('Error closing the database connection:', closeErr.message);
+                          return reject(closeErr);
+                        }
+                      });
+      
+                      resolve(rows);
+                    });
+                  });
+      
+                  if (results.length === 0) break; // Stop if no more results are returned
+      
+                  allResults = allResults.concat(results);
+                  offset += limit;
+                }
+      
+                return allResults.map(async row => {
+                  if (!row.MessageText) return;
+                  let messageText = await parseAndExtractText(plistpath, Buffer.from(row.MessageText));
+                  let to = formatPhoneNumber(row.ToPhoneNumber);
+                  let from = formatPhoneNumber(row.FromPhoneNumber);
+                  let direction = row.ToPhoneNumber !== 'P:+16477676216' && row.ToPhoneNumber !== "E:larissadinuccio@gmail.com" ? "outbound-api" : "inbound";
+      
+                  return {
+                    sid: row.ROWID,
+                    body: messageText,
+                    dateUpdated: formatDate(row.TextDate),
+                    to: to,
+                    from: from,
+                    status: direction == 'inbound' ? 'received' : 'delivered',
+                    direction: direction
+                  };
+                });
+              }
 
+              let replies = await Promise.all(await queryMessages());
+              if (!replies.length) return res.status(500).json({ message: "Internal Server Error", error });
 
-
-
-      let replies = await Promise.all(await queryMessages());
-
-      if (!replies.length) return res.status(500).json({ message: "Internal Server Error", error });
 
       const numbersSentTo = messagesData.map((message) => message.contactMethod.toString());
 
-      replies = replies.filter(async (reply) => {
-
-        let to = reply.to.replaceAll("+1", "");
-        let from = reply.from.replaceAll("+1", "");
-
-        if (reply.direction.includes("outbound") && numbersSentTo.includes(to)) {
-          return reply;
-        } else if (reply.direction.includes("inbound") && numbersSentTo.includes(from))
-          return reply;
-
+      replies = replies.filter(reply => {
+        let to = reply.to.replace("+1", "");
+        let from = reply.from.replace("+1", "");
+        return (reply.direction.includes("outbound") && numbersSentTo.includes(to)) ||
+          (reply.direction.includes("inbound") && numbersSentTo.includes(from));
       });
 
-
-
-      let newReplies = replies.map((r) => {
-        let time;
-        let petParentName;
-        let currentReply = app.replies.find((reply) => reply.sid === r.sid);
-        if (currentReply && currentReply.time) {
-          time = currentReply.time;
-          petParentName = currentReply.petParentName;
+      for (let l of areas) {
+        let serviceAreaObj = await scheduler.find((s) => l.name == s.name);
+        if (!serviceAreaObj) {
+          serviceAreaObj = {name: l.name, replies: [], length: 0, increment: 0.5}
         }
-        return { ...r, time, petParentName };
-      });
+        let clientsToFind = messagesData.filter(c => c.serviceArea === l.name);
 
-      newReplies = removeCircularReferences(newReplies);
+        for (let client of clientsToFind) {
+          let contactMethod = `+1${client.contactMethod}`;
+          let clientReplies = replies.filter(cr =>
+            (cr.to === contactMethod && cr.from === process.env.PHONE_NUMBER) ||
+            (cr.to === process.env.PHONE_NUMBER && cr.from === contactMethod)
+          );
 
-      let schedulerReplies;
-      try {
-        schedulerReplies = areas.map((l) => {
-          const scheduler = app.scheduler.find(obj => { if (obj) return obj.hasOwnProperty(l.name) });
-
-          if (!scheduler) {
-            return { [l.name]: { replies: [], length: 0, increment: "0.5" } };
+          const isIncluded = serviceAreaObj.replies.some((a) => a.id == client.id);
+          if (!isIncluded && clientReplies.length && clientReplies.filter((c) => c.direction == 'inbound').length) {
+            serviceAreaObj.replies.push({
+              time: client.time || null,
+              status: client.status,
+              defaultTime: client.defaultTime !== undefined ? client.defaultTime : true,
+              clientReplies,
+              delete: false,
+              ...client
+            });
+          } else if (isIncluded) {
+            const clientIndex = serviceAreaObj.replies.findIndex((a) => a.id == client.id) && !a.delete;
+            serviceAreaObj.replies[clientIndex].clientReplies = clientReplies;
           }
+        }
+        
+        serviceAreaObj.length = serviceAreaObj.replies.filter((r) => !r.delete).length;
 
-          let replies = newReplies.filter((r) => {
-            if (r.from == process.env.PHONE_NUMBER) return false; // Changed from return to return false to avoid including undefined elements
-            let from = r.from.substring(2);
-            let meta = messagesData.find((m) => m.contactMethod == from);
-            return !!(meta && meta.serviceArea == l.name);
-          }).map((r) => {
-            let from = r.from.substring(2);
-            let meta = messagesData.find((m) => m.contactMethod == from);
+        const index = scheduler.findIndex((area) => area.name == l.name);
 
-            if (meta) {
-              let { contactMethod, ...metaWithoutContactMethod } = meta;
-
-              let time;
-              let defaultTime;
-
-              if (l && l.time) {
-                time = l.time;
-              }
-              let currentReply = scheduler[l.name].replies.find((reply) => reply.sid === r.sid);
-
-              if (currentReply && (currentReply.time || currentReply.time == null) && !currentReply.defaultTime) {
-                time = currentReply.time;
-              }
-
-              if (currentReply && currentReply.defaultTime != null) {
-                defaultTime = currentReply.defaultTime
-              } else {
-                defaultTime = true;
-              }
-
-              return {
-                sid: r.sid,
-                body: r.body,
-                from: r.from,
-                to: r.to,
-                time,
-                status: r.status,
-                defaultTime: defaultTime,
-                ...metaWithoutContactMethod
-              };
-            }
-            return null; // Explicitly return null for non-matching replies
-          }).filter(reply => reply !== null) // Filter out null values
-
-          replies = replies.sort((a, b) => {
-            // console.log({ a })
-            const propA = a.petName.toLowerCase();
-            const propB = b.petName.toLowerCase();
-            if (propA < propB) {
-              return -1;
-            }
-            if (propA > propB) {
-              return 1;
-            }
-            return 0;
-          })
-
-          let increment = 0.5;
-          if (l && l.increment) {
-            increment = l.increment
-          }
-
-          return { [l.name]: { replies, length: replies.length, increment: increment } };
-        });
-      } catch (error) {
-        console.error("Error processing scheduler replies:", error);
-        throw error; // Re-throw the error to be caught by the outer catch block
+        if (index >= 0) scheduler[index] = serviceAreaObj;
+        else scheduler.push(serviceAreaObj)
       }
 
-      let newApp = await Appointment.findOneAndUpdate(
+      let updatedApp = await Appointment.findOneAndUpdate(
         { _id: appId },
-        {
-          'replies': newReplies,
-          'scheduler': schedulerReplies
-        },
+        { 'scheduler': scheduler },
         { new: true }
       ).populate('route', 'name serviceAreas');
 
-      const data = { app: newApp._doc };
-      return res.status(200).json({ message: 'Fetched Replies', data });
-
+      return res.status(200).json({ message: 'Fetched Replies', data: { app: updatedApp._doc } });
     } catch (error) {
       console.error('An error occurred:', error);
       return res.status(500).json({ message: "Internal Server Error", error });
     }
   }
-
 }
 
-// Function to load the plist file and return its contents
 function loadPlistFile(plistPath) {
   return new Promise((resolve, reject) => {
     bplist.parseFile(plistPath, (error, obj) => {
@@ -552,32 +489,6 @@ let formatDate = (input) => {
 
   // Construct the formatted date string
   return `${year}-${month}-${day}T${hours}:${minutes}:${seconds}.000+00:00`;
-}
-
-let removeCircularReferences = (obj, seen = new WeakSet()) => {
-  if (typeof obj !== 'object' || obj === null) {
-    return obj;
-  }
-
-  if (seen.has(obj)) {
-    return undefined; // Replace circular references with undefined
-  }
-  seen.add(obj);
-
-  if (Array.isArray(obj)) {
-    return obj.map(item => removeCircularReferences(item, seen));
-  }
-
-  const newObj = {};
-  for (let key in obj) {
-    if (key === 'dateSent' || key === 'dateUpdated' || key === 'dateCreated') {
-      newObj[key] = obj[key];
-    } else {
-      newObj[key] = removeCircularReferences(obj[key], seen);
-    }
-  }
-  return newObj;
-
 }
 
 isValidPhoneNumber = (phoneNumber) => {

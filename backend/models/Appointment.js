@@ -16,11 +16,6 @@ const appointmentScheme = mongoose.Schema(
       required: true,
       default: {}
     },
-    replies: {
-      type: Array,
-      required: true,
-      default: []
-    },
     scheduler: {
       type: Array,
       required: true,

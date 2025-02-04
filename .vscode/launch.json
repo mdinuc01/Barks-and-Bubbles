@@ -1,0 +1,14 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    
+    
+    {
+      "type": "node-terminal",
+      "name": "Backend Debugger",
+      "request": "launch",
+      "command": "npm run start",
+      "cwd": "${workspaceFolder}/backend"
+    }
+  ]
+}

@@ -204,6 +204,7 @@ export class DataService {
       .subscribe({
         next: (response) => {
           this.appointmentSubject.next(response);
+          this.replyLoader.next(false);
           this.ToastService.showSuccess('Replies Loaded Successfully!');
         },
         error: (err) => {
@@ -385,13 +386,31 @@ export class DataService {
 
   addToReply(appId: string, petId: string) {
     this.http
-      .put<{ data: any }>(
+      .put<{
+        message: string; data: any 
+}>(
         `${this.apiEndPoint}/appointment/addPetToReplies`,
         { appId, petId },
         { headers: this.headers }
       )
       .subscribe((response) => {
         this.getAppointmentById(appId);
+        this.ToastService.showSuccess(response.message);
+      });
+  }
+
+  deleteReply(appId: string, petId: string) {
+    this.http
+      .put<{
+        message: string; data: any 
+}>(
+        `${this.apiEndPoint}/appointment/deleteReply`,
+        { appId, petId },
+        { headers: this.headers }
+      )
+      .subscribe((response) => {
+        this.getAppointmentById(appId);
+        this.ToastService.showSuccess(response.message);
       });
   }
 

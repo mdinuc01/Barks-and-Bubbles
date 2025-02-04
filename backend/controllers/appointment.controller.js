@@ -1,6 +1,6 @@
 const Appointment = require('../models/Appointment.js');
 const Pet = require('../models/Pet.js');
-
+const Routes = require('../models/Route.js');
 
 class AppointmentController {
 
@@ -41,34 +41,15 @@ class AppointmentController {
 
   async getAppointmentId(req, res, next) {
     try {
-      let location;
-
       const idToFind = req.params.id;
 
       const app = await Appointment.findOne({ _id: idToFind, created_by: req.userId }).populate('route', 'name serviceAreas');
       let locations = app.route.serviceAreas.map((a) => a.name);
 
-      //mapping locations clients to app
       let pets = await Pet.find({ serviceArea: { $in: locations }, created_by: req.userId });
 
-      if (app.messages.sentTo) {
-
-        location = app.route.serviceAreas.map(locationVal => {
-          let clientsInLocation = pets.filter(client => {
-            // let result = false;
-
-            for (const obj of app.messages.sentTo) {
-              if (obj.id === client.id && client.serviceArea == locationVal) {
-                return client;
-              }
-            }
-          });
-          return { [locationVal]: clientsInLocation };
-        });
-      }
-
       let meta = app.route.serviceAreas;
-      const data = { app, location, meta }
+      const data = { app, meta }
 
       if (app) {
         return res.status(200).json({ message: `Appointment found`, data });
@@ -117,7 +98,7 @@ class AppointmentController {
         }
       );
 
-      const data = await Appointment.find({ created_by: req.userId, created_by: req.userId }).select('_id date location active route')
+      const data = await Appointment.find({ created_by: req.userId }).select('_id date location active route')
         .populate('route', 'name');
 
       return res.status(200).json({ message: `Appointment Archived Successfully`, data });
@@ -131,116 +112,163 @@ class AppointmentController {
     try {
       const { appId, petId } = req.body;
 
-      const pet = await Pet.findOne({ _id: petId, created_by: req.userId });
-      const app = await Appointment.findOne({ _id: appId });
+      const app = await Appointment.findOne({ _id: appId }).select('route scheduler name serviceAreas')
+        .populate('route').lean();
+
+      let petIncluded = app.scheduler.some((a) => {
+        return a.replies.some((r) => {
+          return r.id == petId && !r.delete;
+        })
+      });
+
+      if (petIncluded) {
+        return res.status(200).json({ message: `Client already has a reply!`, data: app });
+      }
+
+      const pet = await Pet.findOne({ _id: petId, created_by: req.userId }).lean();
 
       if (!pet || !app) {
-        console.error('Pet or Appointment not found');
-        return;
+        return res.status(404).json({ message: `Appointment or pet not found` });
+
       }
 
-      let updatedScheduler = findLocationByAreaName(app.scheduler, pet.serviceArea);
+      let serviceAreaObj = await app.route.serviceAreas.find((r) => {
+        if (r.name == pet.serviceArea) return r;
+      });
 
-      if (updatedScheduler) {
-        // Update the existing scheduler entry
-        updatedScheduler.replies.push({
-          sid: generateUniqueId(),
-          body: '@Client Manually Added',
-          from: `+1${pet.contactMethod}`,
-          to: process.env.PHONE_NUMBER,
-          time: null,
-          status: 'received',
-          id: petId,
-          petName: pet.petName,
-          petParentName: pet.petParentName,
-          serviceArea: pet.serviceArea
+      let newScheduler = [];
+
+      if (serviceAreaObj) {
+
+        newScheduler = app.scheduler.map((s) => {
+          if (s.name == pet.serviceArea) {
+            s.replies.push({
+              "time": serviceAreaObj.time && serviceAreaObj.time != null ? serviceAreaObj.time : null,
+              "status": 'received',
+              "defaultTime": true,
+              "clientReplies": [],
+              "addedClient": true,
+              "petParentName": pet.petParentName,
+              "contactMethod": `+1${pet.contactMethod}`,
+              "petName": pet.petName,
+              "serviceArea": pet.serviceArea,
+              "id": petId,
+              "delete": false
+            })
+          }
+          s.length = s.replies.filter((r) => !r.delete).length;
+          return s;
         });
-        updatedScheduler.replies.sort((a, b) => a.petName.localeCompare(b.petName));
-
-        updatedScheduler.length += 1;
-
-        // Find the index of the object in the scheduler array that has the key matching the service area
-        const index = app.scheduler.findIndex(obj => Object.keys(obj)[0] === pet.serviceArea);
-
-        // if (index !== -1) {
-        // If the service area exists, update the specific array element
-        const updateField = `scheduler.${index}.${pet.serviceArea}`;
-        await Appointment.findOneAndUpdate(
-          { _id: appId },
-          {
-            $set: {
-              [updateField]: updatedScheduler
-            }
-          }
-        );
       } else {
-        let newReply = {
-          replies: [
-            {
-              sid: generateUniqueId(),
-              body: '@Client Manually Added',
-              from: `+1${pet.contactMethod}`,
-              to: process.env.PHONE_NUMBER,
-              time: null,
-              status: 'received',
-              id: petId,
-              petName: pet.petName,
-              petParentName: pet.petParentName,
-              serviceArea: pet.serviceArea
-            }
-          ],
-          length: 1,
-          increment: 0.5
+        let serviceAreaFound = await Routes.findOne({ "serviceAreas.name": pet.serviceArea }).lean();
+
+        newScheduler = app.scheduler;
+
+        if (serviceAreaFound) {
+          newScheduler.push({
+            name: pet.serviceArea,
+            replies: [
+              {
+                "time": serviceAreaFound.time,
+                "status": 'received',
+                "defaultTime": true,
+                "clientReplies": [],
+                "addedClient": true,
+                "petParentName": pet.petParentName,
+                "contactMethod": `+1${pet.contactMethod}`,
+                "petName": pet.petName,
+                "serviceArea": pet.serviceArea,
+                "id": petId,
+                delete: false
+              }
+            ],
+            length: 1,
+            increment: serviceAreaFound.increment
+          })
+        } else {
+          newScheduler.push({
+            name: pet.serviceArea,
+            replies: [
+              {
+                "time": null,
+                "status": 'received',
+                "defaultTime": true,
+                "clientReplies": [],
+                "addedClient": true,
+                "petParentName": pet.petParentName,
+                "contactMethod": `+1${pet.contactMethod}`,
+                "petName": pet.petName,
+                "serviceArea": pet.serviceArea,
+                "id": petId,
+                delete: false
+              }
+            ],
+            length: 1,
+            increment: 0.5
+          })
         }
-
-        // Find the index of the object in the scheduler array that has the key matching the service area
-        const index = app.scheduler.length;
-
-        // if (index !== -1) {
-        // If the service area exists, update the specific array element
-        const updateField = `scheduler.${index}.${pet.serviceArea}`;
-
-        await Appointment.findOneAndUpdate(
-          { _id: appId },
-          {
-            $set: {
-              [updateField]: newReply
-            }
-          }
-        );
       }
+
+      await Appointment.findOneAndUpdate(
+        { _id: appId },
+        {
+          $set: {
+            scheduler: newScheduler
+          }
+        }
+      );
+
       const data = await Appointment.findOne({ _id: appId });
-      return res.status(200).json({ message: `Pet added to replies successfully!`, data });
+      return res.status(200).json({ message: `Client reply added successfully!`, data });
 
     } catch (error) {
       return res.status(500).json({ message: "Internal Server Error", error });
 
     }
   }
-}
 
-function findLocationByAreaName(array, areaName) {
-  for (let obj of array) {
-    for (let key in obj) {
-      if (key === areaName) {
-        return obj[key];
+  async deleteReply(req, res) {
+    try {
+      const { appId, petId } = req.body;
+
+      const app = await Appointment.findOne({ _id: appId }).select('route scheduler name serviceAreas')
+        .populate('route').lean();
+
+      const pet = await Pet.findOne({ _id: petId, created_by: req.userId }).lean();
+
+      if (!app) {
+        return res.status(404).json({ message: `Appointment not found` });
       }
+
+      let scheduler = app.scheduler;
+      let areaIndex = scheduler.findIndex((area) => area.name == pet.serviceArea);
+
+      scheduler[areaIndex].replies = scheduler[areaIndex].replies.map((reply) => {
+        if (reply.id == petId) {
+          reply.delete = true;
+        } 
+        return reply;
+      });
+      scheduler[areaIndex].length = scheduler[areaIndex].replies.filter((r) => !r.delete).length;
+
+      await Appointment.findOneAndUpdate(
+        { _id: appId },
+        {
+          $set: {
+            scheduler: scheduler
+          }
+        }
+      );
+
+      const data = await Appointment.findOne({ _id: appId });
+      return res.status(200).json({ message: `Client reply deleted successfully!`, data });
+
+    } catch (error) {
+      console.log({error})
+      return res.status(500).json({ message: "Internal Server Error", error });
+
     }
   }
-  return null; // Return null if no match is found
-}
-
-function generateUniqueId() {
-  // Get the current timestamp in milliseconds
-  const timestamp = Date.now();
-
-  // Generate a random number between 0 and 99999
-  const randomNum = Math.floor(Math.random() * 100000);
-
-  // Combine the timestamp and random number to create a unique ID
-  const uniqueId = `added-${timestamp}-${randomNum}`;
-
-  return uniqueId;
 }
 
 module.exports = new AppointmentController();

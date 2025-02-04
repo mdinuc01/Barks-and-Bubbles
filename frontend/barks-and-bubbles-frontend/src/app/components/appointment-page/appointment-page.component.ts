@@ -49,9 +49,9 @@ export class AppointmentPageComponent implements OnInit {
 
   constructor(
     public DataService: DataService,
-    private activatedRoute: ActivatedRoute,
-    private dialog: MatDialog,
-    private ToastService: ToastService
+    private readonly activatedRoute: ActivatedRoute,
+    private readonly dialog: MatDialog,
+    private readonly ToastService: ToastService
   ) {}
 
   ngOnInit(): void {
