@@ -75,7 +75,7 @@ interface ServiceAreaCounter {
 export class AppointmentSchedulerComponent implements OnInit {
   hours: string[] = [];
   @Input() clients!: any[];
-  @Input() replies!: any[];
+  @Input() scheduler!: any[];
   @Input() appId!: string;
   counters: ServiceAreaCounter[] = [];
 
@@ -87,11 +87,12 @@ export class AppointmentSchedulerComponent implements OnInit {
   panelType = '';
   petsWithLocations: any;
   hoveredTime: string | null = null;
-  firstActiveCard: number | null = null;
-  secondActiveCard: number | null = null;
+  firstActiveCard: any;
+  secondActiveCard: any;
+  activeReplies : any;
   hourToSwitch: string | null = null;
   loadingReplies = false;
-  repliesToView: any[] = [];
+  selectedClient: any;
 
   constructor(
     private readonly ToastService: ToastService,
@@ -175,16 +176,6 @@ export class AppointmentSchedulerComponent implements OnInit {
 
           matchingReplies = matchingReplies.concat(repliesWithMatchingTime);
         }
-
-        // Object.values(location).forEach((area) => {
-        //   if (area && area.replies.length) {
-        //     repliesWithMatchingTime = area.replies.filter(
-        //       (reply) => reply.time === time
-        //     );
-
-        //     matchingReplies = matchingReplies.concat(repliesWithMatchingTime);
-        //   }
-        // });
       });
 
     return matchingReplies;
@@ -194,18 +185,19 @@ export class AppointmentSchedulerComponent implements OnInit {
     let matchingReplies: any[] = [];
     let repliesWithMatchingTime: any[];
 
-    if (time == '' && this.replies.length) {
-      repliesWithMatchingTime = this.replies.filter(
-        (reply) => reply['time'] == null
-      );
+    if (time == '' && this.scheduler.length) {
+      repliesWithMatchingTime = this.scheduler.filter((area) => {
+        if (area.name == this.activeReplies.name) {
+          return area.replies.filter((reply: { time: string; }) => reply.time == time)
+        }
+      });
       return repliesWithMatchingTime;
     }
-
-    this.replies.forEach((location) => {
-      Object.values(location).forEach((area: any) => {
-        if (area && area.replies.length) {
+    
+    this.scheduler.forEach((reply) => {
+          if (reply.name == this.activeReplies.name) {
           const [repliesWithMatchingTime, remainingReplies] =
-            area.replies.reduce(
+            reply.replies.reduce(
               (
                 acc: { time: string | null }[][],
                 reply: { time: string | null }
@@ -220,28 +212,10 @@ export class AppointmentSchedulerComponent implements OnInit {
               [[], []] as [{ time: string | null }[], { time: string | null }[]]
             );
 
-          area.replies = remainingReplies;
+          reply.replies = remainingReplies;
           matchingReplies = matchingReplies.concat(repliesWithMatchingTime);
-        }
+          }
       });
-    });
-
-    return matchingReplies;
-  }
-
-  filterById(data: Location[], id: string): Reply[] {
-    let matchingReplies: Reply[] = [];
-
-    data.forEach((location) => {
-      Object.values(location).forEach((area) => {
-        if (area.replies) {
-          const repliesWithMatchingTime = area.replies.filter(
-            (reply: { id: string }) => reply.id === id
-          );
-          matchingReplies = matchingReplies.concat(repliesWithMatchingTime);
-        }
-      });
-    });
 
     return matchingReplies;
   }
@@ -253,23 +227,28 @@ export class AppointmentSchedulerComponent implements OnInit {
     return client.petName;
   }
 
-  objectKeys = Object.keys;
-
   onDragStart(reply: any) {
     this.currentReply = reply;
   }
 
-  drop(event: CdkDragDrop<any[]>) {
-    this.replies = this.replies.map((location) => {
-      if (location.name == this.currentReply.serviceArea)
+  drop() {
+    this.scheduler = this.scheduler.map((location) => {
+      if (location.name == this.currentReply.serviceArea) {
+        
+        const areaObj = this.appointment.app.route.serviceAreas.find((a: { name: any; }) => a.name == location.name);
         location.replies = location.replies.map(
-          (a: { id: any; time: string | null }) => {
-            if (a.id == this.currentReply.id) a.time = this.hoveredTime;
-
+          (a: {
+            defaultTime: boolean; id: any; time: string | null
+          }) => {
+            if (a.id == this.currentReply.id) {
+              a.time = this.hoveredTime;
+              a.defaultTime =  areaObj && areaObj.time ? areaObj.time == this.hoveredTime : true
+            }
             return a;
           }
         );
 
+      }
       return location;
     });
   }
@@ -279,12 +258,12 @@ export class AppointmentSchedulerComponent implements OnInit {
   }
 
   saveReplies(enableToast: boolean) {
-    this.DataService.saveTimes(this.appId, this.replies);
+    this.DataService.saveTimes(this.appId, this.scheduler);
     this.resetSave = enableToast;
   }
 
   resetAppTimes() {
-    this.replies = this.replies.map((reply) => {
+    this.scheduler = this.scheduler.map((reply) => {
       let serviceArea = this.appointment.app.route.serviceAreas.find(
         (a: { name: string }) => a.name == reply.name
       );
@@ -299,7 +278,7 @@ export class AppointmentSchedulerComponent implements OnInit {
       return {
         ...reply,
         replies: newReplies,
-        increment: serviceArea.increment,
+        increment: serviceArea ? serviceArea.increment : reply.increment,
       };
     });
 
@@ -340,91 +319,119 @@ export class AppointmentSchedulerComponent implements OnInit {
   }
 
   incrementCounter(serviceArea: string): void {
-    const index = this.replies.findIndex((sa) => sa.name === serviceArea);
-    const replyObj = this.replies[index];
+    const index = this.scheduler.findIndex((sa) => sa.name === serviceArea);
+    const replyObj = this.scheduler[index];
     let increment = replyObj.increment;
 
     if (index >= 0 && increment <= 9.5) {
-      this.replies[index].increment = increment + 0.5;
+      this.scheduler[index].increment = increment + 0.5;
     }
   }
 
   decrementCounter(serviceArea: string): void {
-    const index = this.replies.findIndex((sa) => sa.name === serviceArea);
+    const index = this.scheduler.findIndex((sa) => sa.name === serviceArea);
 
-    const replyObj = this.replies[index];
+    const replyObj = this.scheduler[index];
     let increment = replyObj.increment;
 
     if (index >= 0 && increment >= 1) {
-      this.replies[index].increment = increment - 0.5;
+      this.scheduler[index].increment = increment - 0.5;
     }
   }
 
   getLocationInitials(input: string): string {
     if (!input) return '';
-    // Split the string by spaces to get the words
     const words = input.replaceAll('(', '').split(' ');
 
-    // Map over the words array and get the first letter of each word
     const initials = words.map((word) => word.charAt(0)).join('');
     return initials.substring(0, 2);
   }
 
-  toggleActiveCard(index: number, hour: string): void {
-    if (this.hourToSwitch !== hour) {
-      this.firstActiveCard = index;
+  toggleActiveCard(client : any, screenIndex : number, hour: string): void {
+    debugger
+    let index = 0;
+    this.scheduler.forEach((area) => {
+      if (area.name == client.serviceArea) {
+        index = area.replies.findIndex((reply: { id: any; }) => reply.id == client.id)
+      }
+    });
+
+    if ((this.firstActiveCard && this.hourToSwitch !== hour) || (this.activeReplies && this.activeReplies.name !== client.serviceArea)) {
+      this.firstActiveCard = {
+        index,
+        screenIndex
+      };
       this.secondActiveCard = null;
       this.hourToSwitch = hour;
+      this.activeReplies = this.scheduler.find((r) => {
+        const clientFound = r.replies.some((a: { id: any; }) => {
+          return a.id == client.id
+        });
+        if (clientFound) return r;
+      })
       return;
     }
 
-    if (this.firstActiveCard === index) {
+    if (this.firstActiveCard && this.firstActiveCard.screenIndex === screenIndex) {
       this.firstActiveCard = null;
       return;
     }
-    if (this.secondActiveCard === index) {
+    if (this.secondActiveCard && this.secondActiveCard.screenIndex === screenIndex) {
       this.secondActiveCard = null;
       return;
     }
 
     if (this.firstActiveCard == null) {
-      this.firstActiveCard = index;
+      this.firstActiveCard = {
+        index,
+        screenIndex
+      };
     } else {
-      this.secondActiveCard = index;
+      this.secondActiveCard = {
+        index,
+        screenIndex
+      };
     }
+
+    this.activeReplies = this.scheduler.find((r) => {
+      const clientFound = r.replies.some((a: { id: any; }) => {
+        return a.id == client.id
+      });
+      if (clientFound) return r;
+    })
+    this.hourToSwitch = hour;
+
   }
 
   switchReplies(): void {
-    // Ensure both indexes are defined
+    
     if (this.firstActiveCard == null || this.secondActiveCard == null) {
       console.error('Active card indexes must be defined');
       return;
     }
 
-    // Get the array using filterByTime
-    const arrayToModify = this.filterByTime(this.replies, this.hourToSwitch);
+    const arrayToModify = this.filterByTime(this.scheduler, this.hourToSwitch);
 
-    // Ensure the indices are within bounds
     if (
-      this.firstActiveCard < 0 ||
-      this.secondActiveCard < 0 ||
-      this.firstActiveCard >= arrayToModify.length ||
-      this.secondActiveCard >= arrayToModify.length
+      this.firstActiveCard.index < 0 ||
+      this.secondActiveCard.index < 0 ||
+      this.firstActiveCard.index >= arrayToModify.length ||
+      this.secondActiveCard.index >= arrayToModify.length
     ) {
       console.error('Invalid indices for swap operation');
       return;
     }
 
     let data = this.filterAndRemoveByTime(this.hourToSwitch);
-    console.log({ data });
-    moveItemInArray(data, this.firstActiveCard, this.secondActiveCard);
-    data.forEach((d) => {
-      let reply = this.replies.find((r) => {
-        return this.objectKeys(r) == d.serviceArea;
-      });
+    
+    moveItemInArray(data, this.firstActiveCard.index, this.secondActiveCard.index);
 
-      reply[d.serviceArea].replies.push(d);
-    });
+    const updateIndex =this.scheduler.findIndex((area) => area.name == this.activeReplies.name);
+
+    this.scheduler[updateIndex] = {
+      ...this.activeReplies,
+      replies: data
+    };
 
     this.hourToSwitch = null;
     this.firstActiveCard = null;
@@ -440,16 +447,22 @@ export class AppointmentSchedulerComponent implements OnInit {
     );
   }
 
-  viewClientReplies(event: Event, replies: any) {
+  viewClientReplies(event: Event, client: any) {
     event.stopPropagation();
-    this.repliesToView = replies;
+    this.selectedClient = client;
+
   }
 
   formatStatus(status: string): string {
     if (status.length === 0) {
-      return status; // Return the word unchanged if it's empty
+      return status;
     }
 
     return status.charAt(0).toUpperCase() + status.slice(1);
+  }
+
+  openAddReplyMenu() {
+    this.panelType = 'clients';
+    this.saveReplies(false);
   }
 }

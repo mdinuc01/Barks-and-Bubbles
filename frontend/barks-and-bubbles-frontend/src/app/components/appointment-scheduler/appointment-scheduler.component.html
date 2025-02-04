@@ -63,7 +63,7 @@
 
   <button mat-icon-button
           matTooltip="Add reply to scheduler"
-          (click)="panelType = 'clients'"
+          (click)="openAddReplyMenu()"
           [color]="'primary'">
     <mat-icon>
       maps_ugc
@@ -100,11 +100,11 @@
 <div class="layout"
      (click)="panelType = ''">
   <div class="replies-container scroll"
-       [ngClass]="{'no-scroll': !this.replies.length}">
+       [ngClass]="{'no-scroll': !this.scheduler.length}">
 
     <div class="replies-layout">
 
-      <div *ngFor="let reply of replies"
+      <div *ngFor="let reply of scheduler"
            class="reply-container"
            cdkDropListGroup>
         <div class="location-header">
@@ -138,7 +138,7 @@
         <div cdkDropListGroup
              cdkDropList
              [cdkDropListData]="[filterByTime(reply.replies, '')]"
-             (cdkDropListDropped)="drop($event)"
+             (cdkDropListDropped)="drop()"
              (mouseenter)="this.hoveredTime= null"
              (touchend)="this.hoveredTime= null">
 
@@ -150,11 +150,22 @@
                     [cdkDragData]="client">
             <mat-card-title style="height: 0em"></mat-card-title>
             <mat-card-actions class="msg-btn-container">
-              <button mat-icon-button
+              <button *ngIf="!client.addedClient" 
+              mat-icon-button
                       [color]="'primary'"
-                      (click)="viewClientReplies($event, client.clientReplies)"
-                      [matMenuTriggerFor]="replyMenu">
+                      (click)="viewClientReplies($event, client)"
+                      [matMenuTriggerFor]="replyMenu"
+                      matTooltip="View messages from {{client.petParentName}}">
                 <mat-icon>chat</mat-icon>
+              </button>
+
+              <button *ngIf="client.addedClient" 
+              mat-icon-button
+                      [color]="'accent'"
+                      matTooltip="Manual Added Client" style="cursor: default;">
+                <mat-icon class="mat-accent-icon-btn">
+                  person_add
+                  </mat-icon>
               </button>
             </mat-card-actions>
             <mat-card-content>
@@ -177,9 +188,17 @@
           <mat-menu #replyMenu="matMenu"
                     class="scroll messages-menu">
             <div class="messages-layout"
-                 *ngIf="this.repliesToView.length">
+                 *ngIf="this.selectedClient && this.selectedClient.clientReplies.length">
+                 <div class="msg-panel-header">
+                  <mat-icon>pets</mat-icon>
+                  <p>{{selectedClient.petName}}</p>
+
+                  <mat-icon>face</mat-icon>
+                  <p>{{selectedClient.petParentName}}</p>
+
+                </div>
               <mat-card class="message sent"
-                        *ngFor="let reply of this.repliesToView"
+                        *ngFor="let reply of this.selectedClient.clientReplies"
                         [ngClass]="{'sent': reply.status == 'delivered', 'unsent': reply.status == 'failed', 'received': reply.direction == 'inbound'}">
                 <mat-card-content>
                   <p> {{ reply.body.length > 500 && reply.direction == 'outbound-api'? 'Appointment Message Sent' :
@@ -192,7 +211,7 @@
                 </mat-card-footer>
               </mat-card>
             </div>
-            <div *ngIf="!this.repliesToView.length">
+            <div *ngIf="this.selectedClient && !this.selectedClient.clientReplies.length">
               <button mat-menu-item
                       disabled>No replies</button>
             </div>
@@ -208,7 +227,7 @@
 
 
 
-    <p *ngIf="!this.replies.length"
+    <p *ngIf="!this.scheduler.length"
        class="no-replies">No Replies</p>
 
   </div>
@@ -218,20 +237,20 @@
          *ngFor="let hour of hours; index as i"
          cdkDropList
          id="{{hour}}"
-         [cdkDropListData]="filterByTime(this.replies, hour)"
+         [cdkDropListData]="filterByTime(this.scheduler, hour)"
          [cdkDropListConnectedTo]="hours"
-         (cdkDropListDropped)="drop($event)"
+         (cdkDropListDropped)="drop()"
          (mouseenter)="this.hoveredTime = hour"
          (touchend)="this.hoveredTime = hour">
       <h3>{{hour}}</h3>
       <div class="scheduled card-wrapper">
-        <mat-card *ngFor="let client of filterByTime(this.replies, hour); index as j"
+        <mat-card *ngFor="let client of filterByTime(this.scheduler, hour); index as j"
                   cdkDrag
                   class="mat-card"
                   [cdkDragData]="client"
                   (cdkDragStarted)="onDragStart(client)"
-                  [ngClass]="{'activeOne': firstActiveCard === j && hourToSwitch == hour, 'activeTwo': secondActiveCard === j && hourToSwitch == hour,'not-default-time': !client.defaultTime}"
-                  (click)="toggleActiveCard(j, hour)">
+                  [ngClass]="{'activeOne':  firstActiveCard && firstActiveCard.screenIndex === j && hourToSwitch == hour, 'activeTwo': secondActiveCard && secondActiveCard.screenIndex === j && hourToSwitch == hour,'not-default-time': !client.defaultTime}"
+                  (click)="toggleActiveCard(client, j, hour)">
 
           <mat-card-title align="end"
                           style="height: 0em">
@@ -241,11 +260,22 @@
                matTooltip="{{ client.serviceArea }}"></p>
           </mat-card-title>
           <mat-card-actions class="msg-btn-container">
-            <button mat-icon-button
+            <button *ngIf="!client.addedClient" 
+            mat-icon-button
                     [color]="'primary'"
-                    (click)="viewClientReplies($event, client.clientReplies)"
-                    [matMenuTriggerFor]="replyMenu">
+                    (click)="viewClientReplies($event, client)"
+                    [matMenuTriggerFor]="replyMenu"
+                    matTooltip="View messages from {{client.petParentName}}">
               <mat-icon>chat</mat-icon>
+            </button>
+
+            <button *ngIf="client.addedClient" 
+            mat-icon-button
+                    [color]="'accent'"
+                    matTooltip="Manual Added Client" style="cursor: default;">
+              <mat-icon class="mat-accent-icon-btn">
+                person_add
+                </mat-icon>
             </button>
           </mat-card-actions>
           <mat-card-content>
@@ -258,46 +288,45 @@
                 <mat-icon>face</mat-icon>
                 <p>{{ client.petParentName }}</p>
               </div>
-
-              <!-- <p *ngIf="client.body.length > 2"
-                 class="longer-msg"
-                 matTooltip="{{ client.body }}">
-                {{ client.body }}
-              </p>
-
-              <p *ngIf="client.body.length <= 2">
-                {{ client.body }}
-              </p> -->
             </div>
           </mat-card-content>
         </mat-card>
 
         <mat-menu #replyMenu="matMenu"
-                  class="scroll messages-menu">
-          <div class="messages-layout"
-               *ngIf="this.repliesToView.length">
-            <mat-card class="message sent"
-                      *ngFor="let reply of this.repliesToView"
-                      [ngClass]="{'sent': reply.status == 'delivered', 'unsent': reply.status == 'failed', 'received': reply.direction == 'inbound'}">
-              <mat-card-content>
-                <p> {{ reply.body.length > 500 && reply.direction == 'outbound-api'? 'Appointment Message Sent' :
-                  reply.body }}
-                </p>
-              </mat-card-content>
-              <mat-card-footer align="end">
-                <sub>{{formatStatus(reply.status)}} -
-                  {{this.DataService.messageDateFormat(reply.dateUpdated)}}</sub>
-              </mat-card-footer>
-            </mat-card>
-          </div>
-          <div *ngIf="!this.repliesToView.length">
-            <button mat-menu-item
-                    disabled>No replies</button>
-          </div>
-        </mat-menu>
+                    class="scroll messages-menu">
+            <div class="messages-layout"
+                 *ngIf="this.selectedClient && this.selectedClient.clientReplies.length">
+                 <div class="msg-panel-header">
+                  <mat-icon>pets</mat-icon>
+                  <p>{{selectedClient.petName}}</p>
+
+                  <mat-icon>face</mat-icon>
+                  <p>{{selectedClient.petParentName}}</p>
+
+                </div>
+              <mat-card class="message sent"
+                        *ngFor="let reply of this.selectedClient.clientReplies"
+                        [ngClass]="{'sent': reply.status == 'delivered', 'unsent': reply.status == 'failed', 'received': reply.direction == 'inbound'}">
+                <mat-card-content>
+                  <p> {{ reply.body.length > 500 && reply.direction == 'outbound-api'? 'Appointment Message Sent' :
+                    reply.body }}
+                  </p>
+                </mat-card-content>
+                <mat-card-footer align="end">
+                  <sub>{{formatStatus(reply.status)}} -
+                    {{this.DataService.messageDateFormat(reply.dateUpdated)}}</sub>
+                </mat-card-footer>
+              </mat-card>
+            </div>
+            <div *ngIf="this.selectedClient && !this.selectedClient.clientReplies.length">
+              <button mat-menu-item
+                      disabled>No replies</button>
+            </div>
+          </mat-menu>
+
       </div>
 
-      <h3 *ngIf="!filterByTime(this.replies, hour).length"
+      <h3 *ngIf="!filterByTime(this.scheduler, hour).length"
           class="err-msg">Nothing Scheduled at {{hour}}</h3>
     </div>
   </div>

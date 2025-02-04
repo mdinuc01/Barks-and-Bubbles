@@ -270,7 +270,7 @@ h2 {
   display: flex;
   flex-direction: column;
   width: 100%;
-  padding: 1em;
+  padding: 0 1em;
 }
 
 .message {
@@ -292,6 +292,18 @@ h2 {
   mat-card-content {
     width: -webkit-fill-available !important;
   }
+}
+.msg-panel-header {
+  display: flex;
+width: 27.5em;
+justify-content: space-around;
+background-color: lightgray;
+padding: 1em !important;
+position: sticky;
+top: 0;
+z-index: 10;
+outline: 1em solid white;
+margin-bottom: 1em;
 }
 
 .sent {
