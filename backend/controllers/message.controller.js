@@ -328,7 +328,10 @@ class MessageController {
       });
 
       for (let l of areas) {
-        let serviceAreaObj = scheduler.find((s) => l.name == s.name);
+        let serviceAreaObj = await scheduler.find((s) => l.name == s.name);
+        if (!serviceAreaObj) {
+          serviceAreaObj = {name: l.name, replies: [], length: 0, increment: 0.5}
+        }
         let clientsToFind = messagesData.filter(c => c.serviceArea === l.name);
 
         for (let client of clientsToFind) {
@@ -353,6 +356,7 @@ class MessageController {
             serviceAreaObj.replies[clientIndex].clientReplies = clientReplies;
           }
         }
+        
         serviceAreaObj.length = serviceAreaObj.replies.length;
 
         const index = scheduler.findIndex((area) => area.name == l.name);
