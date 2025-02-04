@@ -399,6 +399,21 @@ export class DataService {
       });
   }
 
+  deleteReply(appId: string, petId: string) {
+    this.http
+      .put<{
+        message: string; data: any 
+}>(
+        `${this.apiEndPoint}/appointment/deleteReply`,
+        { appId, petId },
+        { headers: this.headers }
+      )
+      .subscribe((response) => {
+        this.getAppointmentById(appId);
+        this.ToastService.showSuccess(response.message);
+      });
+  }
+
   getPetsWithLocations(appId: string) {
     this.http
       .get<{ data: any[] }>(

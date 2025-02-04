@@ -89,7 +89,7 @@ export class AppointmentSchedulerComponent implements OnInit {
   hoveredTime: string | null = null;
   firstActiveCard: any;
   secondActiveCard: any;
-  activeReplies : any;
+  activeReplies: any;
   hourToSwitch: string | null = null;
   loadingReplies = false;
   selectedClient: any;
@@ -163,7 +163,7 @@ export class AppointmentSchedulerComponent implements OnInit {
     let repliesWithMatchingTime: any[];
 
     if (time == '' && data && data.length) {
-      repliesWithMatchingTime = data.filter((reply) => reply['time'] == null);
+      repliesWithMatchingTime = data.filter((reply) => reply['time'] == null && !reply.delete);
       return repliesWithMatchingTime;
     }
 
@@ -171,7 +171,9 @@ export class AppointmentSchedulerComponent implements OnInit {
       data.forEach((location) => {
         if (location && location.replies && location.replies.length) {
           repliesWithMatchingTime = location.replies.filter(
-            (reply: { time: string | null }) => reply.time === time
+            (reply: {
+              delete: boolean; time: string | null
+            }) => reply.time === time && !reply.delete
           );
 
           matchingReplies = matchingReplies.concat(repliesWithMatchingTime);
@@ -193,29 +195,29 @@ export class AppointmentSchedulerComponent implements OnInit {
       });
       return repliesWithMatchingTime;
     }
-    
-    this.scheduler.forEach((reply) => {
-          if (reply.name == this.activeReplies.name) {
-          const [repliesWithMatchingTime, remainingReplies] =
-            reply.replies.reduce(
-              (
-                acc: { time: string | null }[][],
-                reply: { time: string | null }
-              ) => {
-                if (reply.time === time) {
-                  acc[0].push(reply);
-                } else {
-                  acc[1].push(reply);
-                }
-                return acc;
-              },
-              [[], []] as [{ time: string | null }[], { time: string | null }[]]
-            );
 
-          reply.replies = remainingReplies;
-          matchingReplies = matchingReplies.concat(repliesWithMatchingTime);
-          }
-      });
+    this.scheduler.forEach((reply) => {
+      if (reply.name == this.activeReplies.name) {
+        const [repliesWithMatchingTime, remainingReplies] =
+          reply.replies.reduce(
+            (
+              acc: { time: string | null }[][],
+              reply: { time: string | null }
+            ) => {
+              if (reply.time === time) {
+                acc[0].push(reply);
+              } else {
+                acc[1].push(reply);
+              }
+              return acc;
+            },
+            [[], []] as [{ time: string | null }[], { time: string | null }[]]
+          );
+
+        reply.replies = remainingReplies;
+        matchingReplies = matchingReplies.concat(repliesWithMatchingTime);
+      }
+    });
 
     return matchingReplies;
   }
@@ -234,7 +236,7 @@ export class AppointmentSchedulerComponent implements OnInit {
   drop() {
     this.scheduler = this.scheduler.map((location) => {
       if (location.name == this.currentReply.serviceArea) {
-        
+
         const areaObj = this.appointment.app.route.serviceAreas.find((a: { name: any; }) => a.name == location.name);
         location.replies = location.replies.map(
           (a: {
@@ -242,7 +244,7 @@ export class AppointmentSchedulerComponent implements OnInit {
           }) => {
             if (a.id == this.currentReply.id) {
               a.time = this.hoveredTime;
-              a.defaultTime =  areaObj && areaObj.time ? areaObj.time == this.hoveredTime : true
+              a.defaultTime = areaObj && areaObj.time ? areaObj.time == this.hoveredTime : true
             }
             return a;
           }
@@ -347,7 +349,7 @@ export class AppointmentSchedulerComponent implements OnInit {
     return initials.substring(0, 2);
   }
 
-  toggleActiveCard(client : any, screenIndex : number, hour: string): void {
+  toggleActiveCard(client: any, screenIndex: number, hour: string): void {
     debugger
     let index = 0;
     this.scheduler.forEach((area) => {
@@ -404,7 +406,7 @@ export class AppointmentSchedulerComponent implements OnInit {
   }
 
   switchReplies(): void {
-    
+
     if (this.firstActiveCard == null || this.secondActiveCard == null) {
       console.error('Active card indexes must be defined');
       return;
@@ -423,10 +425,10 @@ export class AppointmentSchedulerComponent implements OnInit {
     }
 
     let data = this.filterAndRemoveByTime(this.hourToSwitch);
-    
+
     moveItemInArray(data, this.firstActiveCard.index, this.secondActiveCard.index);
 
-    const updateIndex =this.scheduler.findIndex((area) => area.name == this.activeReplies.name);
+    const updateIndex = this.scheduler.findIndex((area) => area.name == this.activeReplies.name);
 
     this.scheduler[updateIndex] = {
       ...this.activeReplies,
@@ -464,5 +466,11 @@ export class AppointmentSchedulerComponent implements OnInit {
   openAddReplyMenu() {
     this.panelType = 'clients';
     this.saveReplies(false);
+  }
+
+  deleteClient(client: any, event: Event) {
+    event.stopPropagation();
+    console.log("deleteClient()", { client });
+    this.DataService.deleteReply(this.appId, client.id);
   }
 }
