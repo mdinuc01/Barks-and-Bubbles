@@ -353,7 +353,7 @@ class MessageController {
             });
           } else if (isIncluded) {
             const clientIndex = serviceAreaObj.replies.findIndex((a) => a.id == client.id && !a.delete);
-            serviceAreaObj.replies[clientIndex].clientReplies = clientReplies;
+             if (clientIndex >= 0) serviceAreaObj.replies[clientIndex].clientReplies = clientReplies;
           }
         }
         
