@@ -183,7 +183,7 @@ class AppointmentController {
               }
             ],
             length: 1,
-            increment: serviceAreaFound.increment
+            increment: serviceAreaFound.serviceAreas.find((area) => area.name == pet.serviceArea).increment
           })
         } else {
           newScheduler.push({
@@ -246,7 +246,7 @@ class AppointmentController {
       scheduler[areaIndex].replies = scheduler[areaIndex].replies.map((reply) => {
         if (reply.id == petId) {
           reply.delete = true;
-        } 
+        }
         return reply;
       });
       scheduler[areaIndex].length = scheduler[areaIndex].replies.filter((r) => !r.delete).length;
@@ -264,7 +264,7 @@ class AppointmentController {
       return res.status(200).json({ message: `Client reply deleted successfully!`, data });
 
     } catch (error) {
-      console.log({error})
+      console.log({ error })
       return res.status(500).json({ message: "Internal Server Error", error });
 
     }
