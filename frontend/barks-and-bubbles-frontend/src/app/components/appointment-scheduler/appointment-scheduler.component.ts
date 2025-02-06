@@ -163,7 +163,9 @@ export class AppointmentSchedulerComponent implements OnInit {
     let repliesWithMatchingTime: any[];
 
     if (time == '' && data && data.length) {
-      repliesWithMatchingTime = data.filter((reply) => reply['time'] == null && !reply.delete);
+      repliesWithMatchingTime = data.filter(
+        (reply) => reply['time'] == null && !reply.delete
+      );
       return repliesWithMatchingTime;
     }
 
@@ -171,9 +173,8 @@ export class AppointmentSchedulerComponent implements OnInit {
       data.forEach((location) => {
         if (location && location.replies && location.replies.length) {
           repliesWithMatchingTime = location.replies.filter(
-            (reply: {
-              delete: boolean; time: string | null
-            }) => reply.time === time && !reply.delete
+            (reply: { delete: boolean; time: string | null }) =>
+              reply.time === time && !reply.delete
           );
 
           matchingReplies = matchingReplies.concat(repliesWithMatchingTime);
@@ -190,7 +191,9 @@ export class AppointmentSchedulerComponent implements OnInit {
     if (time == '' && this.scheduler.length) {
       repliesWithMatchingTime = this.scheduler.filter((area) => {
         if (area.name == this.activeReplies.name) {
-          return area.replies.filter((reply: { time: string; }) => reply.time == time)
+          return area.replies.filter(
+            (reply: { time: string }) => reply.time == time
+          );
         }
       });
       return repliesWithMatchingTime;
@@ -236,20 +239,21 @@ export class AppointmentSchedulerComponent implements OnInit {
   drop() {
     this.scheduler = this.scheduler.map((location) => {
       if (location.name == this.currentReply.serviceArea) {
-
-        const areaObj = this.appointment.app.route.serviceAreas.find((a: { name: any; }) => a.name == location.name);
+        const areaObj = this.appointment.app.route.serviceAreas.find(
+          (a: { name: any }) => a.name == location.name
+        );
         location.replies = location.replies.map(
-          (a: {
-            defaultTime: boolean; id: any; time: string | null
-          }) => {
+          (a: { defaultTime: boolean; id: any; time: string | null }) => {
             if (a.id == this.currentReply.id) {
               a.time = this.hoveredTime;
-              a.defaultTime = areaObj && areaObj.time ? areaObj.time == this.hoveredTime : true
+              a.defaultTime =
+                areaObj && areaObj.time
+                  ? areaObj.time == this.hoveredTime
+                  : true;
             }
             return a;
           }
         );
-
       }
       return location;
     });
@@ -350,35 +354,45 @@ export class AppointmentSchedulerComponent implements OnInit {
   }
 
   toggleActiveCard(client: any, screenIndex: number, hour: string): void {
-    debugger
     let index = 0;
     this.scheduler.forEach((area) => {
       if (area.name == client.serviceArea) {
-        index = area.replies.findIndex((reply: { id: any; }) => reply.id == client.id)
+        index = area.replies.findIndex(
+          (reply: { id: any }) => reply.id == client.id
+        );
       }
     });
 
-    if ((this.firstActiveCard && this.hourToSwitch !== hour) || (this.activeReplies && this.activeReplies.name !== client.serviceArea)) {
+    if (
+      (this.firstActiveCard && this.hourToSwitch !== hour) ||
+      (this.activeReplies && this.activeReplies.name !== client.serviceArea)
+    ) {
       this.firstActiveCard = {
         index,
-        screenIndex
+        screenIndex,
       };
       this.secondActiveCard = null;
       this.hourToSwitch = hour;
       this.activeReplies = this.scheduler.find((r) => {
-        const clientFound = r.replies.some((a: { id: any; }) => {
-          return a.id == client.id
+        const clientFound = r.replies.some((a: { id: any }) => {
+          return a.id == client.id;
         });
         if (clientFound) return r;
-      })
+      });
       return;
     }
 
-    if (this.firstActiveCard && this.firstActiveCard.screenIndex === screenIndex) {
+    if (
+      this.firstActiveCard &&
+      this.firstActiveCard.screenIndex === screenIndex
+    ) {
       this.firstActiveCard = null;
       return;
     }
-    if (this.secondActiveCard && this.secondActiveCard.screenIndex === screenIndex) {
+    if (
+      this.secondActiveCard &&
+      this.secondActiveCard.screenIndex === screenIndex
+    ) {
       this.secondActiveCard = null;
       return;
     }
@@ -386,27 +400,25 @@ export class AppointmentSchedulerComponent implements OnInit {
     if (this.firstActiveCard == null) {
       this.firstActiveCard = {
         index,
-        screenIndex
+        screenIndex,
       };
     } else {
       this.secondActiveCard = {
         index,
-        screenIndex
+        screenIndex,
       };
     }
 
     this.activeReplies = this.scheduler.find((r) => {
-      const clientFound = r.replies.some((a: { id: any; }) => {
-        return a.id == client.id
+      const clientFound = r.replies.some((a: { id: any }) => {
+        return a.id == client.id;
       });
       if (clientFound) return r;
-    })
+    });
     this.hourToSwitch = hour;
-
   }
 
   switchReplies(): void {
-
     if (this.firstActiveCard == null || this.secondActiveCard == null) {
       console.error('Active card indexes must be defined');
       return;
@@ -426,13 +438,19 @@ export class AppointmentSchedulerComponent implements OnInit {
 
     let data = this.filterAndRemoveByTime(this.hourToSwitch);
 
-    moveItemInArray(data, this.firstActiveCard.index, this.secondActiveCard.index);
+    moveItemInArray(
+      data,
+      this.firstActiveCard.index,
+      this.secondActiveCard.index
+    );
 
-    const updateIndex = this.scheduler.findIndex((area) => area.name == this.activeReplies.name);
+    const updateIndex = this.scheduler.findIndex(
+      (area) => area.name == this.activeReplies.name
+    );
 
     this.scheduler[updateIndex] = {
       ...this.activeReplies,
-      replies: data
+      replies: data,
     };
 
     this.hourToSwitch = null;
@@ -452,7 +470,6 @@ export class AppointmentSchedulerComponent implements OnInit {
   viewClientReplies(event: Event, client: any) {
     event.stopPropagation();
     this.selectedClient = client;
-
   }
 
   formatStatus(status: string): string {
@@ -470,7 +487,7 @@ export class AppointmentSchedulerComponent implements OnInit {
 
   deleteClient(client: any, event: Event) {
     event.stopPropagation();
-    console.log("deleteClient()", { client });
+    console.log('deleteClient()', { client });
     this.DataService.deleteReply(this.appId, client.id);
   }
 }
