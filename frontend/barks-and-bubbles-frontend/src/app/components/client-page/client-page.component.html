@@ -82,11 +82,17 @@
 
         <span></span>
 
-        <button mat-raised-button
-                color="primary"
-                [disabled]="clientForm.invalid"
-                (click)="updatePet()">Update Pet</button>
+        <div class="btn-layout">
+          <button mat-raised-button
+                  color="primary"
+                  [disabled]="clientForm.invalid"
+                  (click)="updatePet()"
+                  class="margin-right">Update Pet</button>
 
+          <button mat-raised-button
+                  color="accent"
+                  (click)="this.DataService.goHome()">Cancel</button>
+        </div>
       </form>
     </mat-card-content>
   </mat-card>
