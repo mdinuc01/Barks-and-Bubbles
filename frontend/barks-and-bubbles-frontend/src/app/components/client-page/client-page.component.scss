@@ -13,6 +13,12 @@
   align-items: baseline;
 }
 
+.client-page-title {
+  display: flex;
+  justify-content: space-between;
+  width: 10em;
+}
+
 .btn-layout {
   grid-column: span 2;
   display: flex;
@@ -57,13 +63,8 @@ mat-card {
 @media (max-width: 1000px) {
   .layout {
     display: grid;
-    grid-template-columns: 1fr;
+    grid-template-columns: 1fr !important;
     grid-template-rows: repeat(2, 1fr) !important;
-
-    form {
-      display: grid;
-      grid-template-columns: 1fr;
-    }
 
     mat-card {
       button {

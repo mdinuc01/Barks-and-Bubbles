@@ -1,7 +1,14 @@
 <div class="layout">
   <mat-card>
     <mat-card-header class="client-page-header">
-      <mat-card-title>Edit Client</mat-card-title>
+      <div class="client-page-title">
+        <mat-card-title>Edit Client</mat-card-title>
+
+        <mat-icon matTooltip="{{client.active ? 'Deactivate Client' : 'Activate Client'}}"
+                  [ngClass]="{'mat-success-btn': client.active, 'mat-danger-btn': !client.active}"
+                  (click)="updateStatus($event, client._id, !client.active)">{{client.active ?
+          "mark_email_read" : "unsubscribe"}}</mat-icon>
+      </div>
 
       <button mat-icon-button
               color="warn"
