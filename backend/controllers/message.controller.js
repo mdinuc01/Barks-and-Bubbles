@@ -352,8 +352,8 @@ class MessageController {
               ...client
             });
           } else if (isIncluded) {
-            const clientIndex = serviceAreaObj.replies.findIndex((a) => a.id == client.id) && !a.delete;
-            serviceAreaObj.replies[clientIndex].clientReplies = clientReplies;
+            const clientIndex = serviceAreaObj.replies.findIndex((a) => a.id == client.id && !a.delete);
+             if (clientIndex >= 0) serviceAreaObj.replies[clientIndex].clientReplies = clientReplies;
           }
         }
         

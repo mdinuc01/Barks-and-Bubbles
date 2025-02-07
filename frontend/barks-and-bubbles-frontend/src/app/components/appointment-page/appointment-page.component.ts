@@ -46,6 +46,7 @@ export class AppointmentPageComponent implements OnInit {
   messageEditor: [] = [];
   showClients = false;
   message: any;
+  firstInit = true;
 
   constructor(
     public DataService: DataService,
@@ -54,7 +55,7 @@ export class AppointmentPageComponent implements OnInit {
     private readonly ToastService: ToastService
   ) {}
 
-  ngOnInit(): void {
+  async ngOnInit(): Promise<void> {
     this.DataService.messageBuilder$.subscribe((res) => {
       if (res) this.messageEditor = res.data;
     });
@@ -89,6 +90,7 @@ export class AppointmentPageComponent implements OnInit {
     this.DataService.replyLoader$.subscribe((res) => {
       this.loadingReplies = res;
     });
+
   }
 
   async openPanel() {
@@ -151,9 +153,19 @@ export class AppointmentPageComponent implements OnInit {
     );
   }
 
-  hasMessageSent(): Boolean {
-    if (this.appointment && this.appointment.app)
+  hasMessageSent(): boolean {
+    
+    if (this.appointment && this.appointment.app){
+      const messageSent = this.appointment.app?.messages?.sentDate != null || false;
+
+      if (this.firstInit) {
+        this.panelState =  !messageSent ? 'open' : 'closed';
+        this.showClients = !messageSent;
+        this.firstInit = false;
+      }
+
       return this.appointment.app?.messages?.sentDate != null || false;
+    }
     else return false;
   }
 
