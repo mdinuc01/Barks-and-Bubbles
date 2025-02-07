@@ -152,6 +152,18 @@ class ClientController {
     }
 
   }
+
+  async deletePet(req, res) {
+    const { id } = req.params;
+
+    const deletedClient = await Pet.findOneAndDelete({ _id: id, created_by: req.userId });
+
+    if (!deletedClient) {
+      return res.status(404).json({ error: 'Pet not found or unauthorized' });
+    }
+
+    res.status(200).json({ message: 'Pet Deleted Successfully', deleted: true });
+  }
 }
 
 module.exports = new ClientController();

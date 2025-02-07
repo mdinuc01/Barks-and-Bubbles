@@ -13,5 +13,6 @@ router.post('/add', petController.createPet);
 router.put('/status', petController.setActivate);
 router.put('/update/:id', petController.updatePet);
 
+router.delete('/delete/:id', petController.deletePet);
 
 module.exports = router;
