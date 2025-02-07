@@ -1,12 +1,12 @@
 const Appointment = require('../models/Appointment.js');
-const Pet = require('../models/Client.js');
+const Client = require('../models/Client.js');
 const Route = require('../models/Route.js');
 
 class ClientController {
 
   async getAllClients(req, res, next) {
     try {
-      let data = await Pet.find({ created_by: req.userId });
+      let data = await Client.find({ created_by: req.userId });
 
       return res.status(200).json({ message: `Clients found: ${data.length}`, data });
 
@@ -19,7 +19,7 @@ class ClientController {
     try {
 
       const id = req.params.id;
-      let data = await Pet.findOne({ _id: id, created_by: req.userId });
+      let data = await Client.findOne({ _id: id, created_by: req.userId });
 
       if (data)
         return res.status(200).json({ message: `Client found`, data });
@@ -41,7 +41,7 @@ class ClientController {
 
 
 
-      let data = await Pet.findOneAndUpdate({ _id: id, created_by: req.userId }, {
+      let data = await Client.findOneAndUpdate({ _id: id, created_by: req.userId }, {
         $set: {
           'petParentName': updatedData.petParentName,
           'contactMethod': updatedData.contactMethod,
@@ -77,12 +77,12 @@ class ClientController {
         serviceArea,
         address } = req.body;
 
-      await Pet.create({
+      await Client.create({
         petParentName, contactMethod, animalType, breed, petName, serviceArea, address,
         created_by: req.userId
       });
 
-      let data = await Pet.find({ created_by: req.userId });
+      let data = await Client.find({ created_by: req.userId });
 
       if (data)
         return res.status(200).json({ message: `Client created`, data });
@@ -96,13 +96,13 @@ class ClientController {
     try {
       const { id, status } = req.body;
 
-      await Pet.findOneAndUpdate({ _id: id }, {
+      await Client.findOneAndUpdate({ _id: id }, {
         $set: {
           'active': status,
         }
       })
 
-      let data = await Pet.find({ created_by: req.userId });
+      let data = await Client.find({ created_by: req.userId });
 
       if (data)
         return res.status(200).json({ message: `Status for ${id} was updated to ${status}`, data });
@@ -117,9 +117,9 @@ class ClientController {
       const { id } = req.params;
       const app = await Appointment.findOne({ _id: id }).populate('route', 'serviceAreas');
       let locations = await Route.find({ createdBy: req.userId });
-      let pets = await Pet.find({ created_by: req.userId });
+      let pets = await Client.find({ created_by: req.userId });
 
-      const allAreas = await Pet.find({ created_by: req.userId }).distinct('serviceArea');
+      const allAreas = await Client.find({ created_by: req.userId }).distinct('serviceArea');
 
       const allClients = allAreas.map(area => {
         let clientsInLocation = pets.filter(client => client.serviceArea == area);
@@ -156,7 +156,7 @@ class ClientController {
   async deletePet(req, res) {
     const { id } = req.params;
 
-    const deletedClient = await Pet.findOneAndDelete({ _id: id, created_by: req.userId });
+    const deletedClient = await Client.findOneAndDelete({ _id: id, created_by: req.userId });
 
     if (!deletedClient) {
       return res.status(404).json({ error: 'Pet not found or unauthorized' });
