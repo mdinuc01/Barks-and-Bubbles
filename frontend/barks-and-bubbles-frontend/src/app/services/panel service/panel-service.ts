@@ -38,6 +38,7 @@ export class PanelService {
   btnTitle: string;
   allDayAlert: boolean = false;
   dataVal: any;
+  headerType: string | undefined;
 
   //message editor
   panelType: String = '';
@@ -52,7 +53,7 @@ export class PanelService {
 
   constructor(
     public dialogRef: MatDialogRef<PanelService>,
-    private DataService: DataService,
+    private readonly DataService: DataService,
     @Inject(MAT_DIALOG_DATA)
     public data: {
       data: any;
@@ -63,6 +64,7 @@ export class PanelService {
       panelType: string;
       routes: [];
       serviceAreas: [];
+      headerType: string;
     }
   ) {
     this.title = data.title;
@@ -73,6 +75,7 @@ export class PanelService {
     this.panelType = data.panelType;
     this.routes = data.routes;
     this.serviceAreas = data.serviceAreas;
+    this.headerType = data.headerType ? data.headerType : 'primary';
   }
 
   onConfirm(): void {

@@ -1,6 +1,6 @@
 <div class="dialog-panel">
   <div mat-dialog-title
-       class="panel-header-primary"
+       [ngClass]="{'panel-header-primary': this.headerType == 'primary', 'panel-header-danger': this.headerType == 'warn'}"
        style="width: 96%;">
     <h2>{{ data.title }}</h2>
   </div>

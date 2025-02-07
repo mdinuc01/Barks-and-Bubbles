@@ -21,6 +21,9 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatDialog } from '@angular/material/dialog';
+import { PanelService } from '../../services/panel service/panel-service';
+import { lastValueFrom } from 'rxjs/internal/lastValueFrom';
 
 @Component({
   selector: 'app-client-page',
@@ -64,7 +67,8 @@ export class ClientPageComponent implements OnInit, OnDestroy {
     public readonly DataService: DataService,
     private readonly activatedRoute: ActivatedRoute,
     private readonly http: HttpClient,
-    private readonly ToastService: ToastService
+    private readonly ToastService: ToastService,
+    private readonly dialog: MatDialog
   ) {}
 
   ngOnInit(): void {
@@ -159,6 +163,30 @@ export class ClientPageComponent implements OnInit, OnDestroy {
       contactMethod,
     };
     this.DataService.updatePet(this.id, updatedValues);
+  }
+
+  async openDeletePanel() {
+    console.log({ c: this.client });
+    const dialogRef = this.dialog.open(PanelService, {
+      data: {
+        title: `Delete ${this.client.petName}?`,
+        confirmMsg: `Are you sure you want to delete the following data: 
+        <br>
+        <br><b>Pet: ${this.client.petName}</b>
+        <br><b>Pet Parent: ${this.client.petParentName}</b>`,
+        subMsg: 'This action cannot be undone.',
+        btnTitle: 'Delete ',
+        isMsgEditor: false,
+        panelType: 'confirmPanel',
+        headerType: 'warn',
+      },
+    });
+
+    const result = await lastValueFrom(dialogRef.afterClosed());
+
+    if (result) {
+      this.deletePet();
+    }
   }
 
   deletePet() {
