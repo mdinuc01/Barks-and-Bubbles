@@ -73,6 +73,14 @@ export class ClientPageComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.DataService.showLoader();
+    this.DataService.clients$.subscribe((res) => {
+      if (res.data) {
+        this.client = res.data.find((c: { _id: string }) => c._id == this.id);
+      }
+
+      if (res.message == 'Client created')
+        this.ToastService.showSuccess('Pet Added Successfully!');
+    });
     this.DataService.pet$.subscribe((res) => {
       if (!res.data) return;
 
@@ -190,5 +198,10 @@ export class ClientPageComponent implements OnInit, OnDestroy {
 
   deletePet() {
     this.DataService.deletePet(this.id);
+  }
+
+  updateStatus(event: Event, id: any, status: any) {
+    event.stopPropagation();
+    this.DataService.updatePetStatus(id, status);
   }
 }

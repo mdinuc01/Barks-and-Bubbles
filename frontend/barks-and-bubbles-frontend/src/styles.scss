@@ -83,6 +83,11 @@ $my-theme: mat.define-light-theme(
   color: mat.get-color-from-palette($custom-success, 500) !important;
 }
 
+.mat-success-btn:hover,
+.mat-danger-btn {
+  cursor: pointer;
+}
+
 .mat-danger {
   background-color: mat.get-color-from-palette($custom-danger, 500) !important;
   color: white !important;
