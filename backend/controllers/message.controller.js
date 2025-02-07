@@ -1,5 +1,5 @@
 const Message = require('../models/Message.js');
-const Pet = require('../models/Pet.js');
+const Client = require('../models/Client.js');
 const Appointment = require('../models/Appointment.js');
 const SMSUtils = require('../utils/SMSUtils.js');
 const nodemailer = require("nodemailer");
@@ -26,7 +26,7 @@ class MessageController {
       }
 
       const { date, appId } = req.body;
-      const pets = await Pet.find({ created_by: req.userId });
+      const clients = await Client.find({ created_by: req.userId });
       let app = await Appointment.findOne({ _id: appId }).populate('route', 'serviceAreas');
       let areas = app?.route?.serviceAreas.map(a => a.name) || [];
       const messageObj = await Builder.findOne({ name: "First Message" });
@@ -35,8 +35,8 @@ class MessageController {
       let sentDate = new Date();
 
 
-      if (pets.length && app) {
-        pets.forEach(pet => {
+      if (clients.length && app) {
+        clients.forEach(pet => {
           if (pet.active && pet.contactMethod && isValidPhoneNumber(pet.contactMethod) && areas.includes(pet.serviceArea)) {
             const messageText = new Message(pet, date, 0, messageObj.message).createMessage();
             if (messageText?.trim()) {
@@ -102,7 +102,7 @@ class MessageController {
       areas = app.route.serviceAreas.map((a) => a.name);
 
       const location = areas.map(locationVal => {
-        const clientsInLocation = pets.filter(client => client.serviceArea === locationVal);
+        const clientsInLocation = clients.filter(client => client.serviceArea === locationVal);
         return { [locationVal]: clientsInLocation };
       });
 
@@ -139,9 +139,9 @@ class MessageController {
             for (const reply of area.replies) {
               if (reply.id && reply.time && reply.petParentName && !reply.delete) {
                 try {
-                  const pet = await Pet.findOne({ _id: reply.id }).lean();
-                  const messageText = await new Message(pet, reply.time, area.increment, messageObj.message).createMessage();
-                  generatedMessages.push({ message: messageText, phoneNumber: pet.contactMethod });
+                  const client = await Client.findOne({ _id: reply.id }).lean();
+                  const messageText = await new Message(client, reply.time, area.increment, messageObj.message).createMessage();
+                  generatedMessages.push({ message: messageText, phoneNumber: client.contactMethod });
                 } catch (error) {
                   console.error('Error creating message:', error);
                 }
@@ -149,7 +149,7 @@ class MessageController {
             }
           }
         }
-      
+
 
         if (!generatedMessages.length) {
           return res.status(400).json({ message: "No valid messages to send." });
@@ -198,13 +198,13 @@ class MessageController {
     }
   }
 
-  
+
   async getReplies(req, res, next) {
     try {
 
       if (os.platform() !== 'darwin') {
-          return res.status(500).json({ message: "Messaging is only supported on macOS." });
-        }
+        return res.status(500).json({ message: "Messaging is only supported on macOS." });
+      }
 
       const { sentDate, appId } = req.body;
       const app = await Appointment.findOne({ _id: appId }).populate('route', 'name serviceAreas').lean();
@@ -213,30 +213,30 @@ class MessageController {
       let scheduler = app.scheduler;
 
       const contactMethods = messagesData.map((contact) =>
-                contact.contactMethod.startsWith('+1') ? contact.contactMethod : `+1${contact.contactMethod}`
-              );
-      
-              const sentDateTimestamp = (new Date(sentDate).getTime() - 978307200000) * 1000000;
-              const dbPath = '/Users/larissadinuccio/Library/Messages/chat.db';
-              const plistpath = '/Users/larissadinuccio/Library/Messages/com.apple.messages.geometrycache_v15.plist';
-      
-              const queryMessages = async () => {
-                let allResults = [];
-                let offset = 0;
-                const limit = 20; // Number of rows to fetch per batch
-      
-                while (true) {
-                  const results = await new Promise((resolve, reject) => {
-                    const db = new sqlite3.Database(dbPath, (err) => {
-                      if (err) {
-                        console.error('Could not connect to the database:', err.message);
-                        return reject(err);
-                      }
-                    });
-      
-                    const placeholders = contactMethods.map(() => '?').join(', ');
-      
-                    const sql = `SELECT
+        contact.contactMethod.startsWith('+1') ? contact.contactMethod : `+1${contact.contactMethod}`
+      );
+
+      const sentDateTimestamp = (new Date(sentDate).getTime() - 978307200000) * 1000000;
+      const dbPath = '/Users/larissadinuccio/Library/Messages/chat.db';
+      const plistpath = '/Users/larissadinuccio/Library/Messages/com.apple.messages.geometrycache_v15.plist';
+
+      const queryMessages = async () => {
+        let allResults = [];
+        let offset = 0;
+        const limit = 20; // Number of rows to fetch per batch
+
+        while (true) {
+          const results = await new Promise((resolve, reject) => {
+            const db = new sqlite3.Database(dbPath, (err) => {
+              if (err) {
+                console.error('Could not connect to the database:', err.message);
+                return reject(err);
+              }
+            });
+
+            const placeholders = contactMethods.map(() => '?').join(', ');
+
+            const sql = `SELECT
                               m.rowid,
                               COALESCE(m.cache_roomnames, h.id) AS ThreadId,
                               m.is_from_me AS IsFromMe,
@@ -268,54 +268,54 @@ class MessageController {
                               AND m.date > ? 
                           ORDER BY 
                               m.date DESC LIMIT ${limit} OFFSET ${offset};`;
-      
-                    const queryParams = [...contactMethods, ...contactMethods, sentDateTimestamp];
-      
-                    db.all(sql, queryParams, (err, rows) => {
-                      if (err) {
-                        console.error('Error executing query:', err.message);
-                        db.close();
-                        return reject(err);
-                      }
-      
-                      db.close((closeErr) => {
-                        if (closeErr) {
-                          console.error('Error closing the database connection:', closeErr.message);
-                          return reject(closeErr);
-                        }
-                      });
-      
-                      resolve(rows);
-                    });
-                  });
-      
-                  if (results.length === 0) break; // Stop if no more results are returned
-      
-                  allResults = allResults.concat(results);
-                  offset += limit;
-                }
-      
-                return allResults.map(async row => {
-                  if (!row.MessageText) return;
-                  let messageText = await parseAndExtractText(plistpath, Buffer.from(row.MessageText));
-                  let to = formatPhoneNumber(row.ToPhoneNumber);
-                  let from = formatPhoneNumber(row.FromPhoneNumber);
-                  let direction = row.ToPhoneNumber !== 'P:+16477676216' && row.ToPhoneNumber !== "E:larissadinuccio@gmail.com" ? "outbound-api" : "inbound";
-      
-                  return {
-                    sid: row.ROWID,
-                    body: messageText,
-                    dateUpdated: formatDate(row.TextDate),
-                    to: to,
-                    from: from,
-                    status: direction == 'inbound' ? 'received' : 'delivered',
-                    direction: direction
-                  };
-                });
+
+            const queryParams = [...contactMethods, ...contactMethods, sentDateTimestamp];
+
+            db.all(sql, queryParams, (err, rows) => {
+              if (err) {
+                console.error('Error executing query:', err.message);
+                db.close();
+                return reject(err);
               }
 
-              let replies = await Promise.all(await queryMessages());
-              if (!replies.length) return res.status(500).json({ message: "Internal Server Error", error });
+              db.close((closeErr) => {
+                if (closeErr) {
+                  console.error('Error closing the database connection:', closeErr.message);
+                  return reject(closeErr);
+                }
+              });
+
+              resolve(rows);
+            });
+          });
+
+          if (results.length === 0) break; // Stop if no more results are returned
+
+          allResults = allResults.concat(results);
+          offset += limit;
+        }
+
+        return allResults.map(async row => {
+          if (!row.MessageText) return;
+          let messageText = await parseAndExtractText(plistpath, Buffer.from(row.MessageText));
+          let to = formatPhoneNumber(row.ToPhoneNumber);
+          let from = formatPhoneNumber(row.FromPhoneNumber);
+          let direction = row.ToPhoneNumber !== 'P:+16477676216' && row.ToPhoneNumber !== "E:larissadinuccio@gmail.com" ? "outbound-api" : "inbound";
+
+          return {
+            sid: row.ROWID,
+            body: messageText,
+            dateUpdated: formatDate(row.TextDate),
+            to: to,
+            from: from,
+            status: direction == 'inbound' ? 'received' : 'delivered',
+            direction: direction
+          };
+        });
+      }
+
+      let replies = await Promise.all(await queryMessages());
+      if (!replies.length) return res.status(500).json({ message: "Internal Server Error", error });
 
 
       const numbersSentTo = messagesData.map((message) => message.contactMethod.toString());
@@ -330,7 +330,7 @@ class MessageController {
       for (let l of areas) {
         let serviceAreaObj = await scheduler.find((s) => l.name == s.name);
         if (!serviceAreaObj) {
-          serviceAreaObj = {name: l.name, replies: [], length: 0, increment: 0.5}
+          serviceAreaObj = { name: l.name, replies: [], length: 0, increment: 0.5 }
         }
         let clientsToFind = messagesData.filter(c => c.serviceArea === l.name);
 
@@ -353,10 +353,10 @@ class MessageController {
             });
           } else if (isIncluded) {
             const clientIndex = serviceAreaObj.replies.findIndex((a) => a.id == client.id && !a.delete);
-             if (clientIndex >= 0) serviceAreaObj.replies[clientIndex].clientReplies = clientReplies;
+            if (clientIndex >= 0) serviceAreaObj.replies[clientIndex].clientReplies = clientReplies;
           }
         }
-        
+
         serviceAreaObj.length = serviceAreaObj.replies.filter((r) => !r.delete).length;
 
         const index = scheduler.findIndex((area) => area.name == l.name);

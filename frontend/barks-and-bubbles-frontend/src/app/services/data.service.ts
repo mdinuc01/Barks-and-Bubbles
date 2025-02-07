@@ -68,7 +68,7 @@ export class DataService {
       .get<{
         message: string;
         data: any;
-      }>(`${this.apiEndPoint}/pet/`, {
+      }>(`${this.apiEndPoint}/client/`, {
         headers: this.headers,
       })
       .subscribe(
@@ -104,7 +104,7 @@ export class DataService {
 
   addPet(data: any) {
     this.http
-      .post<{ data: any[] }>(`${this.apiEndPoint}/pet/add`, data, {
+      .post<{ data: any[] }>(`${this.apiEndPoint}/client/add`, data, {
         headers: this.headers,
       })
       .subscribe((response) => {
@@ -125,7 +125,7 @@ export class DataService {
 
   deletePet(id: string) {
     this.http
-      .delete(`${this.apiEndPoint}/pet/delete/${id}`, {
+      .delete(`${this.apiEndPoint}/client/delete/${id}`, {
         headers: this.headers,
       })
       .subscribe((res: any) => {
@@ -275,7 +275,7 @@ export class DataService {
 
   getPetById(id: string) {
     this.http
-      .get(`${this.apiEndPoint}/pet/${id}`, {
+      .get(`${this.apiEndPoint}/client/${id}`, {
         headers: this.headers,
       })
       .subscribe((response) => {
@@ -286,7 +286,7 @@ export class DataService {
   updatePet(id: string, data: any) {
     this.http
       .put<{ data: any }>(
-        `${this.apiEndPoint}/pet/update/${id}`,
+        `${this.apiEndPoint}/client/update/${id}`,
         { data },
         { headers: this.headers }
       )
@@ -298,7 +298,7 @@ export class DataService {
   updatePetStatus(id: any, status: any) {
     this.http
       .put<{ data: any[] }>(
-        `${this.apiEndPoint}/pet/status`,
+        `${this.apiEndPoint}/client/status`,
         {
           id,
           status,
@@ -318,7 +318,7 @@ export class DataService {
   updatePetStatusApp(id: any, status: any, appId: string) {
     this.http
       .put<{ data: any[] }>(
-        `${this.apiEndPoint}/pet/status`,
+        `${this.apiEndPoint}/client/status`,
         {
           id,
           status,
@@ -438,7 +438,7 @@ export class DataService {
   getPetsWithLocations(appId: string) {
     this.http
       .get<{ data: any[] }>(
-        `${this.apiEndPoint}/pet/petsWithLocations/${appId}`,
+        `${this.apiEndPoint}/client/clientsWithLocations/${appId}`,
         {
           headers: this.headers,
         }

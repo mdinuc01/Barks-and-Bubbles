@@ -1,5 +1,5 @@
 const Appointment = require('../models/Appointment.js');
-const Pet = require('../models/Pet.js');
+const Pet = require('../models/Client.js');
 const Route = require('../models/Route.js');
 
 class ClientController {

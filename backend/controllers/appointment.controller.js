@@ -1,5 +1,5 @@
 const Appointment = require('../models/Appointment.js');
-const Pet = require('../models/Pet.js');
+const Client = require('../models/Client.js');
 const Routes = require('../models/Route.js');
 
 class AppointmentController {
@@ -45,8 +45,6 @@ class AppointmentController {
 
       const app = await Appointment.findOne({ _id: idToFind, created_by: req.userId }).populate('route', 'name serviceAreas');
       let locations = app.route.serviceAreas.map((a) => a.name);
-
-      let pets = await Pet.find({ serviceArea: { $in: locations }, created_by: req.userId });
 
       let meta = app.route.serviceAreas;
       const data = { app, meta }
@@ -125,15 +123,15 @@ class AppointmentController {
         return res.status(200).json({ message: `Client already has a reply!`, data: app });
       }
 
-      const pet = await Pet.findOne({ _id: petId, created_by: req.userId }).lean();
+      const clients = await Client.findOne({ _id: petId, created_by: req.userId }).lean();
 
-      if (!pet || !app) {
+      if (!clients || !app) {
         return res.status(404).json({ message: `Appointment or pet not found` });
 
       }
 
       let serviceAreaObj = await app.route.serviceAreas.find((r) => {
-        if (r.name == pet.serviceArea) return r;
+        if (r.name == clients.serviceArea) return r;
       });
 
       let newScheduler = [];
@@ -141,17 +139,17 @@ class AppointmentController {
       if (serviceAreaObj) {
 
         newScheduler = app.scheduler.map((s) => {
-          if (s.name == pet.serviceArea) {
+          if (s.name == clients.serviceArea) {
             s.replies.push({
               "time": serviceAreaObj.time && serviceAreaObj.time != null ? serviceAreaObj.time : null,
               "status": 'received',
               "defaultTime": true,
               "clientReplies": [],
               "addedClient": true,
-              "petParentName": pet.petParentName,
-              "contactMethod": `+1${pet.contactMethod}`,
-              "petName": pet.petName,
-              "serviceArea": pet.serviceArea,
+              "petParentName": clients.petParentName,
+              "contactMethod": `+1${clients.contactMethod}`,
+              "petName": clients.petName,
+              "serviceArea": clients.serviceArea,
               "id": petId,
               "delete": false
             })
@@ -160,13 +158,13 @@ class AppointmentController {
           return s;
         });
       } else {
-        let serviceAreaFound = await Routes.findOne({ "serviceAreas.name": pet.serviceArea }).lean();
+        let serviceAreaFound = await Routes.findOne({ "serviceAreas.name": clients.serviceArea }).lean();
 
         newScheduler = app.scheduler;
 
         if (serviceAreaFound) {
           newScheduler.push({
-            name: pet.serviceArea,
+            name: clients.serviceArea,
             replies: [
               {
                 "time": serviceAreaFound.time,
@@ -174,20 +172,20 @@ class AppointmentController {
                 "defaultTime": true,
                 "clientReplies": [],
                 "addedClient": true,
-                "petParentName": pet.petParentName,
-                "contactMethod": `+1${pet.contactMethod}`,
-                "petName": pet.petName,
-                "serviceArea": pet.serviceArea,
+                "petParentName": clients.petParentName,
+                "contactMethod": `+1${clients.contactMethod}`,
+                "petName": clients.petName,
+                "serviceArea": clients.serviceArea,
                 "id": petId,
                 delete: false
               }
             ],
             length: 1,
-            increment: serviceAreaFound.serviceAreas.find((area) => area.name == pet.serviceArea).increment
+            increment: serviceAreaFound.serviceAreas.find((area) => area.name == clients.serviceArea).increment
           })
         } else {
           newScheduler.push({
-            name: pet.serviceArea,
+            name: clients.serviceArea,
             replies: [
               {
                 "time": null,
@@ -195,10 +193,10 @@ class AppointmentController {
                 "defaultTime": true,
                 "clientReplies": [],
                 "addedClient": true,
-                "petParentName": pet.petParentName,
-                "contactMethod": `+1${pet.contactMethod}`,
-                "petName": pet.petName,
-                "serviceArea": pet.serviceArea,
+                "petParentName": clients.petParentName,
+                "contactMethod": `+1${clients.contactMethod}`,
+                "petName": clients.petName,
+                "serviceArea": clients.serviceArea,
                 "id": petId,
                 delete: false
               }
@@ -234,7 +232,7 @@ class AppointmentController {
       const app = await Appointment.findOne({ _id: appId }).select('route scheduler name serviceAreas')
         .populate('route').lean();
 
-      const pet = await Pet.findOne({ _id: petId, created_by: req.userId }).lean();
+      const pet = await Client.findOne({ _id: petId, created_by: req.userId }).lean();
 
       if (!app) {
         return res.status(404).json({ message: `Appointment not found` });

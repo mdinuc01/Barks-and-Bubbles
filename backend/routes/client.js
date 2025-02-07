@@ -7,7 +7,7 @@ router.use(verifyToken);
 
 router.get('/', petController.getAllClients);
 router.get('/:id', petController.getPetById);
-router.get('/petsWithLocations/:id', petController.getAllPetsWithLocations);
+router.get('/clientsWithLocations/:id', petController.getAllPetsWithLocations);
 
 router.post('/add', petController.createPet);
 router.put('/status', petController.setActivate);
