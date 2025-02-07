@@ -166,7 +166,6 @@ export class ClientPageComponent implements OnInit, OnDestroy {
   }
 
   async openDeletePanel() {
-    console.log({ c: this.client });
     const dialogRef = this.dialog.open(PanelService, {
       data: {
         title: `Delete ${this.client.petName}?`,
