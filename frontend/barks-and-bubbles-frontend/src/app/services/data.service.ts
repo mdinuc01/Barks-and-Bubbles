@@ -328,6 +328,9 @@ export class DataService {
         }
       )
       .subscribe((response) => {
+        this.ToastService.showSuccess(
+          `Client is now ${status ? 'Active' : 'Deactivated'}`
+        );
         this.clientsSubject.next(response);
         this.getAppointmentById(appId);
         this.getPetsWithLocations(appId);
