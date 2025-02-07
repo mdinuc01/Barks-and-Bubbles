@@ -1,6 +1,15 @@
 <div class="layout">
   <mat-card>
-    <mat-card-title>Edit Client</mat-card-title>
+    <mat-card-header class="client-page-header">
+      <mat-card-title>Edit Client</mat-card-title>
+
+      <button mat-icon-button
+              color="warn"
+              matTooltip="Delete Pet"
+              (click)="deletePet()">
+        <mat-icon color="warn">delete</mat-icon>
+      </button>
+    </mat-card-header>
     <mat-card-content>
       <form [formGroup]="clientForm">
         <mat-form-field appearance="outline">

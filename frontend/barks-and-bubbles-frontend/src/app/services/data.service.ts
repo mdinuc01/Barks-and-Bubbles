@@ -123,6 +123,19 @@ export class DataService {
       });
   }
 
+  deletePet(id: string) {
+    this.http
+      .delete(`${this.apiEndPoint}/pet/delete/${id}`, {
+        headers: this.headers,
+      })
+      .subscribe((res: any) => {
+        if (res.deleted) {
+          this.goHome();
+        }
+        this.ToastService.showSuccess(res.message);
+      });
+  }
+
   getAllAppointments() {
     this.http
       .get<{ data: any[] }>(`${this.apiEndPoint}/appointment/`, {
@@ -387,8 +400,9 @@ export class DataService {
   addToReply(appId: string, petId: string) {
     this.http
       .put<{
-        message: string; data: any 
-}>(
+        message: string;
+        data: any;
+      }>(
         `${this.apiEndPoint}/appointment/addPetToReplies`,
         { appId, petId },
         { headers: this.headers }
@@ -402,8 +416,9 @@ export class DataService {
   deleteReply(appId: string, petId: string) {
     this.http
       .put<{
-        message: string; data: any 
-}>(
+        message: string;
+        data: any;
+      }>(
         `${this.apiEndPoint}/appointment/deleteReply`,
         { appId, petId },
         { headers: this.headers }

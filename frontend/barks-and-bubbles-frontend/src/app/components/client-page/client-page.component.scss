@@ -6,6 +6,13 @@
   height: 90dvh;
 }
 
+.client-page-header {
+  display: flex;
+  padding: 0px 16px 0;
+  justify-content: space-between;
+  align-items: baseline;
+}
+
 form {
   display: grid;
   grid-template-columns: 1fr 1fr;

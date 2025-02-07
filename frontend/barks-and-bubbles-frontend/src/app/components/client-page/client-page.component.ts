@@ -19,6 +19,8 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatOptionModule } from '@angular/material/core';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
+import { MatIconModule } from '@angular/material/icon';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 @Component({
   selector: 'app-client-page',
@@ -35,6 +37,8 @@ import { MatSelectModule } from '@angular/material/select';
     CommonModule,
     MatAutocompleteModule,
     MatCardModule,
+    MatIconModule,
+    MatTooltipModule,
   ],
   templateUrl: './client-page.component.html',
   styleUrl: './client-page.component.scss',
@@ -59,7 +63,7 @@ export class ClientPageComponent implements OnInit, OnDestroy {
   constructor(
     public readonly DataService: DataService,
     private readonly activatedRoute: ActivatedRoute,
-    private http: HttpClient,
+    private readonly http: HttpClient,
     private readonly ToastService: ToastService
   ) {}
 
@@ -100,7 +104,7 @@ export class ClientPageComponent implements OnInit, OnDestroy {
     this.getBreeds().subscribe((data) => {
       this.breeds = this.flattenBreeds(data.message)
         .map(this.capitalizeBreed)
-        .sort();
+        .sort((a, b) => a.localeCompare(b));
       this.filteredBreeds = this.breeds;
     });
 
@@ -155,5 +159,9 @@ export class ClientPageComponent implements OnInit, OnDestroy {
       contactMethod,
     };
     this.DataService.updatePet(this.id, updatedValues);
+  }
+
+  deletePet() {
+    this.DataService.deletePet(this.id);
   }
 }
