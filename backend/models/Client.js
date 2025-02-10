@@ -43,6 +43,15 @@ const clientScheme = mongoose.Schema(
       type: Array,
       default: [],
       required: true
+    },
+    type: {
+      type: Array,
+      default: [],
+      required: true
+    },
+    order: {
+      type: Number,
+      required: true
     }
   }
 )

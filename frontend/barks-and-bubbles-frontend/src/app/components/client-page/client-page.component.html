@@ -1,31 +1,71 @@
 <div class="layout">
-  <mat-card>
+  <mat-card *ngIf="this.client">
     <mat-card-header class="client-page-header">
-      <div class="client-page-title">
-        <mat-card-title>Edit Client</mat-card-title>
+      <mat-card-title>{{this.editMode ? "": this.client.petParentName}}</mat-card-title>
 
-        <mat-icon matTooltip="{{client.active ? 'Deactivate Client' : 'Activate Client'}}"
-                  [ngClass]="{'mat-success-btn': client.active, 'mat-danger-btn': !client.active}"
-                  (click)="updateStatus($event, client._id, !client.active)">{{client.active ?
-          "mark_email_read" : "unsubscribe"}}</mat-icon>
+      <div>
+        <button mat-icon-button
+                matTooltip="{{client.active ? 'Deactivate Client' : 'Activate Client'}}"
+                (click)="updateStatus($event, client._id, !client.active)">
+          <mat-icon [ngClass]="{'mat-success-btn': client.active, 'mat-danger-btn': !client.active}">{{client.active ?
+            "mark_email_read" : "unsubscribe"}}</mat-icon>
+        </button>
+
+        <button mat-icon-button
+                color="accent"
+                matTooltip="{{!this.editMode ? 'Edit Client' : 'Cancel Edit'}}"
+                (click)=" this.editMode ? this.resetForm(): this.editMode = true">
+          <mat-icon class="mat-accent-icon-btn">{{!this.editMode ? "edit" : "restart_alt"}}</mat-icon>
+        </button>
+
+        <button mat-icon-button
+                color="warn"
+                matTooltip="Delete Client"
+                (click)="openDeletePanel()">
+          <mat-icon color="warn">delete</mat-icon>
+        </button>
+      </div>
+    </mat-card-header>
+
+    <div class="client-info-container"
+         *ngIf="!this.editMode">
+      <div class="grid-container">
+        <h3 class="grid-item address-area"><b>Address:</b> {{this.client.address }}</h3>
       </div>
 
-      <button mat-icon-button
-              color="warn"
-              matTooltip="Delete Pet"
-              (click)="openDeletePanel()">
-        <mat-icon color="warn">delete</mat-icon>
-      </button>
-    </mat-card-header>
+      <div class="grid-container">
+        <h3 class="grid-item"><b>Service Area:</b> {{this.client.serviceArea}}</h3>
+        <h3 class="grid-item"><b>Contact Method:</b> {{this.DataService.formatPhoneNumber(this.client.contactMethod) }}
+        </h3>
+      </div>
+
+      <div class="grid-container">
+        <h3 class="grid-item"
+            style="margin: 0;">
+          <b>Services:</b>
+        </h3>
+
+        <mat-chip-grid #chipGrid
+                       aria-label="Client services"
+                       style="margin: 0 0 1em 2em; grid-column: 1 / 3;">
+          @for (service of this.client.type; track service) {
+          <mat-chip-row [color]="'primary'">
+            {{service}}
+          </mat-chip-row>
+          }</mat-chip-grid>
+      </div>
+    </div>
+
     <mat-card-content>
-      <form [formGroup]="clientForm">
-        <mat-form-field appearance="outline">
+      <form [formGroup]="clientForm"
+            *ngIf="this.editMode">
+        <!-- <mat-form-field appearance="outline">
           <mat-label>Pet Name</mat-label>
           <input matInput
                  type="text"
                  formControlName="petName" />
           <mat-hint>Luna</mat-hint>
-        </mat-form-field>
+        </mat-form-field> -->
 
         <mat-form-field appearance="outline">
           <mat-label>Pet Parent</mat-label>
@@ -35,7 +75,7 @@
           <mat-hint>Jane Doe</mat-hint>
         </mat-form-field>
 
-        <mat-form-field appearance="outline">
+        <!-- <mat-form-field appearance="outline">
           <mat-label>Animal Type</mat-label>
           <input matInput
                  type="text"
@@ -58,7 +98,7 @@
               {{ breed }}
             </mat-option>
           </mat-autocomplete>
-        </mat-form-field>
+        </mat-form-field> -->
 
 
         <mat-form-field appearance="outline">
@@ -82,10 +122,18 @@
           <input matInput
                  type="text"
                  formControlName="contactMethod"
-                 (input)="this.DataService.formatPhoneNumber(this.clientForm)"
+                 (input)="this.DataService.formatPhoneNumberWithKey(this.clientForm)"
                  maxlength="14" />
           <mat-hint>(647) 234-5678</mat-hint>
         </mat-form-field>
+
+        <section class="example-section"
+                 [formGroup]="servicesForm">
+          <h4>Select client's services:</h4>
+          <p *ngFor="let service of this.serviceTypes"><mat-checkbox formControlName="{{service.form}}"
+                          [color]="'primary'">{{service.label}}</mat-checkbox></p>
+
+        </section>
 
         <span></span>
 
@@ -93,14 +141,38 @@
           <button mat-raised-button
                   color="primary"
                   [disabled]="clientForm.invalid"
-                  (click)="updatePet()"
+                  (click)="updateClient()"
                   class="margin-right">Update Pet</button>
 
           <button mat-raised-button
                   color="accent"
-                  (click)="this.DataService.goHome()">Cancel</button>
+                  (click)="resetForm()">Cancel</button>
         </div>
       </form>
+
+      <!-- Pets List -->
+      <div *ngIf="!this.editMode">
+        <div class="pets-header">
+          <h3 class="pets-title">Pets</h3>
+
+          <button mat-mini-fab
+                  [color]="'primary'"
+                  matTooltip="Add Pet">
+            <mat-icon>add</mat-icon>
+          </button>
+        </div>
+        <div class="pets-layout scroll">
+          <mat-card *ngFor="let pet of this.client.pets"
+                    class="pet-card">
+            <mat-card-title>{{pet.petName}}</mat-card-title>
+
+            <mat-card-content>
+              <p><b>Animal Type:</b> {{pet.animalType}}</p>
+              <p><b>Breed:</b> {{pet.breed}}</p>
+            </mat-card-content>
+          </mat-card>
+        </div>
+      </div>
     </mat-card-content>
   </mat-card>
 

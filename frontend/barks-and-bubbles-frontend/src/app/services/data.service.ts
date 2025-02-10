@@ -123,7 +123,7 @@ export class DataService {
       });
   }
 
-  deletePet(id: string) {
+  deleteClient(id: string) {
     this.http
       .delete(`${this.apiEndPoint}/client/delete/${id}`, {
         headers: this.headers,
@@ -283,7 +283,7 @@ export class DataService {
       });
   }
 
-  updatePet(id: string, data: any) {
+  updateClient(id: string, data: any) {
     this.http
       .put<{ data: any }>(
         `${this.apiEndPoint}/client/update/${id}`,
@@ -533,7 +533,21 @@ export class DataService {
     return false;
   }
 
-  formatPhoneNumber(form: FormGroup, event?: KeyboardEvent) {
+  formatPhoneNumber(phoneNumber: string) {
+    let formatted = '';
+    if (phoneNumber.length > 0) {
+      formatted = `(${phoneNumber.substring(0, 3)}`;
+      if (phoneNumber.length >= 4) {
+        formatted += `) ${phoneNumber.substring(3, 6)}`;
+      }
+      if (phoneNumber.length >= 7) {
+        formatted += `-${phoneNumber.substring(6, 10)}`;
+      }
+    }
+
+    return formatted;
+  }
+  formatPhoneNumberWithKey(form: FormGroup, event?: KeyboardEvent) {
     const input = form.get('contactMethod');
 
     // Check if `input` exists and has a value

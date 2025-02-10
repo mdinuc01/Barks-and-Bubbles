@@ -1,18 +1,18 @@
 const express = require('express');
-const petController = require('../controllers/pet.controller.js');
+const clientController = require('../controllers/client.controller.js');
 const verifyToken = require('../middleware/authJwt.js');
 
 const router = express.Router();
 router.use(verifyToken);
 
-router.get('/', petController.getAllClients);
-router.get('/:id', petController.getPetById);
-router.get('/clientsWithLocations/:id', petController.getAllPetsWithLocations);
+router.get('/', clientController.getAllClients);
+router.get('/:id', clientController.getClientById);
+router.get('/clientsWithLocations/:id', clientController.getAllClientsWithLocations);
 
-router.post('/add', petController.createPet);
-router.put('/status', petController.setActivate);
-router.put('/update/:id', petController.updatePet);
+router.post('/add', clientController.createClient);
+router.put('/status', clientController.setActivate);
+router.put('/update/:id', clientController.updateClient);
 
-router.delete('/delete/:id', petController.deletePet);
+router.delete('/delete/:id', clientController.deleteClient);
 
 module.exports = router;

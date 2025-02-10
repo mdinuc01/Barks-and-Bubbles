@@ -15,7 +15,7 @@ class ClientController {
     }
   }
 
-  async getPetById(req, res, next) {
+  async getClientById(req, res, next) {
     try {
 
       const id = req.params.id;
@@ -33,7 +33,7 @@ class ClientController {
 
   }
 
-  async updatePet(req, res, next) {
+  async updateClient(req, res, next) {
     try {
 
       const id = req.params.id;
@@ -45,12 +45,9 @@ class ClientController {
         $set: {
           'petParentName': updatedData.petParentName,
           'contactMethod': updatedData.contactMethod,
-          'animalType': updatedData.animalType,
-          'breed': updatedData.breed,
-          'petName': updatedData.petName,
           'serviceArea': updatedData.serviceArea,
           'address': updatedData.address,
-          'active': updatedData.active
+          'type': updatedData.type
         }
       },
         { new: true });
@@ -67,7 +64,7 @@ class ClientController {
 
   }
 
-  async createPet(req, res, next) {
+  async createClient(req, res, next) {
     try {
       const { petParentName,
         contactMethod,
@@ -112,7 +109,7 @@ class ClientController {
     }
   }
 
-  async getAllPetsWithLocations(req, res) {
+  async getAllClientsWithLocations(req, res) {
     try {
       const { id } = req.params;
       const app = await Appointment.findOne({ _id: id }).populate('route', 'serviceAreas');
@@ -153,7 +150,7 @@ class ClientController {
 
   }
 
-  async deletePet(req, res) {
+  async deleteClient(req, res) {
     const { id } = req.params;
 
     const deletedClient = await Client.findOneAndDelete({ _id: id, created_by: req.userId });
