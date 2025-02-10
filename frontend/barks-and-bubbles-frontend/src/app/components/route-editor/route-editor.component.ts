@@ -57,7 +57,7 @@ export class RouteEditorComponent {
   });
   msg = '';
 
-  constructor(private DataService: DataService) {
+  constructor(private readonly DataService: DataService) {
     this.DataService.routes$.subscribe((routes) => {
       this.routes = routes.data;
       this.routeForm.reset();
