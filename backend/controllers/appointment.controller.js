@@ -232,12 +232,6 @@ class AppointmentController {
       const app = await Appointment.findOne({ _id: appId }).select('route scheduler name serviceAreas')
         .populate('route').lean();
 
-      // const pet = await Client.findOne({ _id: petId, created_by: req.userId }).lean();
-
-      // if (!pet) {
-      //   return res.status(404).json({ message: `Client not found` });
-      // }
-
       if (!app) {
         return res.status(404).json({ message: `Appointment not found` });
       }
