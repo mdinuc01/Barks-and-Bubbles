@@ -227,19 +227,23 @@ class AppointmentController {
 
   async deleteReply(req, res) {
     try {
-      const { appId, petId } = req.body;
+      const { appId, petId, serviceArea } = req.body;
 
       const app = await Appointment.findOne({ _id: appId }).select('route scheduler name serviceAreas')
         .populate('route').lean();
 
-      const pet = await Client.findOne({ _id: petId, created_by: req.userId }).lean();
+      // const pet = await Client.findOne({ _id: petId, created_by: req.userId }).lean();
+
+      // if (!pet) {
+      //   return res.status(404).json({ message: `Client not found` });
+      // }
 
       if (!app) {
         return res.status(404).json({ message: `Appointment not found` });
       }
 
       let scheduler = app.scheduler;
-      let areaIndex = scheduler.findIndex((area) => area.name == pet.serviceArea);
+      let areaIndex = scheduler.findIndex((area) => area.name == serviceArea);
 
       scheduler[areaIndex].replies = scheduler[areaIndex].replies.map((reply) => {
         if (reply.id == petId) {
@@ -262,7 +266,6 @@ class AppointmentController {
       return res.status(200).json({ message: `Client reply deleted successfully!`, data });
 
     } catch (error) {
-      console.log({ error })
       return res.status(500).json({ message: "Internal Server Error", error });
 
     }
