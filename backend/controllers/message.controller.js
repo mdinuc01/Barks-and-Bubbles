@@ -26,7 +26,8 @@ class MessageController {
       }
 
       const { date, appId } = req.body;
-      const clients = await Client.find({ created_by: req.userId });
+      let clients = await Client.find({ created_by: req.userId });
+      clients = clients.filter(client => client.type.includes("Nail Trimming"));
       let app = await Appointment.findOne({ _id: appId }).populate('route', 'serviceAreas');
       let areas = app?.route?.serviceAreas.map(a => a.name) || [];
       const messageObj = await Builder.findOne({ name: "First Message" });
@@ -52,7 +53,6 @@ class MessageController {
       } else {
         return res.status(404).json({ message: "No pets or appointment data found." });
       }
-
       if (os.platform() !== 'darwin') {
         return res.status(500).json({ message: "Messaging is only supported on macOS." });
       }
