@@ -12,6 +12,7 @@ router.get('/clientsWithLocations/:id', clientController.getAllClientsWithLocati
 router.post('/add', clientController.createClient);
 router.put('/status', clientController.setActivate);
 router.put('/update/:id', clientController.updateClient);
+router.put('/client-order-change', clientController.updateClientOrder);
 
 router.delete('/delete/:id', clientController.deleteClient);
 

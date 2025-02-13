@@ -10,14 +10,6 @@ const clientScheme = mongoose.Schema(
       type: String,
       required: true
     },
-    animalType: {
-      type: String,
-      required: true
-    },
-    breed: {
-      type: String,
-      required: true
-    },
     petName: {
       type: String,
       required: true
