@@ -1,0 +1,72 @@
+.area-layout {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  grid-template-rows: 1fr 0.5fr;
+
+  gap: 0.5em;
+  height: 100%;
+}
+
+.area-card-container {
+  display: grid;
+  gap: 0.5em;
+  height: 25em;
+  max-height: 25em;
+  padding: 0.5em 0.5em 0 0;
+
+  mat-card {
+    height: 5em;
+  }
+
+  mat-card:hover {
+    cursor: pointer;
+  }
+}
+
+.overflow {
+  overflow-y: scroll;
+}
+
+mat-card[cdkDrag] {
+  overflow-y: hidden;
+}
+
+.client-card-layout {
+  display: grid;
+  gap: 1em;
+}
+
+.save-btn {
+  display: flex;
+  grid-column: 2;
+  justify-content: flex-end;
+}
+
+.error-msg {
+  background-color: #c4c4c4;
+  color: black;
+  width: 100%;
+  height: 100%;
+  border-radius: 1em;
+  display: flex;
+  align-content: center;
+  flex-wrap: wrap;
+  margin-left: 0.25em;
+  font-weight: bold;
+  justify-content: center;
+  flex-direction: column;
+  padding: 1em;
+  align-items: center;
+  text-align: center;
+  grid-row: 1 /40;
+}
+
+.mdc-card__actions {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  box-sizing: border-box;
+  min-height: 52px;
+  padding: 8px;
+  justify-content: flex-end;
+}

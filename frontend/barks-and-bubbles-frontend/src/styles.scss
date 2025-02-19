@@ -35,6 +35,10 @@ $my-theme: mat.define-light-theme(
   background-color: mat.get-color-from-palette($my-warn, 500) !important;
 }
 
+.selected-area-card {
+  background-color: mat.get-color-from-palette($my-primary, 200) !important;
+  font-weight: bold;
+}
 .panel-header-primary {
   color: white !important;
   margin: 0.5em !important;
