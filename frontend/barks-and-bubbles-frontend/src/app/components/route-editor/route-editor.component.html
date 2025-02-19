@@ -48,6 +48,7 @@
     <h3>Routes:</h3>
     <ng-container *ngFor="let route of routes; index as i">
       <mat-expansion-panel hideToggle
+                           *ngIf="route.name != 'control'"
                            [expanded]="step() === i"
                            (opened)="setStep(i)">
         <mat-expansion-panel-header *ngIf="!route.edit">
