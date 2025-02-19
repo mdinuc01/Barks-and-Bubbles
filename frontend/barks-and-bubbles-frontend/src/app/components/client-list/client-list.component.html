@@ -33,6 +33,12 @@
           <mat-option *ngFor="let route of routes"
                       [value]="route">{{ route.name }}</mat-option>
         </mat-optgroup>
+
+        <mat-optgroup [label]="'Services'"
+                      style="background-color: grey;">
+          <mat-option *ngFor="let service of services"
+                      [value]="service">{{ service }}</mat-option>
+        </mat-optgroup>
       </mat-select>
     </mat-form-field>
 
@@ -42,6 +48,15 @@
           matTooltip="Open Route Editor"
           (click)="openRouteEditor()">
     <mat-icon class="mat-accent-icon-btn">route</mat-icon>
+  </button>
+
+  <button mat-icon-button
+          matTooltip="Open Service Area Editor"
+          (click)="openServiceAreaEditor()"
+          [color]="'primary'">
+    <mat-icon [color]="'primary'">
+      signpost
+    </mat-icon>
   </button>
   <div></div>
 
@@ -53,11 +68,15 @@
             (click)="goToClient(client._id)">
     <mat-card-header>
       <mat-card-title>
-        <mat-icon matTooltip="{{client.active ? 'Deactivate Client' : 'Activate Client'}}"
-                  [ngClass]="{'mat-success-btn': client.active, 'mat-danger-btn': !client.active}"
-                  (click)="updateStatus($event, client._id, !client.active)">{{client.active ?
-          "mark_email_read" : "unsubscribe"}}</mat-icon>
-        <h2>{{client.petName}}</h2>
+        <div class="card-header">
+          <mat-icon matTooltip="{{client.active ? 'Deactivate Client' : 'Activate Client'}}"
+                    [ngClass]="{'mat-success-btn': client.active, 'mat-danger-btn': !client.active}"
+                    (click)="updateStatus($event, client._id, !client.active)">{{client.active ?
+            "mark_email_read" : "unsubscribe"}}</mat-icon>
+        </div>
+        <h2 *ngIf="client.petName">{{client.petName}}</h2>
+        <h2 *ngIf="!client.petName"
+            style="color: white">No pets</h2>
       </mat-card-title>
     </mat-card-header>
 
@@ -70,6 +89,24 @@
         formatNumber(client.contactMethod)}}</p>
       <p>Service Area: {{client.serviceArea}}</p>
     </mat-card-content>
+
+    <mat-card-actions align="end">
+      <mat-icon *ngIf="client.type.includes('Boarding')"
+                matTooltip="Boarding Client"
+                [color]="'primary'">
+        home
+      </mat-icon>
+
+      <mat-icon *ngIf="client.type.includes('Grooming')"
+                matTooltip="Grooming Client"
+                [color]="'primary'">
+        content_cut
+      </mat-icon>
+
+      <mat-icon *ngIf="client.type.includes('Nail Trimming')"
+                matTooltip="Nail Trimming Client"
+                [color]="'primary'">pets</mat-icon>
+    </mat-card-actions>
   </mat-card>
 </div>
 

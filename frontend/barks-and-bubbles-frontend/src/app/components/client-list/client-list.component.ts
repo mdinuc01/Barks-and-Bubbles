@@ -39,7 +39,9 @@ export class ClientListComponent implements OnInit {
   clientsQry: any[] = [];
   isAscending = true;
   serviceAreas: any[] = [];
+  serviceAreasObj: any[] = [];
   routes: any[] = [];
+  services = ['Boarding', 'Grooming', 'Nail Trimming'];
   queryForm: FormGroup = new FormGroup({
     clientQuery: new FormControl(null),
     locationQuery: new FormControl(null),
@@ -60,18 +62,76 @@ export class ClientListComponent implements OnInit {
         this.clientsQry = res.data;
       }
 
+      if (
+        this.routes &&
+        this.routes.length &&
+        this.clients &&
+        this.clients.length
+      ) {
+        this.orderClients();
+      }
+
       if (res.message == 'Client created')
         this.ToastService.showSuccess('Pet Added Successfully!');
     });
 
     this.DataService.routes$.subscribe((routes) => {
-      this.routes = routes.data;
+      this.routes = routes.data.filter(
+        (r: { name: string }) => r.name != 'control'
+      );
     });
+
     this.DataService.serviceAreas$.subscribe((areas) => {
       this.serviceAreas = areas;
+
+      if (
+        this.routes &&
+        this.routes.length &&
+        this.clients &&
+        this.clients.length
+      ) {
+        this.orderClients();
+      }
     });
 
     this.DataService.getAllPets();
+  }
+
+  orderClients() {
+    let serviceAreasMap = new Map();
+
+    for (const route of this.routes) {
+      for (const s of route.serviceAreas) {
+        if (!serviceAreasMap.has(s.name)) {
+          let clients = this.clients.filter((c) => c.serviceArea == s.name);
+          if (clients.length)
+            serviceAreasMap.set(s.name, {
+              name: s.name,
+              time: s.time,
+              increment: s.increment,
+              length: s.length,
+              clients,
+            });
+        }
+      }
+    }
+
+    this.serviceAreasObj = Array.from(serviceAreasMap.values());
+
+    //sort serviceArea clients by order value
+    this.serviceAreasObj = this.serviceAreasObj.map((area) => {
+      let sortedClients = area.clients.sort(
+        (a: { order: number }, b: { order: number }) => {
+          if (a.order < b.order) {
+            return -1;
+          } else if (a.order > b.order) {
+            return 1;
+          }
+          return 0;
+        }
+      );
+      return { ...area, clients: sortedClients };
+    });
   }
 
   formatNumber(number: string): string {
@@ -100,7 +160,16 @@ export class ClientListComponent implements OnInit {
     // Retrieve the values from the form controls
     const clientQuery =
       this.queryForm.get('clientQuery')?.value?.toLowerCase() || '';
-    const locationQuery = this.queryForm.get('locationQuery')?.value || [];
+    let locationQuery = this.queryForm.get('locationQuery')?.value || [];
+    let servicesQuery: string[] = [];
+
+    this.services.forEach((s) => {
+      if (locationQuery.includes(s)) {
+        servicesQuery.push(s);
+        locationQuery = locationQuery.filter((l: string) => l != s);
+      }
+    });
+
     // Filter by client query if it exists
     //removed breed and address as these values can be null an causes issues
     if (clientQuery) {
@@ -129,6 +198,11 @@ export class ClientListComponent implements OnInit {
         (c) =>
           locationQuery.includes(c.serviceArea) ||
           allAreas.includes(c.serviceArea)
+      );
+    }
+    if (servicesQuery.length) {
+      this.clientsQry = this.clientsQry.filter((c) =>
+        c.type.some((type: any) => servicesQuery.includes(type))
       );
     }
   }
@@ -162,6 +236,29 @@ export class ClientListComponent implements OnInit {
     if (result || !result) {
       this.DataService.getAllRoutes();
       this.DataService.getAllAppointments();
+      this.resetFilter();
+    }
+  }
+
+  async openServiceAreaEditor() {
+    const dialogRef = this.dialog.open(PanelService, {
+      data: {
+        title: 'Edit Service Areas',
+        confirmMsg: '',
+        subMsg: '',
+        btnTitle: 'Save',
+        isMsgEditor: true,
+        panelType: 'serviceAreaEditor',
+        serviceAreas: this.serviceAreasObj,
+        routes: this.routes,
+      },
+    });
+
+    const result = await lastValueFrom(dialogRef.afterClosed());
+
+    if (result || !result) {
+      await this.DataService.getAllPets();
+      this.orderClients();
       this.resetFilter();
     }
   }
