@@ -90,6 +90,10 @@ export class ClientPageComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
+    this.activatedRoute.queryParams.subscribe((params) => {
+      this.editMode = params['newClient'] === 'true';
+    });
+
     this.DataService.showLoader();
     this.DataService.clients$.subscribe((res) => {
       if (res.data) {
