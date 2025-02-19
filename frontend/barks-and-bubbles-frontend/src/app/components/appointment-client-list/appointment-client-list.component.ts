@@ -45,7 +45,7 @@ export class AppointmentClientListComponent implements OnInit {
     clientQuery: new FormControl(null),
   });
 
-  constructor(private DataService: DataService) {}
+  constructor(private readonly DataService: DataService) {}
 
   ngOnInit() {
     this.DataService.petsWithLocation$.subscribe((response) => {
@@ -112,7 +112,20 @@ export class AppointmentClientListComponent implements OnInit {
   }
 
   getObjectValue(obj: any): any[] {
-    return Object.values(obj);
+    let clientList: any[] = Object.values(obj);
+
+    clientList[0] = clientList[0].sort(
+      (a: { order: number }, b: { order: number }) => {
+        if (a.order < b.order) {
+          return -1;
+        } else if (a.order > b.order) {
+          return 1;
+        }
+        return 0;
+      }
+    );
+
+    return clientList;
   }
 
   getNumOfClients(obj: [any]) {
@@ -128,7 +141,6 @@ export class AppointmentClientListComponent implements OnInit {
 
   async addPetToReplyList(clientId: string) {
     this.DataService.addToReply(this.appointment.app._id, clientId);
-    // await this.DataService.getAppointmentById(this.appointment.app._id);
     this.DataService.panelSubject.next(false);
   }
 

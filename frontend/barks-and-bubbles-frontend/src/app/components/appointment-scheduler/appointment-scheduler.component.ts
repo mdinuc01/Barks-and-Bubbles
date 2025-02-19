@@ -17,12 +17,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { ReactiveFormsModule } from '@angular/forms';
 import { MatInputModule } from '@angular/material/input';
 import { SchedulerEditorComponent } from '../scheduler-editor/scheduler-editor.component';
-import {
-  CdkDragDrop,
-  moveItemInArray,
-  CdkDrag,
-  CdkDropList,
-} from '@angular/cdk/drag-drop';
+import { moveItemInArray, CdkDrag, CdkDropList } from '@angular/cdk/drag-drop';
 
 interface Reply {
   defaultTime: boolean;
@@ -159,29 +154,132 @@ export class AppointmentSchedulerComponent implements OnInit {
   }
 
   filterByTime(data: any[], time: string | null): any[] {
-    let matchingReplies: any[] = [];
-    let repliesWithMatchingTime: any[];
+    if (!data || data.length === 0 || !this.petsWithLocations) return [];
+    let groupedReplies: { [key: string]: any[] } = {};
 
-    if (time == '' && data && data.length) {
-      repliesWithMatchingTime = data.filter(
-        (reply) => reply['time'] == null && !reply.delete
-      );
-      return repliesWithMatchingTime;
-    }
+    // Extract service areas and client data correctly
+    let serviceAreaOrder = this.petsWithLocations.map(
+      (areaObj: {}) => Object.keys(areaObj)[0]
+    ); // Extracts service area names
+    let serviceAreaClients = this.petsWithLocations.reduce(
+      (acc: { [x: string]: any }, areaObj: { [x: string]: any }) => {
+        let areaName = Object.keys(areaObj)[0];
+        acc[areaName] = areaObj[areaName]; // Stores client data for each service area
+        return acc;
+      },
+      {} as { [key: string]: any[] }
+    );
 
-    if (data)
-      data.forEach((location) => {
-        if (location && location.replies && location.replies.length) {
-          repliesWithMatchingTime = location.replies.filter(
-            (reply: { delete: boolean; time: string | null }) =>
-              reply.time === time && !reply.delete
+    // Initialize groups based on service areas
+    serviceAreaOrder.forEach((area: string | number) => {
+      groupedReplies[area] = [];
+    });
+
+    data.forEach((location) => {
+      if (location.replies && location.replies.length) {
+        location.replies.forEach(
+          (reply: { time: string | null; delete: any; serviceArea: any }) => {
+            if (
+              time == '' ? !reply.time : reply.time === time && !reply.delete
+            ) {
+              let serviceArea = reply.serviceArea;
+              if (groupedReplies[serviceArea]) {
+                groupedReplies[serviceArea].push(reply);
+              }
+            }
+          }
+        );
+      }
+    });
+
+    // Sort replies within each service area based on order in petsWithLocations
+    for (let area of serviceAreaOrder) {
+      if (groupedReplies[area].length > 0) {
+        groupedReplies[area].sort((a, b) => {
+          let clientA = serviceAreaClients[area].find(
+            (client: { _id: any }) => client._id === a.id
+          );
+          let clientB = serviceAreaClients[area].find(
+            (client: { _id: any }) => client._id === b.id
           );
 
-          matchingReplies = matchingReplies.concat(repliesWithMatchingTime);
-        }
-      });
+          let orderA = a.order ?? clientA?.order ?? Infinity;
+          let orderB = b.order ?? clientB?.order ?? Infinity;
 
-    return matchingReplies;
+          return orderA - orderB;
+        });
+      }
+    }
+
+    // Flatten the sorted replies into a single array
+    return serviceAreaOrder.flatMap(
+      (area: string | number) => groupedReplies[area]
+    );
+  }
+
+  filterUnscheduled(data: any[], serviceArea: string): any[] {
+    if (!data || data.length === 0 || !this.petsWithLocations) return [];
+    let groupedReplies: { [key: string]: any[] } = {};
+
+    // Extract service areas and client data correctly
+    let serviceAreaOrder = this.petsWithLocations.map(
+      (areaObj: {}) => Object.keys(areaObj)[0]
+    ); // Extracts service area names
+    let serviceAreaClients = this.petsWithLocations.reduce(
+      (acc: { [x: string]: any }, areaObj: { [x: string]: any }) => {
+        let areaName = Object.keys(areaObj)[0];
+        acc[areaName] = areaObj[areaName]; // Stores client data for each service area
+        return acc;
+      },
+      {} as { [key: string]: any[] }
+    );
+
+    // Initialize groups based on service areas
+    serviceAreaOrder.forEach((area: string) => {
+      groupedReplies[area] = [];
+    });
+
+    data.forEach((location) => {
+      if (location.replies && location.replies.length) {
+        location.replies.forEach(
+          (reply: {
+            time: string | null;
+            delete: boolean;
+            serviceArea: string;
+          }) => {
+            if (
+              reply.time === null &&
+              reply.serviceArea === serviceArea &&
+              !reply.delete
+            ) {
+              if (groupedReplies[serviceArea]) {
+                groupedReplies[serviceArea].push(reply);
+              }
+            }
+          }
+        );
+      }
+    });
+
+    // Sort replies within the given service area based on order in petsWithLocations
+    if (groupedReplies[serviceArea]?.length > 0) {
+      groupedReplies[serviceArea].sort((a, b) => {
+        let clientA = serviceAreaClients[serviceArea].find(
+          (client: { _id: any }) => client._id === a.id
+        );
+        let clientB = serviceAreaClients[serviceArea].find(
+          (client: { _id: any }) => client._id === b.id
+        );
+
+        let orderA = a.order ?? clientA?.order ?? Infinity;
+        let orderB = b.order ?? clientB?.order ?? Infinity;
+
+        return orderA - orderB;
+      });
+    }
+
+    // Return sorted replies for the given service area
+    return groupedReplies[serviceArea] || [];
   }
 
   filterAndRemoveByTime(time: string | null): any[] {
@@ -353,71 +451,6 @@ export class AppointmentSchedulerComponent implements OnInit {
     return initials.substring(0, 2);
   }
 
-  toggleActiveCard(client: any, screenIndex: number, hour: string): void {
-    let index = 0;
-    this.scheduler.forEach((area) => {
-      if (area.name == client.serviceArea) {
-        index = area.replies.findIndex(
-          (reply: { id: any }) => reply.id == client.id
-        );
-      }
-    });
-
-    if (
-      (this.firstActiveCard && this.hourToSwitch !== hour) ||
-      (this.activeReplies && this.activeReplies.name !== client.serviceArea)
-    ) {
-      this.firstActiveCard = {
-        index,
-        screenIndex,
-      };
-      this.secondActiveCard = null;
-      this.hourToSwitch = hour;
-      this.activeReplies = this.scheduler.find((r) => {
-        const clientFound = r.replies.some((a: { id: any }) => {
-          return a.id == client.id;
-        });
-        if (clientFound) return r;
-      });
-      return;
-    }
-
-    if (
-      this.firstActiveCard &&
-      this.firstActiveCard.screenIndex === screenIndex
-    ) {
-      this.firstActiveCard = null;
-      return;
-    }
-    if (
-      this.secondActiveCard &&
-      this.secondActiveCard.screenIndex === screenIndex
-    ) {
-      this.secondActiveCard = null;
-      return;
-    }
-
-    if (this.firstActiveCard == null) {
-      this.firstActiveCard = {
-        index,
-        screenIndex,
-      };
-    } else {
-      this.secondActiveCard = {
-        index,
-        screenIndex,
-      };
-    }
-
-    this.activeReplies = this.scheduler.find((r) => {
-      const clientFound = r.replies.some((a: { id: any }) => {
-        return a.id == client.id;
-      });
-      if (clientFound) return r;
-    });
-    this.hourToSwitch = hour;
-  }
-
   switchReplies(): void {
     if (this.firstActiveCard == null || this.secondActiveCard == null) {
       console.error('Active card indexes must be defined');
@@ -487,7 +520,6 @@ export class AppointmentSchedulerComponent implements OnInit {
 
   deleteClient(client: any, event: Event) {
     event.stopPropagation();
-    console.log('deleteClient()', { client });
-    this.DataService.deleteReply(this.appId, client.id);
+    this.DataService.deleteReply(this.appId, client.id, client.serviceArea);
   }
 }
