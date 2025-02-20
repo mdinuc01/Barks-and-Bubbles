@@ -121,7 +121,6 @@ export class ClientListComponent implements OnInit {
     }
 
     this.serviceAreasObj = Array.from(serviceAreasMap.values());
-    console.log({ o: this.serviceAreasObj });
     //sort serviceArea clients by order value
     this.serviceAreasObj = this.serviceAreasObj.map((area) => {
       let sortedClients = area.clients.sort(
