@@ -46,6 +46,7 @@ export class ClientListComponent implements OnInit {
     clientQuery: new FormControl(null),
     locationQuery: new FormControl(null),
   });
+  controlRoute: { serviceAreas: any[] } = { serviceAreas: [] };
 
   constructor(
     private readonly DataService: DataService,
@@ -79,6 +80,10 @@ export class ClientListComponent implements OnInit {
       this.routes = routes.data.filter(
         (r: { name: string }) => r.name != 'control'
       );
+
+      this.controlRoute = routes.data.find(
+        (r: { name: string }) => r.name == 'control'
+      );
     });
 
     this.DataService.serviceAreas$.subscribe((areas) => {
@@ -98,26 +103,25 @@ export class ClientListComponent implements OnInit {
   }
 
   orderClients() {
+    debugger;
     let serviceAreasMap = new Map();
 
-    for (const route of this.routes) {
-      for (const s of route.serviceAreas) {
-        if (!serviceAreasMap.has(s.name)) {
-          let clients = this.clients.filter((c) => c.serviceArea == s.name);
-          if (clients.length)
-            serviceAreasMap.set(s.name, {
-              name: s.name,
-              time: s.time,
-              increment: s.increment,
-              length: s.length,
-              clients,
-            });
-        }
+    for (const s of this.controlRoute.serviceAreas) {
+      if (!serviceAreasMap.has(s.name)) {
+        let clients = this.clients.filter((c) => c.serviceArea == s.name);
+        if (clients.length)
+          serviceAreasMap.set(s.name, {
+            name: s.name,
+            time: s.time,
+            increment: s.increment,
+            length: s.length,
+            clients,
+          });
       }
     }
 
     this.serviceAreasObj = Array.from(serviceAreasMap.values());
-
+    console.log({ o: this.serviceAreasObj });
     //sort serviceArea clients by order value
     this.serviceAreasObj = this.serviceAreasObj.map((area) => {
       let sortedClients = area.clients.sort(
