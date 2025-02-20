@@ -44,7 +44,6 @@ class ClientController {
       let controlRoute = await Route.findOne({ "name": "control", createdBy: req.userId }).lean();
       let order;
 
-      console.log({ controlRoute })
       const area = controlRoute.serviceAreas.find((area) => area.name == oldClient.serviceArea);
       if (!area) return; // Exit if the serviceArea does not exist
 
@@ -116,7 +115,6 @@ class ClientController {
         return res.status(404).json({ message: `Client not found` });
 
     } catch (error) {
-      console.log({ error })
       return res.status(500).json({ message: "Internal Server Error", error });
     }
 
