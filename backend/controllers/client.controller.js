@@ -41,10 +41,11 @@ class ClientController {
 
       let oldClient = await Client.findOne({ _id: id, created_by: req.userId }).lean();
 
-      let route = await Route.findOne({ "name": "control", createdBy: req.userId }).lean();
+      let controlRoute = await Route.findOne({ "name": "control", createdBy: req.userId }).lean();
       let order;
 
-      const area = route.serviceAreas.find((area) => area.name == oldClient.serviceArea);
+      console.log({ controlRoute })
+      const area = controlRoute.serviceAreas.find((area) => area.name == oldClient.serviceArea);
       if (!area) return; // Exit if the serviceArea does not exist
 
       const newLength = area.length - 1;
@@ -69,7 +70,7 @@ class ClientController {
         }
 
         //add to new serviceArea
-        const serviceAreaControlNew = await route.serviceAreas.find((area) => area.name == updatedData.serviceArea);
+        const serviceAreaControlNew = await controlRoute.serviceAreas.find((area) => area.name == updatedData.serviceArea);
 
         if (serviceAreaControlNew && serviceAreaControlNew.length) {
           order = serviceAreaControlNew.length;
