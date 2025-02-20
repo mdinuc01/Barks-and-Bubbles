@@ -68,7 +68,7 @@ export class DataService {
       .get<{
         message: string;
         data: any;
-      }>(`${this.apiEndPoint}/pet/`, {
+      }>(`${this.apiEndPoint}/client/`, {
         headers: this.headers,
       })
       .subscribe(
@@ -82,7 +82,6 @@ export class DataService {
 
           if (serviceAreas.length)
             serviceAreas = serviceAreas.sort((a, b) => a.localeCompare(b));
-
           this.serviceAreaSubject.next(serviceAreas);
           this.clientsSubject.next(response);
         },
@@ -104,12 +103,16 @@ export class DataService {
 
   addPet(data: any) {
     this.http
-      .post<{ data: any[] }>(`${this.apiEndPoint}/pet/add`, data, {
-        headers: this.headers,
-      })
+      .post<{ data: { clients: any[]; createdId: string } }>(
+        `${this.apiEndPoint}/client/add`,
+        data,
+        {
+          headers: this.headers,
+        }
+      )
       .subscribe((response) => {
         let serviceAreas: string[] = [];
-        response.data.forEach((client: { serviceArea: string }) => {
+        response.data.clients.forEach((client: { serviceArea: string }) => {
           if (!serviceAreas.includes(client.serviceArea)) {
             serviceAreas.push(client.serviceArea);
           }
@@ -120,12 +123,16 @@ export class DataService {
 
         this.serviceAreaSubject.next(serviceAreas);
         this.clientsSubject.next(response);
+
+        this.router.navigate(['client/', response.data.createdId], {
+          queryParams: { newClient: true },
+        });
       });
   }
 
-  deletePet(id: string) {
+  deleteClient(id: string) {
     this.http
-      .delete(`${this.apiEndPoint}/pet/delete/${id}`, {
+      .delete(`${this.apiEndPoint}/client/delete/${id}`, {
         headers: this.headers,
       })
       .subscribe((res: any) => {
@@ -275,7 +282,7 @@ export class DataService {
 
   getPetById(id: string) {
     this.http
-      .get(`${this.apiEndPoint}/pet/${id}`, {
+      .get(`${this.apiEndPoint}/client/${id}`, {
         headers: this.headers,
       })
       .subscribe((response) => {
@@ -283,10 +290,10 @@ export class DataService {
       });
   }
 
-  updatePet(id: string, data: any) {
+  updateClient(id: string, data: any) {
     this.http
       .put<{ data: any }>(
-        `${this.apiEndPoint}/pet/update/${id}`,
+        `${this.apiEndPoint}/client/update/${id}`,
         { data },
         { headers: this.headers }
       )
@@ -295,10 +302,24 @@ export class DataService {
       });
   }
 
+  updateClientOrder(clients: any) {
+    this.http
+      .put<{ updated: boolean; message: string }>(
+        `${this.apiEndPoint}/client/client-order-change/`,
+        { clients },
+        { headers: this.headers }
+      )
+      .subscribe((res) => {
+        if (res.updated) {
+          this.ToastService.showSuccess(res.message);
+        }
+      });
+  }
+
   updatePetStatus(id: any, status: any) {
     this.http
       .put<{ data: any[] }>(
-        `${this.apiEndPoint}/pet/status`,
+        `${this.apiEndPoint}/client/status`,
         {
           id,
           status,
@@ -318,7 +339,7 @@ export class DataService {
   updatePetStatusApp(id: any, status: any, appId: string) {
     this.http
       .put<{ data: any[] }>(
-        `${this.apiEndPoint}/pet/status`,
+        `${this.apiEndPoint}/client/status`,
         {
           id,
           status,
@@ -419,26 +440,33 @@ export class DataService {
       });
   }
 
-  deleteReply(appId: string, petId: string) {
+  deleteReply(appId: string, petId: string, serviceArea: string) {
     this.http
       .put<{
         message: string;
         data: any;
       }>(
         `${this.apiEndPoint}/appointment/deleteReply`,
-        { appId, petId },
+        { appId, petId, serviceArea },
         { headers: this.headers }
       )
-      .subscribe((response) => {
-        this.getAppointmentById(appId);
-        this.ToastService.showSuccess(response.message);
-      });
+      .subscribe(
+        (response) => {
+          console.log({ response });
+          this.getAppointmentById(appId);
+          this.ToastService.showSuccess(response.message);
+        },
+        async (error) => {
+          console.log({ error });
+          this.ToastService.showSuccess(error.error.message);
+        }
+      );
   }
 
   getPetsWithLocations(appId: string) {
     this.http
       .get<{ data: any[] }>(
-        `${this.apiEndPoint}/pet/petsWithLocations/${appId}`,
+        `${this.apiEndPoint}/client/clientsWithLocations/${appId}`,
         {
           headers: this.headers,
         }
@@ -533,7 +561,21 @@ export class DataService {
     return false;
   }
 
-  formatPhoneNumber(form: FormGroup, event?: KeyboardEvent) {
+  formatPhoneNumber(phoneNumber: string) {
+    let formatted = '';
+    if (phoneNumber.length > 0) {
+      formatted = `(${phoneNumber.substring(0, 3)}`;
+      if (phoneNumber.length >= 4) {
+        formatted += `) ${phoneNumber.substring(3, 6)}`;
+      }
+      if (phoneNumber.length >= 7) {
+        formatted += `-${phoneNumber.substring(6, 10)}`;
+      }
+    }
+
+    return formatted;
+  }
+  formatPhoneNumberWithKey(form: FormGroup, event?: KeyboardEvent) {
     const input = form.get('contactMethod');
 
     // Check if `input` exists and has a value

@@ -1,10 +1,12 @@
-<div class="dialog-panel">
+<div class="dialog-panel"
+     [ngClass]="{'service-area-panel': this.panelType == 'serviceAreaEditor'}">
   <div mat-dialog-title
        [ngClass]="{'panel-header-primary': this.headerType == 'primary', 'panel-header-danger': this.headerType == 'warn'}"
        style="width: 96%;">
     <h2>{{ data.title }}</h2>
   </div>
-  <mat-dialog-content [ngClass]="{'scroll' : this.panelType == 'msgEditor' || this.panelType == 'routeEditor'}">
+  <mat-dialog-content style="height: inherit;"
+                      [ngClass]="{'scroll' : this.panelType == 'msgEditor' || this.panelType == 'routeEditor', 'no-scroll': this.panelType == 'serviceAreaEditor'}">
     <p style="color: black;"
        [innerHTML]="data.confirmMsg">{{ data.confirmMsg }}</p>
     <p style="color: black;">{{ data.subMsg }}</p>
@@ -84,6 +86,11 @@
     <app-route-editor *ngIf="this.panelType == 'routeEditor'"
                       [serviceAreas]="serviceAreas"
                       [routes]="routes"></app-route-editor>
+
+    <app-service-area-editor *ngIf="this.panelType == 'serviceAreaEditor'"
+                             [serviceAreas]="serviceAreas"
+                             style="    height: -webkit-fill-available;
+    display: block;"></app-service-area-editor>
 
   </mat-dialog-content>
   <mat-dialog-actions align="end"

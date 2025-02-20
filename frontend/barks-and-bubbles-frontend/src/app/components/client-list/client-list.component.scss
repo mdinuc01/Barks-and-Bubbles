@@ -7,6 +7,20 @@ mat-card {
   cursor: pointer;
 }
 
+.card-header {
+  display: grid;
+  width: inherit;
+  grid-template-columns: 1fr 1fr;
+  justify-items: start;
+
+  div {
+    display: block !important;
+  }
+}
+.icon-layout {
+  justify-self: end;
+}
+
 .card-container {
   padding: 1.5em;
   overflow-y: scroll;

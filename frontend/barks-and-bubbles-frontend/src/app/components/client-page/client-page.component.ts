@@ -21,9 +21,11 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatChipsModule } from '@angular/material/chips';
 import { MatDialog } from '@angular/material/dialog';
 import { PanelService } from '../../services/panel service/panel-service';
 import { lastValueFrom } from 'rxjs/internal/lastValueFrom';
+import { MatCheckboxModule } from '@angular/material/checkbox';
 
 @Component({
   selector: 'app-client-page',
@@ -42,6 +44,8 @@ import { lastValueFrom } from 'rxjs/internal/lastValueFrom';
     MatCardModule,
     MatIconModule,
     MatTooltipModule,
+    MatChipsModule,
+    MatCheckboxModule,
   ],
   templateUrl: './client-page.component.html',
   styleUrl: './client-page.component.scss',
@@ -52,17 +56,31 @@ export class ClientPageComponent implements OnInit, OnDestroy {
   clientForm = new FormGroup({
     petParentName: new FormControl(null),
     contactMethod: new FormControl(''),
-    animalType: new FormControl(null),
-    breed: new FormControl(null),
-    petName: new FormControl(null),
+    // animalType: new FormControl(null),
+    // breed: new FormControl(null),
+    // petName: new FormControl(null),
     serviceArea: new FormControl(null),
     address: new FormControl(null),
     active: new FormControl(null),
   });
+
+  servicesForm = new FormGroup({
+    boarding: new FormControl(null),
+    grooming: new FormControl(null),
+    nail: new FormControl(null),
+  });
+
   breeds: string[] = [];
   filteredBreeds: string[] = [];
   private readonly apiUrl = 'https://dog.ceo/api/breeds/list/all';
   firstLoad = true;
+  editMode = false;
+  serviceTypes = [
+    { label: 'Boarding', form: 'boarding' },
+    { label: 'Grooming', form: 'grooming' },
+    { label: 'Nail Trimming', form: 'nail' },
+  ];
+
   constructor(
     public readonly DataService: DataService,
     private readonly activatedRoute: ActivatedRoute,
@@ -72,6 +90,10 @@ export class ClientPageComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
+    this.activatedRoute.queryParams.subscribe((params) => {
+      this.editMode = params['newClient'] === 'true';
+    });
+
     this.DataService.showLoader();
     this.DataService.clients$.subscribe((res) => {
       if (res.data) {
@@ -97,15 +119,21 @@ export class ClientPageComponent implements OnInit, OnDestroy {
           res.data.contactMethod,
           Validators.required
         ),
-        animalType: new FormControl(res.data.animalType, Validators.required),
-        breed: new FormControl(res.data.breed, Validators.required),
-        petName: new FormControl(res.data.petName, Validators.required),
+        // animalType: new FormControl(res.data.animalType, Validators.required),
+        // breed: new FormControl(res.data.breed, Validators.required),
+        // petName: new FormControl(res.data.petName, Validators.required),
         serviceArea: new FormControl(res.data.serviceArea, Validators.required),
         address: new FormControl(res.data.address, Validators.required),
         active: new FormControl(res.data.active, Validators.required),
       });
+
+      this.servicesForm = new FormGroup({
+        boarding: new FormControl(res.data.type.includes('Boarding')),
+        grooming: new FormControl(res.data.type.includes('Grooming')),
+        nail: new FormControl(res.data.type.includes('Nail Trimming')),
+      });
       if (res.data.contactMethod.toLowerCase() !== 'messenger')
-        this.DataService.formatPhoneNumber(this.clientForm);
+        this.DataService.formatPhoneNumberWithKey(this.clientForm);
       this.DataService.hideLoader();
     });
 
@@ -160,17 +188,23 @@ export class ClientPageComponent implements OnInit, OnDestroy {
     );
   }
 
-  updatePet() {
-    let updatedValues = this.clientForm.value;
+  updateClient() {
+    let updatedValues = { ...this.clientForm.value };
 
     let contactMethod = this.DataService.removeNumberFormat(
       updatedValues.contactMethod!
     );
-    updatedValues = {
-      ...updatedValues,
-      contactMethod,
-    };
-    this.DataService.updatePet(this.id, updatedValues);
+
+    let services = [];
+    if (this.servicesForm.value.boarding) services.push('Boarding');
+    if (this.servicesForm.value.grooming) services.push('Grooming');
+    if (this.servicesForm.value.nail) services.push('Nail Trimming');
+
+    updatedValues.contactMethod = contactMethod;
+    (updatedValues as any).type = services;
+
+    this.DataService.updateClient(this.id, updatedValues);
+    this.editMode = false;
   }
 
   async openDeletePanel() {
@@ -192,16 +226,45 @@ export class ClientPageComponent implements OnInit, OnDestroy {
     const result = await lastValueFrom(dialogRef.afterClosed());
 
     if (result) {
-      this.deletePet();
+      this.deleteClient();
     }
   }
 
-  deletePet() {
-    this.DataService.deletePet(this.id);
+  deleteClient() {
+    this.DataService.deleteClient(this.id);
   }
 
   updateStatus(event: Event, id: any, status: any) {
     event.stopPropagation();
     this.DataService.updatePetStatus(id, status);
+  }
+
+  resetForm() {
+    this.editMode = false;
+
+    this.clientForm = new FormGroup({
+      petParentName: new FormControl(
+        this.client.petParentName,
+        Validators.required
+      ),
+      contactMethod: new FormControl(
+        this.client.contactMethod,
+        Validators.required
+      ),
+      serviceArea: new FormControl(
+        this.client.serviceArea,
+        Validators.required
+      ),
+      address: new FormControl(this.client.address, Validators.required),
+      active: new FormControl(this.client.active, Validators.required),
+    });
+
+    this.DataService.formatPhoneNumberWithKey(this.clientForm);
+
+    this.servicesForm = new FormGroup({
+      boarding: new FormControl(this.client.type.includes('Boarding')),
+      grooming: new FormControl(this.client.type.includes('Grooming')),
+      nail: new FormControl(this.client.type.includes('Nail Trimming')),
+    });
   }
 }

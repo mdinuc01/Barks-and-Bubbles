@@ -1,20 +1,12 @@
 const mongoose = require('mongoose');
 
-const petScheme = mongoose.Schema(
+const clientScheme = mongoose.Schema(
   {
     petParentName: {
       type: String,
       required: true
     },
     contactMethod: {
-      type: String,
-      required: true
-    },
-    animalType: {
-      type: String,
-      required: true
-    },
-    breed: {
       type: String,
       required: true
     },
@@ -38,8 +30,22 @@ const petScheme = mongoose.Schema(
     active: {
       type: Boolean,
       default: true
+    },
+    pets: {
+      type: Array,
+      default: [],
+      required: true
+    },
+    type: {
+      type: Array,
+      default: [],
+      required: true
+    },
+    order: {
+      type: Number,
+      required: true
     }
   }
 )
 
-module.exports = mongoose.model("Pets", petScheme);
+module.exports = mongoose.model("Clients", clientScheme);

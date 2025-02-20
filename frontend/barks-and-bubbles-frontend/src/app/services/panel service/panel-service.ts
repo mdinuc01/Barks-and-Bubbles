@@ -1,7 +1,7 @@
 import { DataService } from './../data.service';
 import { Component, Inject, signal } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
-import { MatAccordion, MatExpansionModule } from '@angular/material/expansion';
+import { MatExpansionModule } from '@angular/material/expansion';
 
 import {
   MAT_DIALOG_DATA,
@@ -13,6 +13,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatCardModule } from '@angular/material/card';
 import { RouteEditorComponent } from '../../components/route-editor/route-editor.component';
+import { ServiceAreaEditorComponent } from '../../components/service-area-editor/service-area-editor.component';
 
 @Component({
   standalone: true,
@@ -27,6 +28,7 @@ import { RouteEditorComponent } from '../../components/route-editor/route-editor
     MatTooltipModule,
     MatCardModule,
     RouteEditorComponent,
+    ServiceAreaEditorComponent,
   ],
   styleUrl: './panel-service.scss',
 })
@@ -47,7 +49,7 @@ export class PanelService {
 
   //route editor
   routes: any[] | undefined;
-  serviceAreas: any[] | undefined;
+  serviceAreas: any[];
 
   step = signal(0);
 

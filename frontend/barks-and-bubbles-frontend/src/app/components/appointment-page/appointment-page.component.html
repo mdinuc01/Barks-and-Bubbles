@@ -77,20 +77,20 @@
       <h2 class="mat-primary-title"
           [innerHTML]="this.DataService.formatDate(this.appointment.app.date ,false, false)">TITLE PLACEHOLDER</h2>
     </mat-card-title>
-        <mat-card-title style="display: flex; justify-content: center;">
-          <button mat-icon-button
-                  color="accent"
-                  class="mat-accent"
-                  matTooltip="Load Responses"
-                  *ngIf="hasMessageSent() && this.appointment && this.appointment.app && this.appointment.app.messages && !this.appointment.app.scheduler.length"
-                  (click)="
+    <mat-card-title style="display: flex; justify-content: center;">
+      <button mat-icon-button
+              color="accent"
+              class="mat-accent"
+              matTooltip="Load Responses"
+              *ngIf="hasMessageSent() && this.appointment && this.appointment.app && this.appointment.app.messages && !this.appointment.app.scheduler.length"
+              (click)="
                 loadReplies()"
-                  [ngClass]="{'rotate-image': this.loadingReplies}">
-            <mat-icon [ngClass]="{'mat-accent-icon-btn': hasMessageSent()}">
-              sync
-            </mat-icon>
-          </button>
-         </mat-card-title>
+              [ngClass]="{'rotate-image': this.loadingReplies}">
+        <mat-icon [ngClass]="{'mat-accent-icon-btn': hasMessageSent()}">
+          sync
+        </mat-icon>
+      </button>
+    </mat-card-title>
 
     <app-appointment-scheduler *ngIf="this.appointment && this.appointment.app && this.appointment.app.messages && this.appointment.app.scheduler.length"
                                [clients]="this.appointment.app.messages.sentTo"
@@ -102,7 +102,8 @@
           style="width: 100%; height: 70vh">Appointment Messages not sent</h2>
     </div>
 
-    <div *ngIf="hasMessageSent() && this.appointment && this.appointment.app && this.appointment.app.messages && !this.appointment.app.scheduler.length">
+    <div
+         *ngIf="hasMessageSent() && this.appointment && this.appointment.app && this.appointment.app.messages && !this.appointment.app.scheduler.length">
       <h2 class="error-msg"
           style="width: 100%; height: 70vh">No Replies received, please reload</h2>
     </div>

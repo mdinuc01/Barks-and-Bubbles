@@ -1,0 +1,55 @@
+<div class="area-layout">
+  <div class="area-card-container scroll overflow">
+    <h3>Service Areas:</h3>
+    <mat-card *ngFor="let area of serviceAreas"
+              (click)="selectArea(area)"
+              [ngClass]="{'selected-area-card': this.selectedServiceArea && this.selectedServiceArea.name == area.name}">
+      <mat-card-header>
+        <mat-card-title>{{area.name}}</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>Total Clients: {{area.clients.length}}</mat-card-content>
+    </mat-card>
+  </div>
+
+  <div class=" area-card-container"
+       [ngClass]="{scroll: this.selectedServiceArea && this.selectedServiceArea.clients.length, overflow: this.selectedServiceArea && this.selectedServiceArea.clients.length}">
+    <div *ngIf="this.selectedServiceArea">
+      <h3 *ngIf="this.selectedServiceArea.clients && this.selectedServiceArea.clients.length">
+        {{this.selectedServiceArea.name}} Clients:</h3>
+      <div cdkDropList
+           [cdkDropListData]="this.selectedServiceArea.clients"
+           (cdkDropListDropped)="drop($event)"
+           class="client-card-layout ">
+        <mat-card *ngFor="let client of this.selectedServiceArea.clients"
+                  cdkDrag>
+          <mat-card-header>
+            <mat-card-title>
+              {{ client.petParentName }}
+            </mat-card-title>
+          </mat-card-header>
+
+          <mat-card-actions>
+            <mat-icon style="color: grey;">drag_handle</mat-icon>
+          </mat-card-actions>
+        </mat-card>
+      </div>
+    </div>
+
+    <p class="error-msg"
+       *ngIf="this.selectedServiceArea && !this.selectedServiceArea.clients.length">No clients have a service area of
+      {{this.selectedServiceArea.name}}</p>
+
+    <p class="error-msg"
+       *ngIf="!this.selectedServiceArea">Service Area not selected</p>
+  </div>
+
+  <div class="save-btn">
+    <button mat-icon-button
+            color="primary"
+            class="save-btn"
+            matTooltip="Save Service Area"
+            [disabled]="!this.selectedServiceArea"
+            (click)="this.saveClients()">
+      <mat-icon>save</mat-icon></button>
+  </div>
+</div>
